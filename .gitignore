@@ -4,3 +4,6 @@ data/*.sqlite*
 
 # Segredos locais
 .env
+
+# Configuração local da Vercel (gerada pela CLI)
+.vercel
