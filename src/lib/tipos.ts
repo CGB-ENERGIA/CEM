@@ -23,7 +23,8 @@ export interface Materiais {
 
 export interface Equipe {
   prefixo: string;
-  tipoId: string;
+  // Nulo nas equipes importadas da planilha, até o tipo ser definido.
+  tipoId: string | null;
 }
 
 // Como o inspetor informa cada item: quantos foram encontrados e quantos estão com defeito.
@@ -70,7 +71,7 @@ export interface BlitzResumo {
 
 export interface RankingEquipe {
   prefixo: string;
-  tipoId: string;
+  tipoId: string | null;
   blitzes: number;
   ultimaData: string | null;
   conforme: boolean | null;

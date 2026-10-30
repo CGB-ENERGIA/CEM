@@ -4,7 +4,7 @@
   interface Props {
     valor?: string;
     equipes: Equipe[];
-    nomeTipo: (id: string) => string;
+    nomeTipo: (id: string | null) => string;
     id?: string;
     aoSelecionar?: (equipe: Equipe) => void;
   }

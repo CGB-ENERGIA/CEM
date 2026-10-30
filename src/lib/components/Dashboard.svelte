@@ -39,7 +39,8 @@
     }
   }
 
-  function nomeTipo(id: string): string {
+  function nomeTipo(id: string | null): string {
+    if (!id) return "Sem tipo";
     return materiais.tipos.find((tipo) => tipo.id === id)?.nome ?? id;
   }
 

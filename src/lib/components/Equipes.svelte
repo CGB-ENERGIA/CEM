@@ -27,7 +27,8 @@
     if (ativo) carregar();
   });
 
-  function nomeTipo(id: string): string {
+  function nomeTipo(id: string | null): string {
+    if (!id) return "Sem tipo";
     return materiais.tipos.find((tipo) => tipo.id === id)?.nome ?? id;
   }
 
@@ -134,9 +135,12 @@
             <td>
               <select
                 aria-label={`Tipo da equipe ${equipe.prefixo}`}
-                value={equipe.tipoId}
+                value={equipe.tipoId ?? ""}
                 onchange={(evento) => alterarTipo(equipe.prefixo, evento.currentTarget.value)}
               >
+                {#if !equipe.tipoId}
+                  <option value="" disabled>Definir tipo</option>
+                {/if}
                 {#each materiais.tipos as tipo (tipo.id)}
                   <option value={tipo.id}>{tipo.nome}</option>
                 {/each}

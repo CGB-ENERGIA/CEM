@@ -115,7 +115,8 @@
     }
   });
 
-  function nomeTipo(id: string): string {
+  function nomeTipo(id: string | null): string {
+    if (!id) return "Sem tipo";
     return materiais.tipos.find((tipo) => tipo.id === id)?.nome ?? id;
   }
 
@@ -413,7 +414,7 @@
 
         <label class="rotulo">
           Tipo de equipe
-          <select bind:value={tipoEscolhido} disabled={Boolean(equipeCadastrada)} required>
+          <select bind:value={tipoEscolhido} disabled={Boolean(equipeCadastrada?.tipoId)} required>
             <option value="" disabled>Selecione o tipo</option>
             {#each materiais.tipos as tipo (tipo.id)}
               <option value={tipo.id}>{tipo.nome}</option>
@@ -422,8 +423,10 @@
         </label>
       </div>
       <p class="nota">
-        {#if equipeCadastrada}
+        {#if equipeCadastrada?.tipoId}
           Equipe cadastrada como <strong>{tipoNome}</strong>.
+        {:else if equipeCadastrada}
+          Equipe cadastrada sem tipo: escolha o tipo. Ele será gravado com esta blitz.
         {:else if prefixoNormalizado}
           Prefixo novo: será cadastrado com o tipo selecionado.
         {:else}
