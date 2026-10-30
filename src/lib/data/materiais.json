@@ -1,0 +1,4530 @@
+{
+  "tipos": [
+    {
+      "id": "a1-moto",
+      "nome": "A1 - MOTO"
+    },
+    {
+      "id": "gere",
+      "nome": "GERE"
+    },
+    {
+      "id": "servicos-comerciais",
+      "nome": "SERVIÇOS COMERCIAIS"
+    },
+    {
+      "id": "plantao",
+      "nome": "PLANTÃO"
+    },
+    {
+      "id": "a3-lm-const-manut-redes",
+      "nome": "A3 - LM CONST./MANUT. REDES"
+    },
+    {
+      "id": "tat",
+      "nome": "TAT"
+    },
+    {
+      "id": "construcao",
+      "nome": "CONSTRUÇÃO"
+    },
+    {
+      "id": "linha-viva",
+      "nome": "LINHA VIVA"
+    },
+    {
+      "id": "poda-lm",
+      "nome": "PODA LM"
+    },
+    {
+      "id": "poda",
+      "nome": "PODA"
+    },
+    {
+      "id": "equipamentos",
+      "nome": "EQUIPAMENTOS"
+    }
+  ],
+  "itens": [
+    {
+      "id": 1,
+      "grupo": "EPC",
+      "descricao": "Arco De Serra Fixo 12Pol Amarelo Tramontina 43301012",
+      "preco": 25.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 2,
+      "grupo": "EPC",
+      "descricao": "Alavanca De Aço Vergalhão Corrugada 1 X1,80Mts",
+      "preco": 128.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 3,
+      "grupo": "EPI",
+      "descricao": "Alicate Bomba D Água De 9.1/2 Pol. Com Isolamento Belzer 219161Br",
+      "preco": 91.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 4,
+      "grupo": "EPC",
+      "descricao": "Alicate Bomba D Água De 9.1/2 Pol. Com Isolamento Belzer 219161Br",
+      "preco": 91.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 5,
+      "grupo": "EPC",
+      "descricao": "Alicate Corte Diagonal 6 Pol Isolado Tramontina Pro 1.000 V",
+      "preco": 55.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 6,
+      "grupo": "EPC",
+      "descricao": "Alicate Crimpador Hidraulico Acv300 Com 12 Matrizes E Maleta",
+      "preco": 800.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 7,
+      "grupo": "EPC",
+      "descricao": "Alicate De Bico Meia Cana 6 Pol Isolado Tramontina Pro 1.000V",
+      "preco": 55.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 8,
+      "grupo": "EPC",
+      "descricao": "Alicate Rebitador Profissional Tipo Alavanca 17 Fertak Tools",
+      "preco": 88.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 9,
+      "grupo": "EPI",
+      "descricao": "Alicate Universal 8 Pol. Com Cabo De Isolamento 1000V Tramontinapro 44000108",
+      "preco": 55.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 10,
+      "grupo": "EPC",
+      "descricao": "Alicate Volt Amperímetro De 20A 1000A (Et.3111)",
+      "preco": 242.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 11,
+      "grupo": "EPC",
+      "descricao": "Apito Profissional Sabia C/ Cordao E Mosquetao 08104 Cor Preta",
+      "preco": 35.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 12,
+      "grupo": "EPC",
+      "descricao": "Arco De Serra Isolado 1000V",
+      "preco": 488.3465,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 13,
+      "grupo": "EPI",
+      "descricao": "Balaclava De Segurança Atpv De 8,6 Cal/Cm², Com Gramatura Nominal De 7,96 Oz/Yd².",
+      "preco": 224.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 14,
+      "grupo": "EPI",
+      "descricao": "Balde De Lona Nº10 Para Içar Ferramentas",
+      "preco": 28.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 15,
+      "grupo": "EPC",
+      "descricao": "Balde De Lona Nº10 Para Içar Ferramentas",
+      "preco": 28.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 16,
+      "grupo": "EPC",
+      "descricao": "Bandeirola Em Cor Laranja Para Sinalização",
+      "preco": 8.5,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 8,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 4,
+        "construcao": 12,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 17,
+      "grupo": "EPC",
+      "descricao": "Banqueta Isolada Com Piso Antiderrapante Para 40 Kv Flv21504.1",
+      "preco": 650.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 18,
+      "grupo": "EPC",
+      "descricao": "Bastão Auxiliar Para Movimentar Poste Com Cabo Antiderrapante Tam 1650Mm",
+      "preco": 1440.72,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 19,
+      "grupo": "EPC",
+      "descricao": "Bastão Cortador De Ramal",
+      "preco": 590.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 1,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 20,
+      "grupo": "EPC",
+      "descricao": "Bastão De Aterramento Temporário Para Redes Secundárias De Baixa Tensão Com 5 Garras",
+      "preco": 196.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 4,
+        "a3-lm-const-manut-redes": 4,
+        "tat": 4,
+        "construcao": 4,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 21,
+      "grupo": "EPC",
+      "descricao": "Bastão De Tração Espiral 0,8M",
+      "preco": 2490.52,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 22,
+      "grupo": "EPC",
+      "descricao": "Bastão Pega Tudo De Fibra Tamanho 3 Metros",
+      "preco": 450.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 23,
+      "grupo": "EPC",
+      "descricao": "Bastão Podador Com Encaixa Universal",
+      "preco": 260.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 24,
+      "grupo": "EPC",
+      "descricao": "Bastão Separador De Cordas 50 Cm Flv04803-1",
+      "preco": 774.1,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 25,
+      "grupo": "EPC",
+      "descricao": "Bloqueador De Chave Fusível",
+      "preco": 110.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 3,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 3,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 26,
+      "grupo": "EPI",
+      "descricao": "Bolsa De Lona Para Transporte E Guarda De Luvas Nº10",
+      "preco": 20.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 3,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 3,
+        "construcao": 3,
+        "linha-viva": 3,
+        "poda-lm": 3,
+        "poda": 3,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 27,
+      "grupo": "EPC",
+      "descricao": "Bolsa Para Acondicionamento Bastão De Aterramento De Baixa Tensão Com 2 Lugares Nº 10",
+      "preco": 45.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 28,
+      "grupo": "EPC",
+      "descricao": "Bolsa Para Acondicionamento De Manga Isolante Nº10",
+      "preco": 42.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 29,
+      "grupo": "EPI",
+      "descricao": "Bolsa Para Acondicionamento De Manga Isolante Nº10",
+      "preco": 42.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 2,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 30,
+      "grupo": "EPI",
+      "descricao": "Bolsa Para Acondicionamento Dos Epis Com Porta Cadeado Nº10",
+      "preco": 75.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 31,
+      "grupo": "EPC",
+      "descricao": "Bolsa Para Acondicionamento Manta Isolante Classe 0 Com 10 Compartimento Nº 10",
+      "preco": 55.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 32,
+      "grupo": "EPC",
+      "descricao": "Bolsa Para Acondicionamento Vara De Manobra 5 Elementos Nº10",
+      "preco": 55.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 33,
+      "grupo": "EPI",
+      "descricao": "Bolsa Para Capacete Com Viseira M.S.A Com Forro Interno",
+      "preco": 75.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 34,
+      "grupo": "EPC",
+      "descricao": "Bolsa Porta Elo Fusivel Com 10 Compartimento Nº10",
+      "preco": 148.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 35,
+      "grupo": "EPI",
+      "descricao": "Bota Dielétrica",
+      "preco": 115.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 36,
+      "grupo": "EPI",
+      "descricao": "Bota Sete Leguas Cano Longo",
+      "preco": 54.29,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 37,
+      "grupo": "EPC",
+      "descricao": "Bracelete De Identificação (Padrinho De Segurança)",
+      "preco": 40.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 38,
+      "grupo": "EPC",
+      "descricao": "Broca De Aço 8Mm Para Metal",
+      "preco": 10.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 39,
+      "grupo": "EPC",
+      "descricao": "Broca Videa 8Mm Para Concreto",
+      "preco": 8.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 40,
+      "grupo": "EPC",
+      "descricao": "By Pass Com Grampo Torção Rg3622.1 Para Cabo 2 A 1/0 260A Tam 4,60M ( Flv18443.4 )",
+      "preco": 2110.95,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 6,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 41,
+      "grupo": "EPC",
+      "descricao": "By Pass Com Grampo Torçao Rg3622.1 Para Cabo 4/0 400A Tam 3,70M (Flv18443.7)",
+      "preco": 1758.88,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 6,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 42,
+      "grupo": "EPC",
+      "descricao": "Cabeçote Ângulo 25° E Encaixe Universal (Vmr00884.1)",
+      "preco": 102.58,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 43,
+      "grupo": "EPC",
+      "descricao": "Cabecote Para Instalacao De Espacadores",
+      "preco": 100.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 44,
+      "grupo": "EPC",
+      "descricao": "Cabeçote Para Monobra Com Grampo De Aterramento De Média (Vmr07205.1)",
+      "preco": 124.25,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 45,
+      "grupo": "EPC",
+      "descricao": "Caixa Para Acondicionamento De Ferramentas 5 Gavetas",
+      "preco": 150.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 46,
+      "grupo": "EPI",
+      "descricao": "Calça De Segurança Inerente A Chamas",
+      "preco": 800.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 3,
+        "tat": 3,
+        "construcao": 3,
+        "linha-viva": 3,
+        "poda-lm": 3,
+        "poda": 3,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 47,
+      "grupo": "EPI",
+      "descricao": "Camisa Motosserrista 360° 8 Camadas",
+      "preco": 220.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 48,
+      "grupo": "EPI",
+      "descricao": "Calça Motosserrista 360° 8 Camadas",
+      "preco": 220.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 49,
+      "grupo": "EPC",
+      "descricao": "Calço De Borracha Para Patola De Caminhão, 280X400X80Mm Capacidade 16,6Ton",
+      "preco": 220.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 4,
+        "poda-lm": 4,
+        "poda": 4,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 50,
+      "grupo": "EPC",
+      "descricao": "Calço De Borracha Para Roda De Caminhão, 16X16X30Mm Capacidade 20 Ton Por Eixo",
+      "preco": 220.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 4,
+        "construcao": 4,
+        "linha-viva": 4,
+        "poda-lm": 4,
+        "poda": 4,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 51,
+      "grupo": "EPI",
+      "descricao": "Camisa De Segurança Inerente A Chamas",
+      "preco": 800.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 3,
+        "tat": 3,
+        "construcao": 3,
+        "linha-viva": 3,
+        "poda-lm": 3,
+        "poda": 3,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 52,
+      "grupo": "EPI",
+      "descricao": "Canivete Reto De Aço Inox 3 Polegadas",
+      "preco": 28.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 53,
+      "grupo": "EPI",
+      "descricao": "Capa Chuva Para Motoqueiro (Calça E Camisa)",
+      "preco": 96.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 1,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 54,
+      "grupo": "EPI",
+      "descricao": "Capa De Chuva Simples Cor Amarela Impermeavel",
+      "preco": 22.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 55,
+      "grupo": "EPI",
+      "descricao": "Capacete Automatico Para Motoqueiro",
+      "preco": 150.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 1,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 56,
+      "grupo": "EPI",
+      "descricao": "Capacete De Seguranca Classe B Tipo I Aba Frontal",
+      "preco": 58.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 57,
+      "grupo": "EPC",
+      "descricao": "Carretilha De Aluminio Para Elevação De Materiais (Rc417.6067)",
+      "preco": 98.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 3,
+        "tat": 3,
+        "construcao": 3,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 58,
+      "grupo": "EPC",
+      "descricao": "Cavadeira Articulada Cabo De Madeira 1,90 Cm",
+      "preco": 146.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 59,
+      "grupo": "EPC",
+      "descricao": "Cavalete De Bobina Para Lançamento De Cabo",
+      "preco": 1000.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 60,
+      "grupo": "EPC",
+      "descricao": "Cavalete Metalico Para Apoio De Poste Com Diâmetro De 1¼” E Paredes De 4 Mm",
+      "preco": 1700.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 61,
+      "grupo": "EPI",
+      "descricao": "Chave Ajustável Inglesa Boca 25 Mm 8 Pol Isolada 1000V",
+      "preco": 75.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 62,
+      "grupo": "EPC",
+      "descricao": "Chave Ajustável Inglesa Boca 25 Mm 8 Pol Isolada 1000V",
+      "preco": 75.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 63,
+      "grupo": "EPC",
+      "descricao": "Chave Allen Em _T_ Isolada 3Mm Ou 4M",
+      "preco": 25.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 64,
+      "grupo": "EPC",
+      "descricao": "Chave Allen Em _T_ Isolada 6Mm",
+      "preco": 35.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 65,
+      "grupo": "EPC",
+      "descricao": "Chave Canhão 11X150Mm Em Aço Cromo Vanádio 11 Mm 7/16",
+      "preco": 19.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 66,
+      "grupo": "EPC",
+      "descricao": "Chave Canhão 8X150Mm Em Aço Cromo Vanádio 8 Mm 5/16",
+      "preco": 17.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 67,
+      "grupo": "EPC",
+      "descricao": "Chave Catraca Em Aço Isolada 13Mm 1000V",
+      "preco": 22.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 68,
+      "grupo": "EPC",
+      "descricao": "Chave Catraca Isolada C/ Soquete Quadrado 24Mm E 27Mm",
+      "preco": 2400.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 69,
+      "grupo": "EPC",
+      "descricao": "Chave De Fenda 5X100 Pequena Isolada Para 1000V (3/16X4\")",
+      "preco": 15.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 70,
+      "grupo": "EPC",
+      "descricao": "Chave De Fenda 6X150 Media Isoladapara 1000V (1/4X6\")",
+      "preco": 16.5,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 71,
+      "grupo": "EPC",
+      "descricao": "Chave De Fenda 8X175 Grande Isolada Para 1000V (5/16\" X 7\")",
+      "preco": 19.488,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 2,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 72,
+      "grupo": "EPC",
+      "descricao": "Chave De Impacto 1/2_ Dewalt Dcf922D2 13Mm 20V Max Com Aplicador De Conector Cunha",
+      "preco": 2449.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 73,
+      "grupo": "EPC",
+      "descricao": "Chave Grifo Adaptada 14_ (Retirar Conector A Compressão)",
+      "preco": 349.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 74,
+      "grupo": "EPC",
+      "descricao": "Chave Philips 5X150Mm Pequena Isolada (3/16)",
+      "preco": 15.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 2,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 75,
+      "grupo": "EPC",
+      "descricao": "Chave Philips 6X150Mm Grande Isolada (1/4X6\")",
+      "preco": 16.8,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 2,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 76,
+      "grupo": "EPC",
+      "descricao": "Cinta Com Catraca Para Amarração De Carga 1Ton X 3Metros",
+      "preco": 35.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 4,
+        "poda-lm": 4,
+        "poda": 4,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 77,
+      "grupo": "EPC",
+      "descricao": "Cinta Com Catraca Para Amarração De Carga 3Tonx9Metros Para Caminhão",
+      "preco": 62.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 3,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 78,
+      "grupo": "EPC",
+      "descricao": "Cinta Sling Corpo Duplo Fs 7:1 De Elevação 1,5Mx3Ton, 90Mm Amarela",
+      "preco": 450.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 2,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 79,
+      "grupo": "EPC",
+      "descricao": "Cinta Sling Corpo Duplo Fs 7:1 De Elevação 2Mx3Ton, 90Mm Amarela",
+      "preco": 450.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 2,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 80,
+      "grupo": "EPC",
+      "descricao": "Cinta Tubular Tecno (Fs.7:1) 1,5Mx4Ton, 21Mm Cinza Com Capa Tripla",
+      "preco": 450.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 2,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 81,
+      "grupo": "EPC",
+      "descricao": "Cinta Tubular Tecno (Fs.7:1) 2Mx4Ton, 21Mm Cinza Com Capa Tripla",
+      "preco": 450.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 2,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 82,
+      "grupo": "EPI",
+      "descricao": "Cinturão Paraquedista Dieletrico Lv E Retardante A Chama ( Mult 1236)",
+      "preco": 860.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 83,
+      "grupo": "EPC",
+      "descricao": "Cobertura Rigida De 1500Mm Para Condutor De Tensão 26,4Kv Fase/Fase (Cob03335.2)",
+      "preco": 210.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 15,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 84,
+      "grupo": "EPC",
+      "descricao": "Cobertura Rigida De 1500Mm Para Condutor De Tensão 36,4Kv Fase/Fase (Cob08835.2)",
+      "preco": 402.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 15,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 85,
+      "grupo": "EPC",
+      "descricao": "Cobertura Circular 230 X 600Mm Para Poste Em Tensão Para 36,6Kv Fase/Fase (Rm4937.2)",
+      "preco": 185.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 9,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 86,
+      "grupo": "EPC",
+      "descricao": "Cobertura Circular 1800Mmx300Mm Isolada Para Poste Em Tensão De 36Kv (Rc406-0000)",
+      "preco": 1226.8075,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 87,
+      "grupo": "EPC",
+      "descricao": "Cobertura Circular 300 X 1200Mm Para Poste Em Tensão De 36,6Kv Fase/Fase (Rc406-0030)",
+      "preco": 1058.8713999999998,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 88,
+      "grupo": "EPC",
+      "descricao": "Cobertura Circular 300Mmx150Mm Para Poste Tensão De 26,4 Kv Fase/Fase (Cob04487-1)",
+      "preco": 155.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 9,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 89,
+      "grupo": "EPC",
+      "descricao": "Cobertura Circular 600Mmx150Mm Para Poste Tensão De 26,4Kv Fase/Fase(Cob04487.2)",
+      "preco": 175.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 12,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 90,
+      "grupo": "EPC",
+      "descricao": "Cobertura Circular 600Mmx300Mm Para Poste Tensão De 36,6Kv Fase/Fase (Rc406-0029)",
+      "preco": 469.7031,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 3,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 91,
+      "grupo": "EPC",
+      "descricao": "Cobertura Flexivel 915Mm Tipo Ii Classe 3 Para Condutor Tensão De 26,6Kv (Flx30504.1)",
+      "preco": 1147.4615000000001,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 6,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 92,
+      "grupo": "EPC",
+      "descricao": "Cobertura Flexivel Para Condutor Com Bocal Classe 4, 1525Mm,36Kv",
+      "preco": 1147.4615000000001,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 6,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 93,
+      "grupo": "EPI",
+      "descricao": "Colete Protetor De Tórax De Policarbonato Para Motociclista",
+      "preco": 260.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 1,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 94,
+      "grupo": "EPC",
+      "descricao": "Cone De Sinalização Flexivel 75Cm Com Faixa Refletiva",
+      "preco": 69.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 12,
+        "servicos-comerciais": 12,
+        "plantao": 12,
+        "a3-lm-const-manut-redes": 12,
+        "tat": 20,
+        "construcao": 26,
+        "linha-viva": 20,
+        "poda-lm": 20,
+        "poda": 20,
+        "equipamentos": 9
+      }
+    },
+    {
+      "id": 95,
+      "grupo": "EPC",
+      "descricao": "Conjunto De Aterramento Mt 34 Kv Para Troca De Trafo Trifásico",
+      "preco": 715.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 96,
+      "grupo": "EPC",
+      "descricao": "Conjunto De Aterramento Temporario Bt Para Rede Multiplexada 5 Garras",
+      "preco": 205.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 4,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 4,
+        "construcao": 4,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 97,
+      "grupo": "EPC",
+      "descricao": "Conjunto De Aterramento Temporário Para Redes De Distribuição De Media Tensão",
+      "preco": 840.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 4,
+        "construcao": 4,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 98,
+      "grupo": "EPC",
+      "descricao": "Conjunto De Aterramento Temporário Para Veículo (Mt)",
+      "preco": 580.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 99,
+      "grupo": "EPC",
+      "descricao": "Container De Inox Para Transporte De Gasolina Cap. 5 Litros",
+      "preco": 940.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 100,
+      "grupo": "EPC",
+      "descricao": "Conversor De 12V/220V Para Uso Em Veiculo",
+      "preco": 200.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 101,
+      "grupo": "EPC",
+      "descricao": "Corda De Seda 12Mm",
+      "preco": 2.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 20,
+        "servicos-comerciais": 20,
+        "plantao": 20,
+        "a3-lm-const-manut-redes": 15,
+        "tat": 80,
+        "construcao": 80,
+        "linha-viva": 20,
+        "poda-lm": 20,
+        "poda": 20,
+        "equipamentos": 20
+      }
+    },
+    {
+      "id": 102,
+      "grupo": "EPC",
+      "descricao": "Corda Estática Capa E Alma 12Mm 22Kn Para Linha De Vida",
+      "preco": 3.1,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 48,
+        "servicos-comerciais": 48,
+        "plantao": 48,
+        "a3-lm-const-manut-redes": 48,
+        "tat": 96,
+        "construcao": 96,
+        "linha-viva": 24,
+        "poda-lm": 48,
+        "poda": 0,
+        "equipamentos": 48
+      }
+    },
+    {
+      "id": 103,
+      "grupo": "EPI",
+      "descricao": "Cotoveleira Articulada Para Motociclista",
+      "preco": 120.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 1,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 104,
+      "grupo": "EPC",
+      "descricao": "Cruzeta Auxiliar 1780X1350X64Mm",
+      "preco": 7648.323899999999,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 105,
+      "grupo": "EPC",
+      "descricao": "Decapador Condutor Cabo Concentrico 6,5Mm A 25Mm",
+      "preco": 320.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 106,
+      "grupo": "EPC",
+      "descricao": "Descascador De Cabo De 9 A 32Mm (Se2618)",
+      "preco": 989.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 107,
+      "grupo": "EPC",
+      "descricao": "Detector De Ausencia De Tensão ( Host Line) Em Tensão 3.8Kv A 40 Kv (Nhl3,8 A 36/Gr)",
+      "preco": 2100.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 2,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 108,
+      "grupo": "EPI",
+      "descricao": "Detector De Tensão De 220 A 36Kv Para Uso Em Capacete",
+      "preco": 4000.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 109,
+      "grupo": "EPC",
+      "descricao": "Detector De Tensão Por Aproximação Em Tensão De 220V A 36Kv (Dmu.36/Sb)",
+      "preco": 901.3919,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 110,
+      "grupo": "EPC",
+      "descricao": "Dinamômetro 1000 Dan - Tensionar Condutor",
+      "preco": 350.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 111,
+      "grupo": "EPC",
+      "descricao": "Dinamômetro Para Teste De Padrão De Entrada",
+      "preco": 386.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 112,
+      "grupo": "EPC",
+      "descricao": "Dispositivo Antiqueda De Cartucho Daqc",
+      "preco": 115.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 113,
+      "grupo": "EPC",
+      "descricao": "Dispositivo De Abertura De Carga (Até 25 Kv) (Loudbuster- Se2846 )",
+      "preco": 6800.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 114,
+      "grupo": "EPC",
+      "descricao": "Dispositivo De Abertura De Carga (Até 34,5 Kv) (Loudbuster- Se2847)",
+      "preco": 7200.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 115,
+      "grupo": "EPC",
+      "descricao": "Dispositivo De Ancoragem Para Poste (Agulhão) 11Mm Isolado",
+      "preco": 45.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 116,
+      "grupo": "EPC",
+      "descricao": "Dispositivo Para Proteção De Jumper Temporáro",
+      "preco": 1789.51,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 3,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 117,
+      "grupo": "EPC",
+      "descricao": "Enxada 2,5 Libras Larga Com Cabo De Madeira",
+      "preco": 50.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 118,
+      "grupo": "EPC",
+      "descricao": "Escada Extensível De Fibra De Vidro De Perfil Ublongo 7,80 M",
+      "preco": 1430.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 119,
+      "grupo": "EPC",
+      "descricao": "Escada Extensível De Fibra De Vidroperfil Ublongo 5,74X9,60M",
+      "preco": 1718.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 3,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 120,
+      "grupo": "EPC",
+      "descricao": "Escada Singela De Fibra De Vidro De Perfil Ublongo 4,60 M",
+      "preco": 738.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 121,
+      "grupo": "EPC",
+      "descricao": "Escova Em _V_ Para Limpeza De Condutor Com Encaixe Universal (Rm4455.63)",
+      "preco": 120.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 3,
+        "tat": 4,
+        "construcao": 4,
+        "linha-viva": 4,
+        "poda-lm": 4,
+        "poda": 0,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 122,
+      "grupo": "EPC",
+      "descricao": "Espora Dt Para Poste De Concreto (Mg1854)",
+      "preco": 172.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 123,
+      "grupo": "EPC",
+      "descricao": "Esticador Aberto Condutor Dc Bronze 10,5Mm - 19Mm",
+      "preco": 2793.95,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 124,
+      "grupo": "EPC",
+      "descricao": "Esticador Aberto Condutor Dc Bronze 13,5Mm - 23Mm",
+      "preco": 1168.2999232974921,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 125,
+      "grupo": "EPC",
+      "descricao": "Esticador Aberto Condutor Dc Bronze 23Mm - 32Mm",
+      "preco": 1542.2844027678689,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 126,
+      "grupo": "EPC",
+      "descricao": "Esticador Aberto Condutor Dc Bronze 25Mm - 28Mm",
+      "preco": 1542.2844027678689,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 127,
+      "grupo": "EPC",
+      "descricao": "Esticador Aberto Condutor Dc Bronze 6,5Mm - 13,5Mm",
+      "preco": 3116.08,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 128,
+      "grupo": "EPC",
+      "descricao": "Esticador Aberto Condutor Energizado 13Mm - 19Mm",
+      "preco": 346.8033605733804,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 129,
+      "grupo": "EPC",
+      "descricao": "Esticador Aberto Condutor Energizado 18,80Mm - 21,80Mm",
+      "preco": 365.8584902752145,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 130,
+      "grupo": "EPC",
+      "descricao": "Esticador Cabo De Aço 3Mm - 12Mm",
+      "preco": 204.40957316512925,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 2,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 131,
+      "grupo": "EPC",
+      "descricao": "Esticador Cabo Energizado 1/0 A 4/0 Awg (7,08Mm Até 13,87Mm)",
+      "preco": 821.2603421079734,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 132,
+      "grupo": "EPC",
+      "descricao": "Esticador De Cabo 4 A 1/0 (5,08Mm Até 10,16Mm)",
+      "preco": 615.9373825604418,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 133,
+      "grupo": "EPC",
+      "descricao": "Estropo De Nylon 500 Mm Com Argola De Aço",
+      "preco": 50.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 2,
+        "linha-viva": 3,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 134,
+      "grupo": "EPC",
+      "descricao": "Estropo De Nylon 800 Mm Com Argola De Aço",
+      "preco": 65.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 3,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 135,
+      "grupo": "EPC",
+      "descricao": "Estropo Nylon 1200 Mm Com Argola De Aço",
+      "preco": 85.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 3,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 136,
+      "grupo": "EPC",
+      "descricao": "Extensão De Cruzeta Com Duas Presilhas 1430X64Mm",
+      "preco": 3454.56,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 137,
+      "grupo": "EPI",
+      "descricao": "Faca Curva Isolada Para Desemcapar Cabo",
+      "preco": 100.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 138,
+      "grupo": "EPC",
+      "descricao": "Farol Silibim Cilibrim 12V H3 Longo Alcance",
+      "preco": 220.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 139,
+      "grupo": "EPC",
+      "descricao": "Fita De Sinalização Cor Laranja De 30 Metros Com Recolhedor",
+      "preco": 115.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 2,
+        "construcao": 5,
+        "linha-viva": 5,
+        "poda-lm": 4,
+        "poda": 4,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 140,
+      "grupo": "EPC",
+      "descricao": "Foice Curvada Com Cabo De Madeira",
+      "preco": 24.328109249999994,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 2,
+        "poda-lm": 2,
+        "poda": 0,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 141,
+      "grupo": "EPC",
+      "descricao": "Furadeira De Impacto 550W 220V",
+      "preco": 550.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 142,
+      "grupo": "EPC",
+      "descricao": "Garrafa Termica 12L",
+      "preco": 170.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 2,
+        "poda-lm": 2,
+        "poda": 2,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 143,
+      "grupo": "EPC",
+      "descricao": "Garrafa Térmica 5 L",
+      "preco": 38.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 144,
+      "grupo": "EPC",
+      "descricao": "Grampo Para Bucha De Transformado Em Ritzglass® Ø 25 X 210 Mm (Flv11179.2)",
+      "preco": 862.2039,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 3,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 145,
+      "grupo": "EPC",
+      "descricao": "Içador Isolado Com Cabeçote Giratorio",
+      "preco": 8935.48,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 146,
+      "grupo": "EPI",
+      "descricao": "Joelheira Articulada Pro Tork Knee Guard Motocross Trilha",
+      "preco": 132.2,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 1,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 147,
+      "grupo": "EPC",
+      "descricao": "Jogo Chave Allen 1/16 A 3/8\" Com 09 Peças",
+      "preco": 46.660856249999995,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 148,
+      "grupo": "EPC",
+      "descricao": "Jogo De Serra Copo 6 Pcs 32 A 54Mm",
+      "preco": 29.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 149,
+      "grupo": "EPC",
+      "descricao": "Jogo De Soquetes E Acessórios Isolados 1000V De 1/2\" 13 Peças",
+      "preco": 2400.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 150,
+      "grupo": "EPI",
+      "descricao": "Kit Com Protetor Facial Contra Arco Elétrico",
+      "preco": 1150.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 151,
+      "grupo": "EPC",
+      "descricao": "Kit Com Protetor Facial Contra Arco Elétrico",
+      "preco": 1150.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 152,
+      "grupo": "EPI",
+      "descricao": "Kit De Proteção Facial Motoserrista 8\"",
+      "preco": 125.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 153,
+      "grupo": "EPC",
+      "descricao": "Kit De Resgate Em Altura Para Cesto Aereo ( Rope Rescue 5:1 Thor)",
+      "preco": 4500.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 154,
+      "grupo": "EPC",
+      "descricao": "Kit Para Trabalho E Resgate Em Altura Com Escadas (Uslv00100300)",
+      "preco": 750.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 3,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 155,
+      "grupo": "EPC",
+      "descricao": "Kit Primeiro Socorros",
+      "preco": 55.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 156,
+      "grupo": "EPC",
+      "descricao": "Lamina De Serra Starret Bimetal",
+      "preco": 8.8,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 157,
+      "grupo": "EPC",
+      "descricao": "Lanterna Led Recarregável 5W Bivolt",
+      "preco": 46.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 158,
+      "grupo": "EPI",
+      "descricao": "Lanterna Para Uso Em Capacete",
+      "preco": 98.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 159,
+      "grupo": "EPC",
+      "descricao": "Lençol Inteiriço 900X900Mm Classe 2 17Kv Fase/Fase",
+      "preco": 367.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 9,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 160,
+      "grupo": "EPC",
+      "descricao": "Lençol Inteiriço 900X900Mm Classe 4 36Kv Fase/Fase (Lr-4/Ii)",
+      "preco": 450.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 9,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 161,
+      "grupo": "EPC",
+      "descricao": "Lençol Isolante Tripartido 900 X 1100",
+      "preco": 765.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 162,
+      "grupo": "EPC",
+      "descricao": "Lençol Semipartido 900X900Mm Classe 2 17Kv Fase/Fase",
+      "preco": 550.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 163,
+      "grupo": "EPC",
+      "descricao": "Lençol Semipartido 900X900Mm Classe 4 36Kv Fase/Fase (Lr.Sp.4/Ii)",
+      "preco": 765.67,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 9,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 164,
+      "grupo": "EPC",
+      "descricao": "Lona De Polietileno Azul 2X2M",
+      "preco": 25.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 2,
+        "poda": 2,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 165,
+      "grupo": "EPC",
+      "descricao": "Lona De Polietileno Azul 5 X 6M",
+      "preco": 185.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 166,
+      "grupo": "EPI",
+      "descricao": "Luva De Borracha Classe 0 1.000V",
+      "preco": 330.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 167,
+      "grupo": "EPI",
+      "descricao": "Luva De Borracha Classe 2 17.000V",
+      "preco": 509.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 168,
+      "grupo": "EPI",
+      "descricao": "Luva De Borracha Classe 4 36.000V",
+      "preco": 1369.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 169,
+      "grupo": "EPI",
+      "descricao": "Luva De Motociclista",
+      "preco": 110.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 1,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 170,
+      "grupo": "EPI",
+      "descricao": "Luva De Vaqueta Protetora De Luva De Borracha",
+      "preco": 27.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 3,
+        "a3-lm-const-manut-redes": 3,
+        "tat": 3,
+        "construcao": 3,
+        "linha-viva": 2,
+        "poda-lm": 3,
+        "poda": 3,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 171,
+      "grupo": "EPI",
+      "descricao": "Luva De Vaqueta Total Em Couro Com Cano Curto",
+      "preco": 18.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 172,
+      "grupo": "EPI",
+      "descricao": "Luva Motosserrista Tipo A Classe 2",
+      "preco": 85.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 173,
+      "grupo": "EPC",
+      "descricao": "Macacao Roupa Apicultor",
+      "preco": 165.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 174,
+      "grupo": "EPI",
+      "descricao": "Macacao Roupa Apicultor",
+      "preco": 165.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 175,
+      "grupo": "EPI",
+      "descricao": "Manga Isolada Classe 0 1.000V",
+      "preco": 680.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 176,
+      "grupo": "EPI",
+      "descricao": "Manga Isolada Classe 2 17.000V",
+      "preco": 859.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 177,
+      "grupo": "EPC",
+      "descricao": "Manga Isolada Classe 2 17.000V",
+      "preco": 859.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 178,
+      "grupo": "EPI",
+      "descricao": "Manga Isolada Classe 4 36.000V",
+      "preco": 1465.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 179,
+      "grupo": "EPC",
+      "descricao": "Manta Isolante Classe 0 Com Velcro 300X600Mm Para Condutor",
+      "preco": 56.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 10,
+        "servicos-comerciais": 10,
+        "plantao": 10,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 20,
+        "construcao": 20,
+        "linha-viva": 12,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 5
+      }
+    },
+    {
+      "id": 180,
+      "grupo": "EPC",
+      "descricao": "Máquina De Cintar E Cortar Fita De Aço Para Poste",
+      "preco": 165.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 181,
+      "grupo": "EPC",
+      "descricao": "Marreta 1,5Kg Com Cabo Emborrachado",
+      "preco": 46.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 182,
+      "grupo": "EPC",
+      "descricao": "Marreta 5Kg Com Cabo Emborrachado",
+      "preco": 150.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 183,
+      "grupo": "EPC",
+      "descricao": "Microamperimetro Analogico Para Medição De Corrente De Fuga De Estruturas Isolantes ( Rc402-0288)",
+      "preco": 250.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 184,
+      "grupo": "EPC",
+      "descricao": "Moitão De Aço 3 Gornes 60Mm",
+      "preco": 299.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 185,
+      "grupo": "EPC",
+      "descricao": "Moitão Isolado 3 Gornes Com Alça Para Amarração (Flv10893-1)",
+      "preco": 990.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 186,
+      "grupo": "EPC",
+      "descricao": "Mosquetão Oval De Aço Com Fechamento Em Rosca (Mult5200)",
+      "preco": 1640.54,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 2,
+        "poda": 2,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 187,
+      "grupo": "EPC",
+      "descricao": "Motopoda A Gasolina 1,3 Cv 25,4 Cc Ht 75 Stihl",
+      "preco": 3449.75,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 1,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 188,
+      "grupo": "EPC",
+      "descricao": "Motosserra A Gasolina Ms 382 Sabre 40 Cm 36Rs 72.2Cc 5.3Hp",
+      "preco": 3905.25,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 189,
+      "grupo": "EPI",
+      "descricao": "Óculos De Segurança Com Lente Incolor",
+      "preco": 9.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 190,
+      "grupo": "EPI",
+      "descricao": "Óculos De Segurança Com Lente Ultra Violeta",
+      "preco": 9.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 191,
+      "grupo": "EPC",
+      "descricao": "Pá De Bico Com Cabo De Madeira 71Cm",
+      "preco": 45.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 192,
+      "grupo": "EPC",
+      "descricao": "Passa Fio Guia 30 Metros Com Alma De Aço",
+      "preco": 25.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 193,
+      "grupo": "EPC",
+      "descricao": "Pedarol Para Escalada De Poste Tipo Dt 60Cm",
+      "preco": 115.4,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 4,
+        "servicos-comerciais": 4,
+        "plantao": 4,
+        "a3-lm-const-manut-redes": 6,
+        "tat": 4,
+        "construcao": 6,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 194,
+      "grupo": "EPI",
+      "descricao": "Perneira De Segurança Bidim Com 3 Talas",
+      "preco": 28.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 195,
+      "grupo": "EPC",
+      "descricao": "Placa De Sinalização Homens Trabalhando 35X25Cm",
+      "preco": 34.661249999999995,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 2,
+        "poda-lm": 2,
+        "poda": 2,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 196,
+      "grupo": "EPC",
+      "descricao": "Placa De Sinalização Não Opere Este Equipamento 35X25Cm",
+      "preco": 34.661249999999995,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 2,
+        "servicos-comerciais": 2,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 4,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 2
+      }
+    },
+    {
+      "id": 197,
+      "grupo": "EPC",
+      "descricao": "Pregador Manual Para Lençol E Cobertura Isolate Linha Viva (Flv16886-1)",
+      "preco": 123.15119999999999,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 30,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 198,
+      "grupo": "EPC",
+      "descricao": "Protetor Auricular Tipo Concha Com Haste Movel",
+      "preco": 330.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 199,
+      "grupo": "EPI",
+      "descricao": "Protetor Solar Fps 60 120Ml",
+      "preco": 22.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 1,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 200,
+      "grupo": "EPC",
+      "descricao": "Prumo De Parede Envernizado Standard 500G",
+      "preco": 35.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 201,
+      "grupo": "EPC",
+      "descricao": "Relógio Termohigrômetro Digital Mt241 Minipa",
+      "preco": 315.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 202,
+      "grupo": "EPC",
+      "descricao": "Roldana De Aluminio Para Lançamento De Cabo Fixação Em Cruzeta",
+      "preco": 190.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 6,
+        "a3-lm-const-manut-redes": 12,
+        "tat": 12,
+        "construcao": 12,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 203,
+      "grupo": "EPC",
+      "descricao": "Sela De Amarração De Corda Para Poste (Rm1846-W)",
+      "preco": 2092.57,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 204,
+      "grupo": "EPC",
+      "descricao": "Serrote Curso Para Poda Com Enxaixe Universal",
+      "preco": 150.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 2,
+        "poda": 2,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 205,
+      "grupo": "EPC",
+      "descricao": "Sinalizador Luminoso Rotativo Flash De Emergencia 12/24V",
+      "preco": 92.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 206,
+      "grupo": "EPC",
+      "descricao": "Sinalizador Noturno Para Uso Em Cone",
+      "preco": 96.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 2,
+        "a3-lm-const-manut-redes": 3,
+        "tat": 3,
+        "construcao": 3,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 207,
+      "grupo": "EPC",
+      "descricao": "Soquete De Ferro Com Cabo De 2 Metros",
+      "preco": 220.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 2,
+        "tat": 2,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 208,
+      "grupo": "EPC",
+      "descricao": "Suporte Isolado Para Jumper Temporário",
+      "preco": 655.5,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 209,
+      "grupo": "EPC",
+      "descricao": "Suporte Isolante Para By Pass Para Uso Em Rede Ate 34,5Kv (Rs1600.7)",
+      "preco": 489.6657,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 3,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 210,
+      "grupo": "EPI",
+      "descricao": "Talabarte De Posicionamento Em Corda ,Com Bloqueador De Inox (Mult004B)",
+      "preco": 165.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 211,
+      "grupo": "EPI",
+      "descricao": "Talabarte Em Fita Com Absorvedor De Energia E Conector Dielétrico (Mult 2212)",
+      "preco": 347.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 1,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 212,
+      "grupo": "EPC",
+      "descricao": "Talha Catraca 1Tonx10Metros",
+      "preco": 1150.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 213,
+      "grupo": "EPC",
+      "descricao": "Talha Manual 750 kg Com Correte De 3 Metros",
+      "preco": 2400.0,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 2,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 214,
+      "grupo": "EPC",
+      "descricao": "Talha Para Tensionar Cabo Com Estirante De Nylon (Rc309-0323)",
+      "preco": 5072.78,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 2,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 215,
+      "grupo": "EPC",
+      "descricao": "Talhadeira Mecânica 10 Pol 25Mm X 250Mm",
+      "preco": 18.5,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 216,
+      "grupo": "EPC",
+      "descricao": "Tapete Isolante Classe 2 17500Kv 900X900Mm",
+      "preco": 720.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 217,
+      "grupo": "EPC",
+      "descricao": "Tesourão Corta Vergalhão 24 Polegadas 600Mm",
+      "preco": 158.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 218,
+      "grupo": "EPC",
+      "descricao": "Tesourão Corta Vergalhão 30 Polegadas 760Mm",
+      "preco": 186.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 219,
+      "grupo": "EPC",
+      "descricao": "Tesourão Isolado 32Mmx0,72M (Flv02818.2)",
+      "preco": 350.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 220,
+      "grupo": "EPI",
+      "descricao": "Test Volt Minipa Ezalert Ii",
+      "preco": 65.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 0,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 221,
+      "grupo": "EPC",
+      "descricao": "Testador De Fase (Fasimetro) (Rh1876)",
+      "preco": 10138.55,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 0,
+        "servicos-comerciais": 0,
+        "plantao": 0,
+        "a3-lm-const-manut-redes": 0,
+        "tat": 0,
+        "construcao": 0,
+        "linha-viva": 1,
+        "poda-lm": 0,
+        "poda": 0,
+        "equipamentos": 0
+      }
+    },
+    {
+      "id": 222,
+      "grupo": "EPI",
+      "descricao": "Trava Quedas Para Corda 12Mm Com Extensor Em Fita (Mult 3104)",
+      "preco": 221.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 223,
+      "grupo": "EPC",
+      "descricao": "Trena De Fibra De Vidro Tamanho 50 M",
+      "preco": 35.0,
+      "tempoUtil": 12,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 0,
+        "equipamentos": 1
+      }
+    },
+    {
+      "id": 224,
+      "grupo": "EPC",
+      "descricao": "Vara De Manobra Fibra De Vidro 30Kv 5 Estágios Cabeçote Universal",
+      "preco": 1820.593,
+      "tempoUtil": 60,
+      "quantidades": {
+        "a1-moto": 0,
+        "gere": 1,
+        "servicos-comerciais": 1,
+        "plantao": 1,
+        "a3-lm-const-manut-redes": 1,
+        "tat": 1,
+        "construcao": 1,
+        "linha-viva": 1,
+        "poda-lm": 1,
+        "poda": 1,
+        "equipamentos": 1
+      }
+    }
+  ]
+}

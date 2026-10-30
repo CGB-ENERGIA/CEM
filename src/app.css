@@ -1,0 +1,645 @@
+/*
+ * Etiqueta de equipamento: aço, tinta de estêncil e etiquetas de inspeção.
+ * Cores de estado seguem a sinalização ISO 3864: verde conforme, âmbar atenção, vermelho faltante.
+ *
+ * Dois temas com os mesmos nomes de token. Claro é o padrão; escuro entra por
+ * data-theme="dark" ou, sem escolha explícita, pela preferência do sistema.
+ */
+
+/* ---------- Tema claro ---------- */
+:root,
+:root[data-theme="light"] {
+  --fundo: #e8ecf0;
+  --superficie: #f8fafc;
+  --superficie-elevada: #ffffff;
+  --tinta: #141a21;
+  --tinta-suave: #4b5663;
+  --borda: #c3ccd6;
+  --borda-forte: #8f9bab;
+
+  --primaria: #1f4e79;
+  --primaria-forte: #173c5e;
+  --primaria-tinta: #ffffff;
+  --primaria-suave: #dbe7f3;
+
+  --ok: #3fae5a;
+  --ok-tinta: #0d2616;
+  --ok-texto: #1d6b35;
+  --ok-suave: #dcf1e2;
+
+  --atencao: #f2b233;
+  --atencao-tinta: #2a1d00;
+  --atencao-texto: #8a5a00;
+  --atencao-suave: #fdf0d2;
+
+  --falta: #c8301e;
+  --falta-tinta: #ffffff;
+  --falta-texto: #a3260f;
+  --falta-suave: #f9dfd9;
+
+  --topo-fundo: #141a21;
+  --topo-texto: #f8fafc;
+  --topo-suave: #a9b4c2;
+  --topo-borda: rgba(255, 255, 255, 0.08);
+  --envio-fundo: #141a21;
+  --envio-texto: #f8fafc;
+  --envio-suave: #c4ccd7;
+
+  --sombra: 0 1px 0 rgba(20, 26, 33, 0.06), 0 2px 6px rgba(20, 26, 33, 0.06);
+  --sombra-envio: 0 -6px 18px rgba(20, 26, 33, 0.18);
+  color-scheme: light;
+}
+
+/* ---------- Tema escuro (preferência do sistema, sem escolha explícita) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fundo: #0d1116;
+    --superficie: #131a21;
+    --superficie-elevada: #1a222c;
+    --tinta: #e8edf3;
+    --tinta-suave: #9aa6b4;
+    --borda: #2a3440;
+    --borda-forte: #4f5c6b;
+
+    --primaria: #7ab4ea;
+    --primaria-forte: #a2cdf2;
+    --primaria-tinta: #0d1116;
+    --primaria-suave: #17283b;
+
+    --ok: #3fae5a;
+    --ok-tinta: #0d2616;
+    --ok-texto: #7fd996;
+    --ok-suave: #15291d;
+
+    --atencao: #f2b233;
+    --atencao-tinta: #2a1d00;
+    --atencao-texto: #f5c865;
+    --atencao-suave: #2e2410;
+
+    --falta: #d4412c;
+    --falta-tinta: #ffffff;
+    --falta-texto: #ff9a8a;
+    --falta-suave: #341b17;
+
+    --topo-fundo: #080b0f;
+    --topo-texto: #e8edf3;
+    --topo-suave: #8d99a8;
+    --topo-borda: rgba(255, 255, 255, 0.06);
+    --envio-fundo: #1a222c;
+    --envio-texto: #e8edf3;
+    --envio-suave: #9aa6b4;
+
+    --sombra: 0 1px 0 rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --sombra-envio: 0 -8px 24px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
+}
+
+/* ---------- Tema escuro (escolha explícita) ---------- */
+:root[data-theme="dark"] {
+  --fundo: #0d1116;
+  --superficie: #131a21;
+  --superficie-elevada: #1a222c;
+  --tinta: #e8edf3;
+  --tinta-suave: #9aa6b4;
+  --borda: #2a3440;
+  --borda-forte: #4f5c6b;
+
+  --primaria: #7ab4ea;
+  --primaria-forte: #a2cdf2;
+  --primaria-tinta: #0d1116;
+  --primaria-suave: #17283b;
+
+  --ok: #3fae5a;
+  --ok-tinta: #0d2616;
+  --ok-texto: #7fd996;
+  --ok-suave: #15291d;
+
+  --atencao: #f2b233;
+  --atencao-tinta: #2a1d00;
+  --atencao-texto: #f5c865;
+  --atencao-suave: #2e2410;
+
+  --falta: #d4412c;
+  --falta-tinta: #ffffff;
+  --falta-texto: #ff9a8a;
+  --falta-suave: #341b17;
+
+  --topo-fundo: #080b0f;
+  --topo-texto: #e8edf3;
+  --topo-suave: #8d99a8;
+  --topo-borda: rgba(255, 255, 255, 0.06);
+  --envio-fundo: #1a222c;
+  --envio-texto: #e8edf3;
+  --envio-suave: #9aa6b4;
+
+  --sombra: 0 1px 0 rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --sombra-envio: 0 -8px 24px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+
+:root {
+  --fonte-texto: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fonte-titulo: "Barlow Condensed", "Barlow", system-ui, sans-serif;
+  --fonte-codigo: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --raio: 6px;
+  --raio-etiqueta: 4px;
+  --ease-saida: cubic-bezier(0.16, 1, 0.3, 1);
+  --transicao-cor: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--primaria);
+  color: var(--primaria-tinta);
+}
+
+html {
+  scrollbar-color: var(--borda-forte) var(--fundo);
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--tinta);
+  font-family: var(--fonte-texto);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: var(--transicao-cor);
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  color: var(--tinta);
+}
+
+h2 {
+  font-size: 1.75rem;
+}
+
+h3 {
+  font-size: 1.2rem;
+}
+
+p {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+input,
+select,
+textarea {
+  background: var(--superficie-elevada);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  padding: 9px 11px;
+  min-width: 0;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 180ms ease;
+}
+
+input:hover,
+select:hover {
+  border-color: var(--borda-forte);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--primaria);
+  outline-offset: 2px;
+}
+
+input::placeholder {
+  color: var(--tinta-suave);
+  opacity: 0.8;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.oculto {
+  display: none !important;
+}
+
+/* ---------- Superfícies ---------- */
+
+.painel {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 24px;
+  transition: var(--transicao-cor);
+}
+
+.painel-interno {
+  background: var(--superficie-elevada);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  padding: 18px;
+  min-width: 0;
+  transition: var(--transicao-cor);
+}
+
+.cabecalho-painel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.cabecalho-painel p {
+  margin-top: 6px;
+  color: var(--tinta-suave);
+}
+
+.barra-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.texto-suave {
+  color: var(--tinta-suave);
+}
+
+.distancia {
+  margin-top: 16px;
+}
+
+/* ---------- Etiqueta de inspeção ---------- */
+
+.etiqueta {
+  position: relative;
+  background: var(--superficie-elevada);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-etiqueta);
+  padding: 14px 16px 14px 34px;
+  min-width: 0;
+  transition: var(--transicao-cor);
+}
+
+/* Ilhó: uma fenda curta no canto, lida como furo de etiqueta e não como botão de rádio */
+.etiqueta::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  width: 12px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--fundo);
+  border: 1px solid var(--borda-forte);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: var(--borda);
+  color: var(--tinta);
+  transition: var(--transicao-cor);
+}
+
+.chip-epi {
+  background: var(--primaria-suave);
+  color: var(--primaria);
+}
+
+.chip-epc {
+  background: var(--tinta);
+  color: var(--superficie);
+}
+
+.chip-ok {
+  background: var(--ok);
+  color: var(--ok-tinta);
+}
+
+.chip-atencao {
+  background: var(--atencao);
+  color: var(--atencao-tinta);
+}
+
+.chip-falta {
+  background: var(--falta);
+  color: var(--falta-tinta);
+}
+
+.codigo {
+  font-family: var(--fonte-codigo);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Botões ---------- */
+
+.botao {
+  background: var(--primaria);
+  color: var(--primaria-tinta);
+  border: 1px solid var(--primaria);
+  border-radius: var(--raio);
+  padding: 11px 18px;
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+  transition: background-color 160ms ease, transform 160ms var(--ease-saida), box-shadow 160ms ease;
+}
+
+.botao:hover:not(:disabled) {
+  background: var(--primaria-forte);
+  border-color: var(--primaria-forte);
+}
+
+.botao:active:not(:disabled) {
+  transform: translateY(1px) scale(0.99);
+}
+
+.botao-secundario {
+  background: var(--superficie-elevada);
+  color: var(--tinta);
+  border: 1px solid var(--borda-forte);
+  border-radius: var(--raio);
+  padding: 9px 14px;
+  font-weight: 500;
+  transition: background-color 160ms ease, transform 160ms var(--ease-saida);
+}
+
+.botao-secundario:hover:not(:disabled) {
+  background: var(--primaria-suave);
+}
+
+.botao-secundario:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.botao-perigo {
+  background: transparent;
+  color: var(--falta-texto);
+  border: 1px solid transparent;
+  border-radius: var(--raio);
+  padding: 7px 10px;
+  font-weight: 500;
+}
+
+.botao-perigo:hover:not(:disabled) {
+  background: var(--falta-suave);
+}
+
+/* ---------- Campos ---------- */
+
+.rotulo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--fonte-titulo);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.rotulo input,
+.rotulo select {
+  color: var(--tinta);
+  font-family: var(--fonte-texto);
+  font-size: 1rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ---------- Mensagens ---------- */
+
+.mensagem {
+  border-radius: var(--raio);
+  padding: 11px 14px;
+  margin: 10px 0;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+}
+
+.mensagem-erro {
+  background: var(--falta-suave);
+  color: var(--falta-texto);
+  border-color: var(--falta);
+}
+
+.mensagem-ok {
+  background: var(--ok-suave);
+  color: var(--ok-texto);
+  border-color: var(--ok);
+}
+
+/* ---------- Tabelas ---------- */
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela th,
+.tabela td {
+  text-align: left;
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--borda);
+  vertical-align: middle;
+}
+
+.tabela th {
+  font-family: var(--fonte-titulo);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+  border-bottom-color: var(--borda-forte);
+}
+
+.tabela tbody tr {
+  transition: background-color 160ms ease;
+}
+
+.tabela tbody tr:hover td {
+  background: color-mix(in srgb, var(--primaria) 7%, transparent);
+}
+
+.tabela td.numerico,
+.tabela th.numerico {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Esqueleto de carregamento: linhas com brilho suave enquanto os dados chegam */
+.esqueleto {
+  display: block;
+  height: 14px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--borda) 0%,
+    var(--superficie-elevada) 50%,
+    var(--borda) 100%
+  );
+  background-size: 200% 100%;
+  animation: brilho 1.4s var(--ease-saida) infinite;
+}
+
+@keyframes brilho {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* ---------- Indicadores ---------- */
+
+.grade-kpi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.kpi {
+  background: var(--superficie-elevada);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-etiqueta);
+  padding: 16px 18px;
+  transition: var(--transicao-cor);
+}
+
+.kpi-rotulo {
+  display: block;
+  font-family: var(--fonte-titulo);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+
+.kpi-valor {
+  font-family: var(--fonte-titulo);
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.trilho {
+  height: 10px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 2px;
+  overflow: hidden;
+  min-width: 80px;
+}
+
+.preenchimento {
+  height: 100%;
+  background: var(--primaria);
+  width: 0;
+}
+
+.preenchimento-ok {
+  background: var(--ok);
+}
+
+.preenchimento-alerta {
+  background: var(--falta);
+}
+
+.grade-duas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.tabela-wrap {
+  overflow-x: auto;
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .painel {
+    padding: 16px;
+  }
+
+  .tabela th,
+  .tabela td {
+    padding: 9px 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
