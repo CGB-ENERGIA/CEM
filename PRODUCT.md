@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Confirmed by the user: Svelte 5 + Vite on the frontend, Bun (`Bun.serve`) with SQLite (`bun:sqlite`) on the backend, GSAP for motion.
+Confirmed by the user: Svelte 5 + Vite on the frontend, Bun (`Bun.serve`) on the backend with Supabase (Postgres) as the database, accessed only by the server, GSAP for motion. Deployed on Vercel (static frontend plus a Bun function for `/api`).
 
 ## Users
 
@@ -37,7 +37,7 @@ The material list is the official reference sheet (`Estrutura de referencia cgb 
 - Four areas: Materiais (EPI/EPC per team type), Blitz Estática (registration), Dashboard (monthly summary and rankings), Equipes (team registry).
 - Each team type has its own list of applicable items, taken from the reference quantities; items with quantity zero are not part of that team's blitz.
 - A blitz must answer every applicable item before it can be saved.
-- Data is stored on the server in SQLite. Access requires a login; users are created by the team through the terminal (`bun run usuario:criar`). There are no roles yet: every logged-in user has full access.
+- Data is stored in Supabase (Postgres), reached only by the server with the service key. Access requires a login; users are created by the team through the terminal (`bun run usuario:criar`). There are no roles yet: every logged-in user has full access.
 - Terminology to keep: EPI, EPC, blitz estática, equipe, prefixo, processo, adequação.
 - Undecided: the full list of processes (only GSTC, GOMAN and GERE are known); whether there will be access control.
 

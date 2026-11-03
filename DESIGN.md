@@ -69,8 +69,8 @@ Barlow Condensed para títulos, rótulos e chips (caixa alta com tracking leve).
 ## Layout
 
 - Cabeçalho escuro com as abas em formato de etiqueta de pasta; a aba ativa assenta sobre o painel com uma faixa azul no topo.
-- Conteúdo com largura máxima de 1200px e painéis de 24px de respiro.
-- Mobile: abas em grade de quatro colunas, itens em cartões de largura total, ação de envio em largura total.
+- Conteúdo com largura máxima de 1680px e painéis de 18px de respiro (12px no celular).
+- Mobile: abas em barra fixa no rodapé, com rótulos curtos; cabeçalho em uma linha com a marca, o tema e Sair; tabelas viram cartões com o nome de cada coluna ao lado do valor; faixa de identificação da equipe presa no checklist da blitz.
 
 ## Elevation & Depth
 
@@ -84,7 +84,7 @@ Cantos de 4px nas etiquetas, 6px nos painéis e campos. Ilhó da etiqueta é uma
 
 - **Etiqueta** (`.etiqueta`): cartão com fenda de ilhó.
 - **Chip** (`.chip`): status e grupo (EPI/EPC), em caixa alta.
-- **Segmento de situação**: três etiquetas OK / Não OK / Faltante. A selecionada assume a cor do status.
+- **Segmento de situação**: três botões OK / Não OK / Faltante por item, sem valor padrão. A selecionada assume a cor do status. Em Não OK ou Faltante, um contador informa quantas unidades (quando o item exige mais de uma).
 - **Assinatura**: ao mudar a situação de um item, a etiqueta assenta (GSAP, 450ms, `expo.out`).
 - **Trilho e preenchimento**: progresso e rankings, animados na entrada.
 
