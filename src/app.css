@@ -149,6 +149,7 @@
 
   --raio: 6px;
   --raio-etiqueta: 4px;
+  --raio-chip: 3px;
   --ease-saida: cubic-bezier(0.16, 1, 0.3, 1);
   --transicao-cor: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
 }
@@ -351,9 +352,11 @@ input::placeholder {
   transition: var(--transicao-cor);
 }
 
+/* EPI é a informação comum: fica neutro. O azul-aço fica reservado para ações. */
 .chip-epi {
-  background: var(--primaria-suave);
-  color: var(--primaria);
+  background: var(--fundo);
+  color: var(--tinta);
+  border: 1px solid var(--borda-forte);
 }
 
 .chip-epc {
@@ -425,17 +428,20 @@ input::placeholder {
   transform: scale(0.98);
 }
 
+/* Ação destrutiva fica neutra até o toque: o vermelho é reservado para o status "Faltante". */
 .botao-perigo {
   background: transparent;
-  color: var(--falta-texto);
+  color: var(--tinta-suave);
   border: 1px solid transparent;
   border-radius: var(--raio);
   padding: 7px 10px;
   font-weight: 500;
 }
 
-.botao-perigo:hover:not(:disabled) {
+.botao-perigo:hover:not(:disabled),
+.botao-perigo:focus-visible {
   background: var(--falta-suave);
+  color: var(--falta-texto);
 }
 
 /* ---------- Campos ---------- */
@@ -588,7 +594,7 @@ input::placeholder {
   height: 10px;
   background: var(--fundo);
   border: 1px solid var(--borda);
-  border-radius: 2px;
+  border-radius: var(--raio-chip);
   overflow: hidden;
   min-width: 80px;
 }

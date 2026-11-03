@@ -79,13 +79,13 @@
   <!-- Fundo decorativo: some para leitores de tela -->
   <div class="stage" bind:this={stage} aria-hidden="true">
     <div class="half half--topo">
-      <video muted loop playsinline preload="auto" disablepictureinpicture tabindex="-1" poster="/media/poster-topo.jpg">
+      <video muted loop playsinline preload="metadata" disablepictureinpicture tabindex="-1" poster="/media/poster-topo.jpg">
         <source src="/media/video-topo.mp4" type="video/mp4" />
         <source src="/media/video-topo.webm" type="video/webm" />
       </video>
     </div>
     <div class="half half--base">
-      <video muted loop playsinline preload="auto" disablepictureinpicture tabindex="-1" poster="/media/poster-base.jpg">
+      <video muted loop playsinline preload="metadata" disablepictureinpicture tabindex="-1" poster="/media/poster-base.jpg">
         <source src="/media/video-base.mp4" type="video/mp4" />
         <source src="/media/video-base.webm" type="video/webm" />
       </video>
@@ -144,7 +144,6 @@
           type="text"
           autocomplete="username"
           autocapitalize="none"
-          inputmode="email"
           spellcheck="false"
           required
           disabled={enviando}
@@ -209,40 +208,26 @@
 </div>
 
 <style>
-  /* Tokens do modelo de login: escuro por padrão, claro quando o tema do app for claro */
+  /* Usa os mesmos tokens do app, então o tema claro e o escuro valem também para o login. */
   .login {
-    --bg: #0b0f14;
-    --card: #1a222c;
-    --line: #2c3846;
-    --field: #2b3648;
-    --text: #e8edf3;
-    --muted: #9aa7b6;
-    --accent: #6aa8ec;
-    --on-accent: #0b0f14;
-    --tint: rgba(11, 15, 20, 0.5);
+    --bg: var(--fundo);
+    --card: var(--superficie-elevada);
+    --line: var(--borda);
+    --field: var(--superficie);
+    --text: var(--tinta);
+    --muted: var(--tinta-suave);
+    --accent: var(--primaria);
+    --on-accent: var(--primaria-tinta);
+    --tint: color-mix(in srgb, var(--fundo) 50%, transparent);
     --diag: 2px;
-    --erro: #f87171;
-    --aviso: #f2b233;
+    --erro: var(--falta-texto);
+    --aviso: var(--tinta-suave);
 
     position: fixed;
     inset: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: "Barlow", system-ui, sans-serif;
-  }
-
-  .login[data-tema="claro"] {
-    --bg: #eef2f6;
-    --card: #ffffff;
-    --line: #d3dbe4;
-    --field: #eef2f7;
-    --text: #121820;
-    --muted: #566272;
-    --accent: #2f6fb8;
-    --on-accent: #ffffff;
-    --tint: rgba(238, 242, 246, 0.5);
-    --erro: #b42318;
-    --aviso: #8a5a00;
+    font-family: var(--fonte-texto);
   }
 
   /* ---------- fundo: duas metades cortadas na diagonal ---------- */
@@ -315,12 +300,11 @@
 
   .card {
     width: min(500px, 100%);
-    background: color-mix(in srgb, var(--card) 94%, transparent);
+    background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 6px;
+    border-radius: var(--raio);
     padding: 36px 38px 30px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(6px);
+    box-shadow: var(--sombra);
   }
 
   .brand {
