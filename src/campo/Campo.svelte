@@ -56,6 +56,20 @@
       faltam === 0,
   );
 
+  // Motivos que impedem o envio, em linguagem de campo. Aparecem só depois de uma tentativa de envio.
+  const pendencias = $derived.by(() => {
+    const lista: string[] = [];
+    if (prefixoNormalizado.length === 0) lista.push("Informe o prefixo da equipe.");
+    else if (prefixoNormalizado.length > 20) lista.push("O prefixo passa de 20 caracteres.");
+    if (prefixoNormalizado && !tipoId) lista.push("Escolha o tipo da equipe.");
+    if (colaboradoresValidos.length === 0) lista.push("Informe ao menos um colaborador.");
+    if (tipoId && faltam > 0) lista.push(`Responda os ${faltam} item(ns) que faltam.`);
+    return lista;
+  });
+  let tentouEnviar = $state(false);
+  // Respostas de antes de "Marcar restantes como OK", para desfazer até a próxima ação.
+  let antesDaMarcacao = $state<Record<number, Escolha> | null>(null);
+
   function nomeTipo(id: string | null): string {
     if (!id) return "Sem tipo";
     return materiais.tipos.find((tipo) => tipo.id === id)?.nome ?? id;
@@ -79,6 +93,7 @@
   }
 
   function escolher(item: Item, situacao: Situacao) {
+    antesDaMarcacao = null;
     const atual = escolhas[item.id];
     const exigida = exigidaDe(item);
     const quantidade = Math.min(Math.max(atual?.quantidade ?? 1, 1), exigida);
@@ -90,16 +105,29 @@
   }
 
   function ajustar(item: Item, delta: number) {
+    antesDaMarcacao = null;
     const atual = escolhas[item.id];
     if (!atual || atual.situacao === "ok") return;
     atual.quantidade = Math.min(Math.max(atual.quantidade + delta, 1), exigidaDe(item));
   }
 
-  // Marca como OK só os itens ainda sem resposta. Os que já têm situação não são alterados.
+  // Marca como OK só os itens ainda sem resposta, depois de confirmar a quantidade.
+  // Os que já têm situação não são alterados. Um desfazer fica disponível até a próxima ação.
   function marcarRestantesOk() {
+    const restantes = itens.filter((item) => !escolhas[item.id]).length;
+    if (restantes === 0) return;
+    if (!confirm(`Marcar ${restantes} ${restantes === 1 ? "item" : "itens"} como OK?`)) return;
+    const anteriores = $state.snapshot(escolhas) as Record<number, Escolha>;
     for (const item of itens) {
       if (!escolhas[item.id]) escolher(item, "ok");
     }
+    antesDaMarcacao = anteriores;
+  }
+
+  function desfazerMarcacao() {
+    if (!antesDaMarcacao) return;
+    escolhas = antesDaMarcacao;
+    antesDaMarcacao = null;
   }
 
   function limparFormulario() {
@@ -107,6 +135,8 @@
     tipoEscolhido = "";
     colaboradores = [""];
     escolhas = {};
+    antesDaMarcacao = null;
+    tentouEnviar = false;
   }
 
   async function carregarEquipes() {
@@ -161,7 +191,11 @@
   }
 
   async function registrar() {
-    if (!podeEnviar || !tipoId) return;
+    if (!podeEnviar || !tipoId) {
+      // O botão fica ativo para mostrar o que falta, em vez de ficar apagado sem explicação.
+      tentouEnviar = true;
+      return;
+    }
     const blitz: NovaBlitz = {
       idCliente: crypto.randomUUID(),
       data,
@@ -260,6 +294,7 @@
 
   <form
     class="painel formulario"
+    novalidate
     onsubmit={(evento) => {
       evento.preventDefault();
       registrar();
@@ -296,6 +331,11 @@
         {/each}
       </select>
     </label>
+    {#if equipeCadastrada?.tipoId}
+      <p class="nota">Equipe cadastrada como <strong>{nomeTipo(tipoId)}</strong>. O tipo vem do cadastro.</p>
+    {:else if prefixoNormalizado && tipoId}
+      <p class="nota">Equipe nova: o tipo escolhido vai para o cadastro com esta blitz.</p>
+    {/if}
 
     <div class="bloco-colaboradores">
       <span class="rotulo-texto">Colaboradores da equipe</span>
@@ -333,6 +373,13 @@
           Marcar restantes como OK
         </button>
       </div>
+
+      {#if antesDaMarcacao}
+        <p class="desfazer" role="status">
+          Itens marcados como OK.
+          <button type="button" class="botao-secundario" onclick={desfazerMarcacao}>Desfazer</button>
+        </p>
+      {/if}
 
       <ol class="checklist">
         {#each itens as item, posicao (item.id)}
@@ -396,13 +443,21 @@
       <p class="nota">Escolha a equipe, ou o tipo da equipe nova, para ver os materiais exigidos.</p>
     {/if}
 
+    {#if tentouEnviar && pendencias.length > 0}
+      <ul class="pendencias" role="alert">
+        {#each pendencias as texto (texto)}
+          <li>{texto}</li>
+        {/each}
+      </ul>
+    {/if}
+
     <div class="barra-envio">
       <span class="nota">
         {#if tipoId && faltam > 0}
           Faltam {faltam} item(ns) para registrar.
         {/if}
       </span>
-      <button class="botao" type="submit" disabled={!podeEnviar || enviando}>
+      <button class="botao" type="submit" disabled={enviando} aria-disabled={!podeEnviar}>
         {enviando ? "Registrando..." : online ? "Registrar blitz" : "Guardar no celular"}
       </button>
     </div>
@@ -638,6 +693,32 @@
     flex-wrap: wrap;
     gap: 8px 12px;
     align-items: center;
+  }
+
+  .pendencias {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 10px 14px 10px 30px;
+    background: var(--atencao-suave);
+    border: 1px solid var(--atencao);
+    border-radius: var(--raio-etiqueta);
+    color: var(--tinta);
+    font-size: 0.92rem;
+  }
+
+  .desfazer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin: 0;
+    padding: 10px 14px;
+    background: var(--superficie-elevada);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-etiqueta);
+    color: var(--tinta-suave);
   }
 
   @media (min-width: 641px) {
