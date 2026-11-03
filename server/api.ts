@@ -167,6 +167,41 @@ async function listarEquipes(): Promise<Equipe[]> {
   return data.map(paraEquipe);
 }
 
+// O app de campo recebe só o que usa para identificar a equipe. Responsável, supervisor, coordenador e
+// gerência ficam de fora: são dados de gestão, que não precisam sair do sistema administrativo.
+async function listarEquipesCampo(): Promise<Pick<Equipe, "prefixo" | "nome" | "base" | "processo" | "status" | "tipoId">[]> {
+  const { data, error } = await db
+    .from("equipes")
+    .select("prefixo, nome, base, processo, status, tipo_id")
+    .order("prefixo");
+  if (error) throw error;
+  return data.map((linha) => ({
+    prefixo: linha.prefixo,
+    nome: linha.nome,
+    base: linha.base,
+    processo: linha.processo,
+    status: linha.status,
+    tipoId: linha.tipo_id,
+  }));
+}
+
+// Limite de envios por IP para o app de campo, que não tem login: evita que um laço ou um abuso
+// encha a base de registros. Vale para cada instância da função.
+const JANELA_ENVIOS_CAMPO_MS = 60_000;
+const MAXIMO_ENVIOS_CAMPO = 30;
+const enviosCampo = new Map<string, number[]>();
+
+function limitarEnviosCampo(req: Request) {
+  const ip = (req.headers.get("x-forwarded-for") ?? "desconhecido").split(",")[0].trim();
+  const agora = Date.now();
+  const recentes = (enviosCampo.get(ip) ?? []).filter((momento) => agora - momento < JANELA_ENVIOS_CAMPO_MS);
+  if (recentes.length >= MAXIMO_ENVIOS_CAMPO) {
+    throw new ErroValidacao("Muitos envios em pouco tempo. Aguarde um minuto e tente de novo.", 429);
+  }
+  recentes.push(agora);
+  enviosCampo.set(ip, recentes);
+}
+
 async function criarEquipe(corpo: Record<string, unknown>): Promise<Response> {
   const prefixo = normalizarPrefixo(corpo.prefixo);
   const dados = validarDadosEquipe(corpo);
@@ -513,6 +548,13 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
     const usuario = await usuarioDaSessao(lerTokenDoCookie(req.headers.get("cookie")));
     if (!usuario) throw new ErroValidacao("Sessão não iniciada.", 401);
     return resposta(usuario);
+  }
+
+  // App de campo (/campo): sem login. Só lê o prefixo, o tipo e o processo das equipes e grava blitz.
+  if (metodo === "GET" && caminho === "/api/campo/equipes") return resposta(await listarEquipesCampo());
+  if (metodo === "POST" && caminho === "/api/campo/blitz") {
+    limitarEnviosCampo(req);
+    return registrarBlitz(await lerJson<Partial<NovaBlitz>>(req));
   }
 
   // Daqui em diante, toda rota exige sessão válida.

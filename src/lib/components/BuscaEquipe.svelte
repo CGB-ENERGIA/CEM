@@ -1,12 +1,15 @@
 <script lang="ts">
   import type { Equipe } from "../tipos";
 
+  // Só prefixo e tipo são usados na busca, então o app de campo também pode usar este componente.
+  type EquipeBusca = Pick<Equipe, "prefixo" | "tipoId">;
+
   interface Props {
     valor?: string;
-    equipes: Equipe[];
+    equipes: EquipeBusca[];
     nomeTipo: (id: string | null) => string;
     id?: string;
-    aoSelecionar?: (equipe: Equipe) => void;
+    aoSelecionar?: (equipe: EquipeBusca) => void;
   }
 
   let { valor = $bindable(""), equipes, nomeTipo, id = "busca-equipe", aoSelecionar }: Props = $props();
@@ -32,7 +35,7 @@
 
   const indiceAtivo = $derived(Math.min(destacado, Math.max(0, sugestoes.length - 1)));
 
-  function selecionar(equipe: Equipe) {
+  function selecionar(equipe: EquipeBusca) {
     valor = equipe.prefixo;
     aberto = false;
     aoSelecionar?.(equipe);

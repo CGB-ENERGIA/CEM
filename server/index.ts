@@ -5,13 +5,15 @@ const dist = join(import.meta.dir, "..", "dist");
 const porta = Number(process.env.PORT ?? 3000);
 
 async function servirEstatico(pathname: string): Promise<Response> {
-  const alvo = join(dist, decodeURIComponent(pathname));
+  // Pasta com barra final (ex.: /campo/) abre o index.html dela, como na Vercel.
+  const relativo = pathname.endsWith("/") ? `${pathname}index.html` : pathname;
+  const alvo = join(dist, decodeURIComponent(relativo));
   if (!alvo.startsWith(dist)) {
     return new Response("Acesso negado.", { status: 403 });
   }
 
   const arquivo = Bun.file(alvo);
-  if (pathname !== "/" && (await arquivo.exists())) {
+  if (await arquivo.exists()) {
     return new Response(arquivo);
   }
 
