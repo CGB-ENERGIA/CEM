@@ -141,6 +141,8 @@
 /* ---------- Base ---------- */
 
 :root {
+  /* Altura do cabeçalho fixo: usada por faixas que ficam presas logo abaixo dele. */
+  --altura-topo: 60px;
   --fonte-texto: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
   --fonte-titulo: "Barlow Condensed", "Barlow", system-ui, sans-serif;
   --fonte-codigo: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -680,6 +682,10 @@ input::placeholder {
 }
 
 @media (max-width: 640px) {
+  :root {
+    --altura-topo: 52px;
+  }
+
   body {
     font-size: 14px;
   }

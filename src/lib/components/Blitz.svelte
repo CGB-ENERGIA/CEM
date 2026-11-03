@@ -489,6 +489,15 @@
     </div>
 
     <div class="bloco">
+      <!-- No celular, esta faixa fica presa abaixo do cabeçalho enquanto o checklist rola. -->
+      <div class="contexto-fixo">
+        <span class="codigo contexto-prefixo">{prefixoNormalizado || "Sem equipe"}</span>
+        {#if tipoId}
+          <span class="contexto-tipo">{tipoNome}</span>
+        {/if}
+        <span class="contexto-progresso codigo">{respondidos}/{itensDaBlitz.length}</span>
+      </div>
+
       <div class="cabecalho-checklist">
         <div>
           <h3>{tipoId ? `Checklist · ${tipoNome}` : "Checklist"}</h3>
@@ -753,6 +762,11 @@
     border: 1px solid var(--borda);
     border-radius: var(--raio);
     padding: 18px;
+  }
+
+  /* Faixa de identificação: só aparece no celular, onde o checklist é longo. */
+  .contexto-fixo {
+    display: none;
   }
 
   .bloco h3 {
@@ -1112,6 +1126,34 @@
 
     .segmento {
       min-height: 52px;
+    }
+
+    .contexto-fixo {
+      position: sticky;
+      top: var(--altura-topo);
+      z-index: 4;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      align-items: center;
+      margin: -18px -18px 12px;
+      padding: 10px 18px;
+      background: var(--superficie-elevada);
+      border-bottom: 1px solid var(--borda);
+      font-size: 0.9rem;
+    }
+
+    .contexto-prefixo {
+      font-weight: 700;
+    }
+
+    .contexto-tipo {
+      color: var(--tinta-suave);
+    }
+
+    .contexto-progresso {
+      margin-left: auto;
+      color: var(--tinta-suave);
     }
 
     .item-topo {

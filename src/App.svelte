@@ -373,8 +373,16 @@
   }
 
   @media (max-width: 640px) {
+    /* Cabeçalho em uma linha: marca à esquerda, tema e sair à direita. */
     .topo-interno {
+      flex-wrap: nowrap;
+      min-height: var(--altura-topo);
       padding: 0 12px;
+      gap: 8px;
+    }
+
+    .marca {
+      padding: 0;
     }
 
     .marca-nome {
@@ -382,9 +390,14 @@
     }
 
     .comandos {
-      width: 100%;
+      flex: 1;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .sessao {
+      padding-left: 8px;
     }
 
     /* No celular, as abas viram uma barra fixa no rodapé, ao alcance do polegar. */
