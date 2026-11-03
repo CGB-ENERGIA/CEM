@@ -75,7 +75,7 @@
     autocomplete="off"
     spellcheck="false"
     maxlength="20"
-    placeholder="Ex.: 1234"
+    placeholder="Ex.: MA-BCB-C001M"
     class="codigo"
     required
     bind:value={valor}

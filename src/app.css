@@ -692,6 +692,13 @@ input::placeholder {
     --altura-topo: 52px;
   }
 
+  /* Alvos de toque de pelo menos 44 px no celular, inclusive com luva */
+  .botao,
+  .botao-secundario,
+  .botao-perigo {
+    min-height: 44px;
+  }
+
   body {
     font-size: 14px;
   }

@@ -351,11 +351,12 @@
     }
   }
 
+  // Os mesmos nomes dos botões de situação, para não haver dois vocabulários na mesma tela.
   const rotuloSituacao: Record<Situacao, string> = {
     pendente: "A verificar",
-    ok: "Completo",
-    faltante: "Faltando",
-    nao_ok: "Com defeito",
+    ok: "OK",
+    faltante: "Faltante",
+    nao_ok: "Não OK",
   };
 
   const classeSituacao: Record<Situacao, string> = {
@@ -540,7 +541,8 @@
           <li
             class="etiqueta item"
             class:item-ok={situacao === "ok"}
-            class:item-pendente={situacao === "faltante" || situacao === "nao_ok"}
+            class:item-pendente={situacao === "faltante"}
+            class:item-nao-ok={situacao === "nao_ok"}
             use:assentar={`${situacao}|${quantidade}`}
           >
             <div class="item-topo">
@@ -827,6 +829,11 @@
     background: var(--falta-suave);
   }
 
+  .item-nao-ok {
+    border-color: var(--atencao);
+    background: var(--atencao-suave);
+  }
+
   .item-topo {
     display: flex;
     gap: 12px;
@@ -1024,16 +1031,17 @@
     margin-left: auto;
   }
 
+  /* Ação principal em azul, como nas demais telas. Âmbar fica reservado para status "Não OK". */
   .barra-envio .botao {
-    background: var(--atencao);
-    border-color: var(--atencao);
-    color: var(--atencao-tinta);
+    background: var(--primaria);
+    border-color: var(--primaria);
+    color: var(--primaria-tinta);
   }
 
   .barra-envio .botao:hover:not(:disabled) {
-    background: var(--atencao);
-    border-color: var(--atencao);
-    filter: brightness(0.94);
+    background: var(--primaria);
+    border-color: var(--primaria);
+    filter: brightness(1.08);
   }
 
   .barra-envio .botao:disabled {

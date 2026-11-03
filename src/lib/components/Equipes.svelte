@@ -534,6 +534,7 @@
 
     .acoes-linha {
       flex-wrap: wrap;
+      gap: 14px;
     }
   }
 </style>

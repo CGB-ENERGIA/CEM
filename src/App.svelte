@@ -341,10 +341,10 @@
 
   .instalar {
     padding: 7px 12px;
-    background: var(--atencao);
-    border: 1px solid var(--atencao);
+    background: var(--primaria);
+    border: 1px solid var(--primaria);
     border-radius: var(--raio);
-    color: var(--atencao-tinta);
+    color: var(--primaria-tinta);
     font-family: var(--fonte-titulo);
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -399,6 +399,16 @@
 
     .sessao {
       padding-left: 8px;
+    }
+
+    .sair {
+      min-height: 44px;
+      padding: 0 14px;
+    }
+
+    .alternar-tema {
+      width: 44px;
+      height: 44px;
     }
 
     /* No celular, as abas viram uma barra fixa no rodapé, ao alcance do polegar. */
