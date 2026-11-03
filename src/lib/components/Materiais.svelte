@@ -6,7 +6,8 @@
 
   const materiais = materiaisJson as Materiais;
 
-  let tipoId = $state(materiais.tipos[0].id);
+  // Sem tipo escolhido, nenhum material é mostrado: a tela não presume um tipo de equipe.
+  let tipoId = $state("");
   let grupo = $state<"Todos" | Grupo>("Todos");
   let busca = $state("");
 
@@ -52,6 +53,7 @@
     <label class="rotulo">
       Tipo de equipe
       <select bind:value={tipoId}>
+        <option value="" disabled>Selecione o tipo</option>
         {#each materiais.tipos as tipo (tipo.id)}
           <option value={tipo.id}>{tipo.nome}</option>
         {/each}
@@ -60,7 +62,7 @@
 
     <label class="rotulo">
       Grupo
-      <select bind:value={grupo}>
+      <select bind:value={grupo} disabled={!tipoId}>
         <option value="Todos">Todos</option>
         <option value="EPI">EPI</option>
         <option value="EPC">EPC</option>
@@ -69,10 +71,11 @@
 
     <label class="rotulo">
       Buscar material
-      <input type="search" bind:value={busca} placeholder="Ex.: capacete, luva, talabarte" />
+      <input type="search" bind:value={busca} disabled={!tipoId} placeholder="Ex.: capacete, luva, talabarte" />
     </label>
   </div>
 
+  {#if tipoId}
   <div class="grade-kpi distancia">
     <div class="kpi">
       <span class="kpi-rotulo">Materiais · {nomeTipoAtual}</span>
@@ -120,6 +123,11 @@
       </tbody>
     </table>
   </div>
+  {:else}
+  <p class="orientacao distancia texto-suave">
+    Escolha o tipo de equipe para ver os materiais exigidos e as quantidades de cada um.
+  </p>
+  {/if}
 </section>
 
 <style>
