@@ -188,6 +188,62 @@
       mostrarErro(falha);
     }
   }
+
+  let exportando = $state(false);
+  let importando = $state(false);
+  let entradaArquivo: HTMLInputElement | undefined = $state();
+
+  async function exportar() {
+    exportando = true;
+    try {
+      const arquivo = await api.exportarEquipes();
+      const url = URL.createObjectURL(arquivo);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `equipes-cem-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (falha) {
+      mostrarErro(falha);
+    } finally {
+      exportando = false;
+    }
+  }
+
+  function abrirSeletorArquivo() {
+    entradaArquivo?.click();
+  }
+
+  // Lê a planilha selecionada: cria e atualiza equipes, mas nunca remove nenhuma.
+  async function importarArquivo(evento: Event) {
+    const campo = evento.currentTarget as HTMLInputElement;
+    const arquivo = campo.files?.[0];
+    campo.value = ""; // permite escolher o mesmo arquivo de novo, se precisar reimportar
+    if (!arquivo) return;
+    if (
+      !confirm(
+        `Importar equipes de "${arquivo.name}"? Isso cria e atualiza equipes a partir da planilha. Nenhuma equipe é removida.`,
+      )
+    ) {
+      return;
+    }
+
+    importando = true;
+    try {
+      const resultado = await api.importarEquipes(arquivo);
+      const partes = [`${resultado.criadas} criada(s)`, `${resultado.atualizadas} atualizada(s)`];
+      if (resultado.ignoradas > 0) partes.push(`${resultado.ignoradas} linha(s) ignorada(s)`);
+      mostrarAviso(resultado.ignoradas > 0 ? "info" : "ok", `Importação concluída: ${partes.join(", ")}.`);
+      for (const erro of resultado.erros.slice(0, 5)) {
+        mostrarAviso("erro", erro);
+      }
+      await carregar();
+    } catch (falha) {
+      mostrarErro(falha);
+    } finally {
+      importando = false;
+    }
+  }
 </script>
 
 <section class="painel">
@@ -203,9 +259,26 @@
       <button class="botao-secundario" type="button" aria-expanded={mostrarDetalhes} onclick={() => (mostrarDetalhes = !mostrarDetalhes)}>
         {mostrarDetalhes ? "Ocultar coordenador e gerência" : "Mostrar coordenador e gerência"}
       </button>
+      <input
+        bind:this={entradaArquivo}
+        type="file"
+        accept=".xlsx"
+        class="entrada-arquivo-oculta"
+        onchange={importarArquivo}
+      />
+      <button class="botao-secundario" type="button" onclick={exportar} disabled={exportando}>
+        {exportando ? "Exportando..." : "Exportar planilha"}
+      </button>
+      <button class="botao-secundario" type="button" onclick={abrirSeletorArquivo} disabled={importando}>
+        {importando ? "Importando..." : "Importar planilha"}
+      </button>
       <button class="botao" type="button" onclick={abrirNovo}>Nova equipe</button>
     </div>
   </div>
+  <p class="nota-importacao">
+    A planilha importada precisa ter as mesmas colunas da exportada. Linhas com prefixo já cadastrado
+    atualizam a equipe; prefixos novos criam equipes. Nenhuma equipe é removida pela importação.
+  </p>
 
   {#if formAberto}
     <form
@@ -402,6 +475,16 @@
     flex-wrap: wrap;
     gap: 10px;
     align-items: center;
+  }
+
+  .entrada-arquivo-oculta {
+    display: none;
+  }
+
+  .nota-importacao {
+    margin-top: 10px;
+    color: var(--tinta-suave);
+    font-size: 0.85rem;
   }
 
   .formulario-equipe {

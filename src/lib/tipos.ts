@@ -40,6 +40,15 @@ export interface Equipe {
 // Campos editáveis de uma equipe (o prefixo identifica a equipe e não muda).
 export type DadosEquipe = Omit<Equipe, "prefixo">;
 
+// Resultado da importação da planilha de equipes: nunca remove, só cria e atualiza.
+export interface ResultadoImportacaoEquipes {
+  processadas: number;
+  criadas: number;
+  atualizadas: number;
+  ignoradas: number;
+  erros: string[];
+}
+
 // Como o inspetor informa cada item: quantos foram encontrados e quantos estão com defeito.
 export interface NovoItemBlitz {
   itemId: number;

@@ -1,5 +1,7 @@
+import * as XLSX from "xlsx";
 import materiaisJson from "../src/lib/data/materiais.json";
 import { PROCESSOS } from "../src/lib/compartilhado";
+import { normalizarTexto } from "../src/lib/format";
 import type {
   BlitzResumo,
   Dashboard,
@@ -165,6 +167,219 @@ async function listarEquipes(): Promise<Equipe[]> {
   const { data, error } = await db.from("equipes").select(COLUNAS_EQUIPE).order("prefixo");
   if (error) throw error;
   return data.map(paraEquipe);
+}
+
+// ---------- Exportação e importação do cadastro de equipes ----------
+
+const nomeTipoPorId = new Map(materiais.tipos.map((tipo) => [tipo.id, tipo.nome]));
+const tipoIdPorNome = new Map(materiais.tipos.map((tipo) => [normalizarTexto(tipo.nome), tipo.id]));
+
+// Colunas da planilha, na ordem em que aparecem. O mesmo texto é usado para ler de volta na importação.
+const COLUNAS_PLANILHA = [
+  "Prefixo",
+  "Nome",
+  "Responsável",
+  "Supervisor",
+  "Coordenador",
+  "Gerência",
+  "Base",
+  "Processo",
+  "Tipo de equipe",
+  "Status",
+] as const;
+
+function equipeParaLinha(equipe: Equipe): Record<(typeof COLUNAS_PLANILHA)[number], string> {
+  return {
+    Prefixo: equipe.prefixo,
+    Nome: equipe.nome ?? "",
+    Responsável: equipe.responsavel ?? "",
+    Supervisor: equipe.supervisor ?? "",
+    Coordenador: equipe.coordenador ?? "",
+    Gerência: equipe.gerencia ?? "",
+    Base: equipe.base ?? "",
+    Processo: equipe.processo ?? "",
+    "Tipo de equipe": equipe.tipoId ? (nomeTipoPorId.get(equipe.tipoId) ?? equipe.tipoId) : "",
+    Status: equipe.status === "inativo" ? "Inativa" : "Ativa",
+  };
+}
+
+async function exportarEquipes(): Promise<Response> {
+  const equipes = await listarEquipes();
+  const linhas = equipes.map(equipeParaLinha);
+  const planilha = XLSX.utils.json_to_sheet(linhas, { header: [...COLUNAS_PLANILHA] });
+  planilha["!cols"] = COLUNAS_PLANILHA.map((coluna) => ({ wch: Math.max(coluna.length + 2, 14) }));
+  const livro = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(livro, planilha, "Equipes");
+  // O tipo de retorno do XLSX não bate com o BodyInit mais recente do TypeScript (ArrayBufferLike vs.
+  // ArrayBuffer), mas o Bun aceita o Uint8Array normalmente como corpo da resposta.
+  const bytes = XLSX.write(livro, { type: "buffer", bookType: "xlsx" }) as BodyInit;
+  const data = new Date().toISOString().slice(0, 10);
+  return new Response(bytes, {
+    headers: {
+      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": `attachment; filename="equipes-cem-${data}.xlsx"`,
+    },
+  });
+}
+
+// Lê os cabeçalhos da planilha sem exigir grafia exata: sem acento, sem maiúsculas, com variações aceitas.
+const CABECALHOS_ACEITOS: Record<string, string> = {
+  prefixo: "Prefixo",
+  nome: "Nome",
+  responsavel: "Responsável",
+  supervisor: "Supervisor",
+  coordenador: "Coordenador",
+  gerencia: "Gerência",
+  base: "Base",
+  processo: "Processo",
+  tipo: "Tipo de equipe",
+  "tipo de equipe": "Tipo de equipe",
+  status: "Status",
+};
+
+function linhaDaPlanilha(bruta: Record<string, unknown>): Partial<Record<(typeof COLUNAS_PLANILHA)[number], string>> {
+  const linha: Partial<Record<(typeof COLUNAS_PLANILHA)[number], string>> = {};
+  for (const [cabecalho, valor] of Object.entries(bruta)) {
+    const canonico = CABECALHOS_ACEITOS[normalizarTexto(cabecalho).trim()];
+    if (!canonico) continue;
+    linha[canonico as (typeof COLUNAS_PLANILHA)[number]] = valor === null || valor === undefined ? "" : String(valor).trim();
+  }
+  return linha;
+}
+
+const TAMANHO_MAXIMO_IMPORTACAO = 10 * 1024 * 1024;
+const LIMITE_LINHAS_IMPORTACAO = 5000;
+const TAMANHO_LOTE_IMPORTACAO = 200;
+
+interface ResultadoImportacaoEquipes {
+  processadas: number;
+  criadas: number;
+  atualizadas: number;
+  ignoradas: number;
+  erros: string[];
+}
+
+// Cria e atualiza equipes a partir da planilha exportada (ou de uma planilha no mesmo formato).
+// Nunca remove: uma equipe que sai da planilha continua cadastrada, até ser removida manualmente.
+async function importarEquipes(req: Request): Promise<Response> {
+  let formulario: FormData;
+  try {
+    formulario = await req.formData();
+  } catch {
+    throw new ErroValidacao("Não foi possível ler o arquivo enviado.");
+  }
+
+  const arquivo = formulario.get("arquivo");
+  if (!(arquivo instanceof File)) {
+    throw new ErroValidacao('Envie um arquivo .xlsx no campo "arquivo".');
+  }
+  if (arquivo.size > TAMANHO_MAXIMO_IMPORTACAO) {
+    throw new ErroValidacao(`O arquivo não pode passar de ${Math.round(TAMANHO_MAXIMO_IMPORTACAO / 1_000_000)} MB.`);
+  }
+
+  let livro: XLSX.WorkBook;
+  try {
+    const bytes = new Uint8Array(await arquivo.arrayBuffer());
+    livro = XLSX.read(bytes, { type: "array" });
+  } catch {
+    throw new ErroValidacao("Não foi possível ler a planilha. Confira se é um arquivo .xlsx válido.");
+  }
+
+  const primeiraAba = livro.SheetNames[0];
+  if (!primeiraAba) throw new ErroValidacao("A planilha não tem nenhuma aba.");
+  const linhasBrutas = XLSX.utils.sheet_to_json<Record<string, unknown>>(livro.Sheets[primeiraAba], { defval: "" });
+  if (linhasBrutas.length === 0) throw new ErroValidacao("A planilha não tem nenhuma linha de dados.");
+  if (linhasBrutas.length > LIMITE_LINHAS_IMPORTACAO) {
+    throw new ErroValidacao(`A planilha tem mais de ${LIMITE_LINHAS_IMPORTACAO} linhas. Importe em partes menores.`);
+  }
+
+  const { data: existentes, error: erroExistentes } = await db.from("equipes").select("prefixo");
+  if (erroExistentes) throw erroExistentes;
+  const prefixosExistentes = new Set((existentes ?? []).map((linha) => linha.prefixo as string));
+
+  const erros: string[] = [];
+  const prefixosNaPlanilha = new Set<string>();
+  const registros: Array<{ prefixo: string } & ReturnType<typeof validarDadosEquipe>> = [];
+
+  linhasBrutas.forEach((bruta, indice) => {
+    const numeroLinha = indice + 2; // a linha 1 é o cabeçalho
+    const linha = linhaDaPlanilha(bruta);
+
+    const prefixo = (linha.Prefixo ?? "").toUpperCase();
+    if (!prefixo) {
+      erros.push(`Linha ${numeroLinha}: prefixo em branco.`);
+      return;
+    }
+    if (prefixo.length > 20) {
+      erros.push(`Linha ${numeroLinha}: prefixo "${prefixo}" passa de 20 caracteres.`);
+      return;
+    }
+    if (prefixosNaPlanilha.has(prefixo)) {
+      erros.push(`Linha ${numeroLinha}: prefixo "${prefixo}" repetido na planilha.`);
+      return;
+    }
+
+    const tipoTexto = linha["Tipo de equipe"] ?? "";
+    let tipoId: string | null = null;
+    if (tipoTexto) {
+      const encontrado = tipoIdPorNome.get(normalizarTexto(tipoTexto));
+      if (!encontrado) {
+        erros.push(`Linha ${numeroLinha}: tipo de equipe "${tipoTexto}" não existe.`);
+        return;
+      }
+      tipoId = encontrado;
+    }
+
+    const statusTexto = normalizarTexto(linha.Status ?? "");
+    let status: "ativo" | "inativo" = "ativo";
+    if (statusTexto === "inativa" || statusTexto === "inativo") {
+      status = "inativo";
+    } else if (statusTexto && statusTexto !== "ativa" && statusTexto !== "ativo") {
+      erros.push(`Linha ${numeroLinha}: status "${linha.Status}" inválido (use Ativa ou Inativa).`);
+      return;
+    }
+
+    try {
+      const dados = validarDadosEquipe({
+        nome: linha.Nome,
+        responsavel: linha.Responsável,
+        supervisor: linha.Supervisor,
+        coordenador: linha.Coordenador,
+        gerencia: linha.Gerência,
+        base: linha.Base,
+        processo: linha.Processo,
+        status,
+        tipoId,
+      });
+      prefixosNaPlanilha.add(prefixo);
+      registros.push({ prefixo, ...dados });
+    } catch (falha) {
+      const mensagem = falha instanceof ErroValidacao ? falha.message : "dados inválidos.";
+      erros.push(`Linha ${numeroLinha}: ${mensagem}`);
+    }
+  });
+
+  if (registros.length === 0) {
+    throw new ErroValidacao(
+      "Nenhuma linha válida para importar." + (erros.length > 0 ? ` ${erros[0]}` : ""),
+    );
+  }
+
+  for (let inicio = 0; inicio < registros.length; inicio += TAMANHO_LOTE_IMPORTACAO) {
+    const lote = registros.slice(inicio, inicio + TAMANHO_LOTE_IMPORTACAO);
+    const { error } = await db.from("equipes").upsert(lote, { onConflict: "prefixo" });
+    if (error) throw error;
+  }
+
+  const criadas = registros.filter((registro) => !prefixosExistentes.has(registro.prefixo)).length;
+  const resultado: ResultadoImportacaoEquipes = {
+    processadas: linhasBrutas.length,
+    criadas,
+    atualizadas: registros.length - criadas,
+    ignoradas: erros.length,
+    erros: erros.slice(0, 50),
+  };
+  return resposta(resultado);
 }
 
 // O app de campo recebe só o que usa para identificar a equipe. Responsável, supervisor, coordenador e
@@ -565,6 +780,9 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
   }
 
   if (metodo === "GET" && caminho === "/api/materiais") return resposta(materiais);
+
+  if (metodo === "GET" && caminho === "/api/equipes/exportar") return exportarEquipes();
+  if (metodo === "POST" && caminho === "/api/equipes/importar") return importarEquipes(req);
 
   if (caminho === "/api/equipes") {
     if (metodo === "GET") return resposta(await listarEquipes());

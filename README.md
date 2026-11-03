@@ -62,6 +62,18 @@ A senha vem da variável `CEM_SENHA` ou, se ela não existir, da primeira linha 
 - Lista oficial de processos em `src/lib/compartilhado.ts` (`PROCESSOS`): hoje contém GSTC, GOMAN e GERE.
 - Cadastro de equipes na aba **Equipes**: as equipes sem blitz só aparecem no ranking de "não participaram" depois de cadastradas.
 
+## Planilha de equipes
+
+Na aba **Equipes**, o botão **Exportar planilha** baixa o cadastro completo em `.xlsx`. Editar essa planilha e
+reimportá-la pelo botão **Importar planilha** cria as equipes com prefixo novo e atualiza as equipes com prefixo
+já cadastrado. **A importação nunca remove equipes** — uma linha apagada da planilha não apaga a equipe no
+sistema; para remover, use o botão Remover na própria tela.
+
+A planilha precisa manter as colunas exportadas (Prefixo, Nome, Responsável, Supervisor, Coordenador, Gerência,
+Base, Processo, Tipo de equipe, Status). O "Tipo de equipe" usa o nome do tipo (ex.: "A1 - MOTO"), não o código
+interno; "Status" aceita "Ativa" ou "Inativa". Uma linha com prefixo em branco, tipo ou processo inválido, ou
+repetida na planilha, é ignorada e relatada ao final da importação, sem interromper as demais linhas.
+
 ## Vídeos de fundo da tela de login
 
 A tela de login usa dois vídeos em loop, `public/media/video-topo.*` (lado superior) e `public/media/video-base.*` (lado inferior), com capas `poster-topo.jpg` e `poster-base.jpg`. Eles vêm do modelo `login-cem` e são cortados na diagonal pelo próprio componente de login.

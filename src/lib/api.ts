@@ -1,4 +1,12 @@
-import type { BlitzResumo, Dashboard, DadosEquipe, Equipe, Materiais, NovaBlitz } from "./tipos";
+import type {
+  BlitzResumo,
+  Dashboard,
+  DadosEquipe,
+  Equipe,
+  Materiais,
+  NovaBlitz,
+  ResultadoImportacaoEquipes,
+} from "./tipos";
 import { encerrarSessaoLocal, type Usuario } from "./sessao.svelte";
 
 export class ErroApi extends Error {
@@ -36,6 +44,46 @@ async function requisitar<T>(caminho: string, init?: RequestInit): Promise<T> {
   return corpo as T;
 }
 
+// Baixa um arquivo binário (não JSON): a planilha de equipes.
+async function baixar(caminho: string): Promise<Blob> {
+  let resposta: Response;
+  try {
+    resposta = await fetch(caminho);
+  } catch {
+    throw new ErroSemConexao(MENSAGEM_SEM_CONEXAO);
+  }
+  if (!resposta.ok) {
+    if (resposta.status === 401) encerrarSessaoLocal();
+    const corpo = await resposta.json().catch(() => null);
+    if (corpo === null) throw new ErroSemConexao(MENSAGEM_SEM_CONEXAO);
+    const erro = new ErroApi(corpo.erro ?? "Não foi possível baixar o arquivo.");
+    erro.status = resposta.status;
+    throw erro;
+  }
+  return resposta.blob();
+}
+
+// Envia um arquivo (multipart), diferente do JSON que o resto da API usa.
+async function enviarArquivo<T>(caminho: string, campo: string, arquivo: File): Promise<T> {
+  const corpoFormulario = new FormData();
+  corpoFormulario.append(campo, arquivo);
+  let resposta: Response;
+  try {
+    resposta = await fetch(caminho, { method: "POST", body: corpoFormulario });
+  } catch {
+    throw new ErroSemConexao(MENSAGEM_SEM_CONEXAO);
+  }
+  const corpo = await resposta.json().catch(() => null);
+  if (!resposta.ok) {
+    if (resposta.status === 401) encerrarSessaoLocal();
+    if (corpo === null) throw new ErroSemConexao(MENSAGEM_SEM_CONEXAO);
+    const erro = new ErroApi(corpo.erro ?? "Não foi possível enviar o arquivo.");
+    erro.status = resposta.status;
+    throw erro;
+  }
+  return corpo as T;
+}
+
 export const api = {
   entrar: (login: string, senha: string) =>
     requisitar<Usuario>("/api/auth/login", { method: "POST", body: JSON.stringify({ login, senha }) }),
@@ -54,6 +102,9 @@ export const api = {
     }),
   removerEquipe: (prefixo: string) =>
     requisitar<void>(`/api/equipes/${encodeURIComponent(prefixo)}`, { method: "DELETE" }),
+  exportarEquipes: () => baixar("/api/equipes/exportar"),
+  importarEquipes: (arquivo: File) =>
+    enviarArquivo<ResultadoImportacaoEquipes>("/api/equipes/importar", "arquivo", arquivo),
 
   blitzes: (mes: string) => requisitar<BlitzResumo[]>(`/api/blitz?mes=${mes}`),
   registrarBlitz: (blitz: NovaBlitz) =>
