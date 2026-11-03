@@ -24,6 +24,18 @@
     { id: "equipes", rotulo: "Equipes", curto: "Equipes" },
   ];
 
+  // Setas esquerda e direita trocam de aba, como em qualquer barra de abas.
+  function navegarAbas(evento: KeyboardEvent) {
+    const atual = abas.findIndex((item) => item.id === aba);
+    let proxima = atual;
+    if (evento.key === "ArrowRight") proxima = (atual + 1) % abas.length;
+    else if (evento.key === "ArrowLeft") proxima = (atual - 1 + abas.length) % abas.length;
+    else return;
+    evento.preventDefault();
+    aba = abas[proxima].id;
+    document.getElementById(`aba-${aba}`)?.focus();
+  }
+
   // No celular, o app abre direto na blitz, que é o uso de campo. No computador, abre no dashboard.
   let aba = $state<Aba>(window.matchMedia("(max-width: 640px)").matches ? "blitz" : "dashboard");
   let listaAbas: HTMLElement | undefined = $state();
@@ -140,10 +152,14 @@
             <button
               type="button"
               role="tab"
+              id={`aba-${item.id}`}
+              aria-controls={`painel-${item.id}`}
               class="aba"
               class:ativa={aba === item.id}
               aria-selected={aba === item.id}
+              tabindex={aba === item.id ? 0 : -1}
               onclick={() => (aba = item.id)}
+              onkeydown={navegarAbas}
             >
               <span class="rotulo-longo">{item.rotulo}</span>
               <span class="rotulo-curto">{item.curto}</span>
@@ -167,16 +183,16 @@
   </header>
 
   <main class="conteudo">
-    <div data-aba="dashboard" class:oculto={aba !== "dashboard"}>
+    <div data-aba="dashboard" id="painel-dashboard" role="tabpanel" aria-labelledby="aba-dashboard" class:oculto={aba !== "dashboard"}>
       <Dashboard ativo={aba === "dashboard"} />
     </div>
-    <div data-aba="blitz" class:oculto={aba !== "blitz"}>
+    <div data-aba="blitz" id="painel-blitz" role="tabpanel" aria-labelledby="aba-blitz" class:oculto={aba !== "blitz"}>
       <Blitz ativo={aba === "blitz"} />
     </div>
-    <div data-aba="materiais" class:oculto={aba !== "materiais"}>
+    <div data-aba="materiais" id="painel-materiais" role="tabpanel" aria-labelledby="aba-materiais" class:oculto={aba !== "materiais"}>
       <Materiais />
     </div>
-    <div data-aba="equipes" class:oculto={aba !== "equipes"}>
+    <div data-aba="equipes" id="painel-equipes" role="tabpanel" aria-labelledby="aba-equipes" class:oculto={aba !== "equipes"}>
       <Equipes ativo={aba === "equipes"} />
     </div>
   </main>

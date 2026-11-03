@@ -234,8 +234,11 @@
       const partes = [`${resultado.criadas} criada(s)`, `${resultado.atualizadas} atualizada(s)`];
       if (resultado.ignoradas > 0) partes.push(`${resultado.ignoradas} linha(s) ignorada(s)`);
       mostrarAviso(resultado.ignoradas > 0 ? "info" : "ok", `Importação concluída: ${partes.join(", ")}.`);
-      for (const erro of resultado.erros.slice(0, 5)) {
-        mostrarAviso("erro", erro);
+      // Os erros de linha viram um só aviso, para não empilhar vários na tela.
+      if (resultado.erros.length > 0) {
+        const primeiros = resultado.erros.slice(0, 3).join(" ");
+        const restantes = resultado.erros.length - 3;
+        mostrarAviso("erro", restantes > 0 ? `${primeiros} E mais ${restantes} erro(s).` : primeiros);
       }
       await carregar();
     } catch (falha) {
@@ -432,7 +435,7 @@
       <tbody use:cascata={`${busca}|${filtroProcesso}|${filtroBase}|${filtroTipo}|${filtroStatus}|${equipes.length}`}>
         {#each filtradas as equipe (equipe.prefixo)}
           <tr>
-            <td class="titulo-cartao nao-quebrar"><strong>{equipe.prefixo}</strong></td>
+            <td class="titulo-cartao nao-quebrar"><strong class="codigo">{equipe.prefixo}</strong></td>
             <td data-rotulo="Nome">{equipe.nome ?? "—"}</td>
             <td data-rotulo="Responsável">{equipe.responsavel ?? "—"}</td>
             <td data-rotulo="Supervisor">{equipe.supervisor ?? "—"}</td>

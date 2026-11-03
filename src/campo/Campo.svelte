@@ -391,7 +391,7 @@
               <div class="item-texto">
                 <span class="item-descricao">{item.descricao}</span>
                 <span class="item-meta">
-                  <span class="chip">{item.grupo}</span>
+                  <span class="chip" class:chip-epi={item.grupo === "EPI"} class:chip-epc={item.grupo === "EPC"}>{item.grupo}</span>
                   <span>Exigidos: <strong class="codigo">{exigida}</strong></span>
                 </span>
               </div>
