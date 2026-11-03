@@ -94,7 +94,7 @@
         <p class="texto-suave distancia">Nenhuma equipe foi blitzada neste mês.</p>
       {:else}
         <div class="tabela-wrap distancia">
-          <table class="tabela">
+          <table class="tabela tabela-responsiva">
             <thead>
               <tr>
                 <th>#</th>
@@ -108,17 +108,17 @@
             <tbody use:cascata={`${mes}|${dados.participantes.length}`}>
               {#each dados.participantes as equipe, posicao (equipe.prefixo)}
                 <tr>
-                  <td class="codigo">{String(posicao + 1).padStart(2, "0")}</td>
-                  <td><strong class="codigo">{equipe.prefixo}</strong></td>
-                  <td>{nomeTipo(equipe.tipoId)}</td>
-                  <td class="contagem-barra">
+                  <td class="codigo sem-rotulo">#{String(posicao + 1).padStart(2, "0")}</td>
+                  <td class="titulo-cartao"><strong class="codigo">{equipe.prefixo}</strong></td>
+                  <td data-rotulo="Tipo">{nomeTipo(equipe.tipoId)}</td>
+                  <td class="contagem-barra" data-rotulo="Blitzes">
                     <span class="codigo contagem">{equipe.blitzes}</span>
                     <div class="trilho">
                       <div class="preenchimento" use:barra={percentualDe(equipe.blitzes, maxBlitzes)}></div>
                     </div>
                   </td>
-                  <td class="codigo">{equipe.ultimaData ? formatarData(equipe.ultimaData) : "—"}</td>
-                  <td>
+                  <td class="codigo" data-rotulo="Última blitz">{equipe.ultimaData ? formatarData(equipe.ultimaData) : "—"}</td>
+                  <td data-rotulo="Situação">
                     {#if equipe.conforme === true}
                       <span class="chip chip-ok">Conforme</span>
                     {:else if equipe.conforme === false}

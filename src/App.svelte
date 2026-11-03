@@ -16,11 +16,12 @@
 
   type Aba = "materiais" | "blitz" | "dashboard" | "equipes";
 
-  const abas: { id: Aba; rotulo: string }[] = [
-    { id: "dashboard", rotulo: "Dashboard" },
-    { id: "blitz", rotulo: "Blitz Estática" },
-    { id: "materiais", rotulo: "Materiais" },
-    { id: "equipes", rotulo: "Equipes" },
+  // No celular, a barra de abas usa o rótulo curto.
+  const abas: { id: Aba; rotulo: string; curto: string }[] = [
+    { id: "dashboard", rotulo: "Dashboard", curto: "Início" },
+    { id: "blitz", rotulo: "Blitz Estática", curto: "Blitz" },
+    { id: "materiais", rotulo: "Materiais", curto: "Materiais" },
+    { id: "equipes", rotulo: "Equipes", curto: "Equipes" },
   ];
 
   let aba = $state<Aba>("dashboard");
@@ -143,7 +144,8 @@
               aria-selected={aba === item.id}
               onclick={() => (aba = item.id)}
             >
-              {item.rotulo}
+              <span class="rotulo-longo">{item.rotulo}</span>
+              <span class="rotulo-curto">{item.curto}</span>
             </button>
           {/each}
           <span class="indicador" bind:this={indicador} aria-hidden="true"></span>
@@ -198,7 +200,7 @@
   }
 
   .topo-interno {
-    max-width: 1200px;
+    max-width: 1440px;
     margin: 0 auto;
     padding: 0 20px;
     min-height: 60px;
@@ -361,9 +363,13 @@
   }
 
   .conteudo {
-    max-width: 1200px;
+    max-width: 1440px;
     margin: 0 auto;
     padding: 24px 20px 56px;
+  }
+
+  .rotulo-curto {
+    display: none;
   }
 
   @media (max-width: 640px) {
@@ -378,20 +384,51 @@
     .comandos {
       width: 100%;
       align-items: center;
+      justify-content: space-between;
     }
 
+    /* No celular, as abas viram uma barra fixa no rodapé, ao alcance do polegar. */
     .abas {
-      flex: 1;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 15;
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 2px;
+      background: var(--topo-fundo);
+      border-top: 1px solid var(--topo-borda);
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     .aba {
-      padding: 6px 4px;
-      min-height: 44px;
-      font-size: 0.86rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-height: 58px;
+      padding: 6px 2px;
+      border-radius: 0;
+      font-size: 0.82rem;
       line-height: 1.1;
+    }
+
+    .aba.ativa {
+      color: var(--topo-texto);
+      background: transparent;
+    }
+
+    .rotulo-longo {
+      display: none;
+    }
+
+    .rotulo-curto {
+      display: inline;
+    }
+
+    .indicador {
+      top: 0;
     }
 
     .usuario {
@@ -399,7 +436,7 @@
     }
 
     .conteudo {
-      padding: 16px 12px 40px;
+      padding: 16px 12px calc(96px + env(safe-area-inset-bottom));
     }
   }
 </style>

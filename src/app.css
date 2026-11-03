@@ -615,6 +615,70 @@ input::placeholder {
   overflow-x: auto;
 }
 
+.nao-quebrar {
+  white-space: nowrap;
+}
+
+/* Tabelas que viram cartões no celular: cada célula mostra o nome da coluna (data-rotulo). */
+@media (max-width: 720px) {
+  .tabela-responsiva thead {
+    display: none;
+  }
+
+  .tabela-responsiva,
+  .tabela-responsiva tbody,
+  .tabela-responsiva tr,
+  .tabela-responsiva td {
+    display: block;
+    width: 100%;
+  }
+
+  .tabela-responsiva tbody tr {
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    background: var(--superficie-elevada);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-etiqueta);
+  }
+
+  .tabela-responsiva tbody tr:hover td {
+    background: none;
+  }
+
+  .tabela-responsiva td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 0;
+    border-bottom: 0;
+    text-align: right;
+    white-space: normal;
+  }
+
+  .tabela-responsiva td[data-rotulo]::before {
+    content: attr(data-rotulo);
+    font-family: var(--fonte-titulo);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+    text-align: left;
+  }
+
+  .tabela-responsiva td.titulo-cartao,
+  .tabela-responsiva td.sem-rotulo {
+    display: block;
+    text-align: left;
+  }
+
+  .tabela-responsiva td.acoes {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
 @media (max-width: 640px) {
   body {
     font-size: 14px;
@@ -631,6 +695,20 @@ input::placeholder {
   .tabela th,
   .tabela td {
     padding: 9px 6px;
+  }
+
+  /* Indicadores em duas colunas: cabem mais na tela sem ficarem longos */
+  .grade-kpi {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Com número ímpar de indicadores, o último ocupa a largura toda. */
+  .grade-kpi > .kpi:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .kpi-valor {
+    font-size: 1.9rem;
   }
 }
 

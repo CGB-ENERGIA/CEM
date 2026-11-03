@@ -80,11 +80,12 @@
     border-color: var(--borda);
   }
 
+  /* No celular, os avisos ficam acima da barra de abas do rodapé. */
   @media (max-width: 640px) {
     .pilha {
       right: 16px;
       left: 16px;
-      bottom: 16px;
+      bottom: calc(80px + env(safe-area-inset-bottom));
       width: auto;
     }
   }

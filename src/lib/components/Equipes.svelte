@@ -333,7 +333,7 @@
   </div>
 
   <div class="tabela-wrap distancia">
-    <table class="tabela">
+    <table class="tabela tabela-responsiva">
       <thead>
         <tr>
           <th>Prefixo</th>
@@ -352,17 +352,19 @@
       <tbody use:cascata={`${busca}|${filtroProcesso}|${filtroBase}|${filtroTipo}|${filtroStatus}|${equipes.length}`}>
         {#each filtradas as equipe (equipe.prefixo)}
           <tr>
-            <td><strong>{equipe.prefixo}</strong></td>
-            <td>{equipe.nome ?? "—"}</td>
-            <td>{equipe.responsavel ?? "—"}</td>
-            <td>{equipe.supervisor ?? "—"}</td>
-            <td>{equipe.coordenador ?? "—"}</td>
-            <td>{equipe.gerencia ?? "—"}</td>
-            <td>{equipe.base ?? "—"}</td>
-            <td>{equipe.processo ?? "—"}</td>
-            <td class:texto-suave={!equipe.tipoId}>{nomeTipo(equipe.tipoId)}</td>
-            <td class:texto-suave={equipe.status === "inativo"}>{equipe.status === "ativo" ? "Ativa" : "Inativa"}</td>
-            <td class="numerico">
+            <td class="titulo-cartao nao-quebrar"><strong>{equipe.prefixo}</strong></td>
+            <td data-rotulo="Nome">{equipe.nome ?? "—"}</td>
+            <td data-rotulo="Responsável">{equipe.responsavel ?? "—"}</td>
+            <td data-rotulo="Supervisor">{equipe.supervisor ?? "—"}</td>
+            <td data-rotulo="Coordenador">{equipe.coordenador ?? "—"}</td>
+            <td data-rotulo="Gerência">{equipe.gerencia ?? "—"}</td>
+            <td data-rotulo="Base" class="nao-quebrar">{equipe.base ?? "—"}</td>
+            <td data-rotulo="Processo" class="nao-quebrar">{equipe.processo ?? "—"}</td>
+            <td data-rotulo="Tipo" class="nao-quebrar" class:texto-suave={!equipe.tipoId}>{nomeTipo(equipe.tipoId)}</td>
+            <td data-rotulo="Status" class="nao-quebrar" class:texto-suave={equipe.status === "inativo"}>
+              {equipe.status === "ativo" ? "Ativa" : "Inativa"}
+            </td>
+            <td class="numerico sem-rotulo acoes">
               <div class="acoes-linha">
                 <button type="button" class="botao-secundario" onclick={() => abrirEdicao(equipe)}>Editar</button>
                 <button type="button" class="botao-perigo" onclick={() => remover(equipe.prefixo)}>Remover</button>
@@ -371,7 +373,7 @@
           </tr>
         {:else}
           <tr>
-            <td colspan="11" class="texto-suave">
+            <td colspan="11" class="texto-suave sem-rotulo">
               {#if carregando}
                 <span class="esqueleto" style="width: 40%"></span>
               {:else}
@@ -427,5 +429,19 @@
     justify-content: flex-end;
     gap: 8px;
     white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .campos-equipe {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .filtros-equipe {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .acoes-linha {
+      flex-wrap: wrap;
+    }
   }
 </style>

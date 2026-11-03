@@ -89,7 +89,7 @@
   </div>
 
   <div class="tabela-wrap distancia">
-    <table class="tabela">
+    <table class="tabela tabela-responsiva">
       <thead>
         <tr>
           <th>Grupo</th>
@@ -102,19 +102,19 @@
       <tbody use:cascata={`${tipoId}|${grupo}|${busca}`}>
         {#each itens as item (item.id)}
           <tr>
-            <td>
+            <td data-rotulo="Grupo">
               <span class="chip" class:chip-epi={item.grupo === "EPI"} class:chip-epc={item.grupo === "EPC"}>
                 {item.grupo}
               </span>
             </td>
-            <td>{item.descricao}</td>
-            <td class="numerico"><span class="quantidade">{numero.format(item.quantidades[tipoId] ?? 0)}</span></td>
-            <td class="numerico">{tempoUtil(item.tempoUtil)}</td>
-            <td class="numerico codigo">{moeda.format(item.preco)}</td>
+            <td class="titulo-cartao">{item.descricao}</td>
+            <td data-rotulo="Qtd. exigida" class="numerico"><span class="quantidade">{numero.format(item.quantidades[tipoId] ?? 0)}</span></td>
+            <td data-rotulo="Tempo útil" class="numerico">{tempoUtil(item.tempoUtil)}</td>
+            <td data-rotulo="Preço" class="numerico codigo">{moeda.format(item.preco)}</td>
           </tr>
         {:else}
           <tr>
-            <td colspan="5" class="texto-suave">Nenhum material encontrado com os filtros atuais.</td>
+            <td colspan="5" class="texto-suave sem-rotulo">Nenhum material encontrado com os filtros atuais.</td>
           </tr>
         {/each}
       </tbody>

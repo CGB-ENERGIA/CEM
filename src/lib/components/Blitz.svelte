@@ -650,7 +650,7 @@
 
             {#if blitz.itensNaoConformes.length > 0}
               <div class="tabela-wrap distancia">
-                <table class="tabela">
+                <table class="tabela tabela-responsiva">
                   <thead>
                     <tr>
                       <th>Material</th>
@@ -664,12 +664,12 @@
                   <tbody>
                     {#each blitz.itensNaoConformes as item (item.itemId)}
                       <tr>
-                        <td>{item.descricao}</td>
-                        <td class="numerico codigo">{item.exigida}</td>
-                        <td class="numerico codigo">{item.encontrada}</td>
-                        <td class="numerico codigo">{Math.max(0, item.exigida - item.encontrada)}</td>
-                        <td class="numerico codigo">{item.naoConforme}</td>
-                        <td>{item.observacao ?? "—"}</td>
+                        <td class="titulo-cartao">{item.descricao}</td>
+                        <td data-rotulo="Exigidos" class="numerico codigo">{item.exigida}</td>
+                        <td data-rotulo="Encontrados" class="numerico codigo">{item.encontrada}</td>
+                        <td data-rotulo="Faltam" class="numerico codigo">{Math.max(0, item.exigida - item.encontrada)}</td>
+                        <td data-rotulo="Com defeito" class="numerico codigo">{item.naoConforme}</td>
+                        <td data-rotulo="Observação">{item.observacao ?? "—"}</td>
                       </tr>
                     {/each}
                   </tbody>
