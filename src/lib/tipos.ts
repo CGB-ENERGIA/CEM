@@ -21,11 +21,24 @@ export interface Materiais {
   itens: Item[];
 }
 
+export type StatusEquipe = "ativo" | "inativo";
+
 export interface Equipe {
   prefixo: string;
+  nome: string | null;
+  responsavel: string | null;
+  supervisor: string | null;
+  coordenador: string | null;
+  gerencia: string | null;
+  base: string | null;
+  processo: string | null;
+  status: StatusEquipe;
   // Nulo nas equipes importadas da planilha, até o tipo ser definido.
   tipoId: string | null;
 }
+
+// Campos editáveis de uma equipe (o prefixo identifica a equipe e não muda).
+export type DadosEquipe = Omit<Equipe, "prefixo">;
 
 // Como o inspetor informa cada item: quantos foram encontrados e quantos estão com defeito.
 export interface NovoItemBlitz {

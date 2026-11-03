@@ -100,31 +100,93 @@ async function lerJson<T = Record<string, unknown>>(req: Request): Promise<T> {
 
 // ---------- Equipes ----------
 
-async function listarEquipes(): Promise<Equipe[]> {
-  const { data, error } = await db.from("equipes").select("prefixo, tipo_id").order("prefixo");
-  if (error) throw error;
-  return data.map((linha) => ({ prefixo: linha.prefixo, tipoId: linha.tipo_id }));
+const COLUNAS_EQUIPE = "prefixo, nome, responsavel, supervisor, coordenador, gerencia, base, processo, status, tipo_id";
+
+interface LinhaEquipe {
+  prefixo: string;
+  nome: string | null;
+  responsavel: string | null;
+  supervisor: string | null;
+  coordenador: string | null;
+  gerencia: string | null;
+  base: string | null;
+  processo: string | null;
+  status: "ativo" | "inativo";
+  tipo_id: string | null;
 }
 
-async function criarEquipe(corpo: { prefixo?: unknown; tipoId?: unknown }): Promise<Response> {
+function paraEquipe(linha: LinhaEquipe): Equipe {
+  return {
+    prefixo: linha.prefixo,
+    nome: linha.nome,
+    responsavel: linha.responsavel,
+    supervisor: linha.supervisor,
+    coordenador: linha.coordenador,
+    gerencia: linha.gerencia,
+    base: linha.base,
+    processo: linha.processo,
+    status: linha.status,
+    tipoId: linha.tipo_id,
+  };
+}
+
+// Texto opcional: vazio vira nulo. Recusa valores acima do limite.
+function textoOpcional(valor: unknown, rotulo: string, limite: number): string | null {
+  if (valor === undefined || valor === null) return null;
+  if (typeof valor !== "string" || valor.trim().length > limite) {
+    throw new ErroValidacao(`${rotulo} deve ter até ${limite} caracteres.`);
+  }
+  return valor.trim() || null;
+}
+
+// Campos que o cadastro pode alterar. O prefixo fica de fora: ele é a chave que liga as blitz à equipe.
+function validarDadosEquipe(corpo: Record<string, unknown>) {
+  const processo = textoOpcional(corpo.processo, "Processo", 20);
+  if (processo !== null && !(PROCESSOS as readonly string[]).includes(processo)) {
+    throw new ErroValidacao("Processo inválido.");
+  }
+  const status = corpo.status === undefined ? "ativo" : corpo.status;
+  if (status !== "ativo" && status !== "inativo") throw new ErroValidacao("Status inválido.");
+  const tipoId = corpo.tipoId === undefined || corpo.tipoId === null || corpo.tipoId === "" ? null : validarTipo(corpo.tipoId);
+  return {
+    nome: textoOpcional(corpo.nome, "Nome", 120),
+    responsavel: textoOpcional(corpo.responsavel, "Responsável", 120),
+    supervisor: textoOpcional(corpo.supervisor, "Supervisor", 120),
+    coordenador: textoOpcional(corpo.coordenador, "Coordenador", 120),
+    gerencia: textoOpcional(corpo.gerencia, "Gerência", 120),
+    base: textoOpcional(corpo.base, "Base", 40),
+    processo,
+    status,
+    tipo_id: tipoId,
+  };
+}
+
+async function listarEquipes(): Promise<Equipe[]> {
+  const { data, error } = await db.from("equipes").select(COLUNAS_EQUIPE).order("prefixo");
+  if (error) throw error;
+  return data.map(paraEquipe);
+}
+
+async function criarEquipe(corpo: Record<string, unknown>): Promise<Response> {
   const prefixo = normalizarPrefixo(corpo.prefixo);
-  const tipoId = validarTipo(corpo.tipoId);
-  const { error } = await db.from("equipes").insert({ prefixo, tipo_id: tipoId });
+  const dados = validarDadosEquipe(corpo);
+  const { data, error } = await db.from("equipes").insert({ prefixo, ...dados }).select(COLUNAS_EQUIPE).single();
   if (error?.code === "23505") throw new ErroValidacao(`A equipe ${prefixo} já está cadastrada.`, 409);
   if (error) throw error;
-  return resposta({ prefixo, tipoId }, 201);
+  return resposta(paraEquipe(data), 201);
 }
 
-async function atualizarEquipe(prefixoAtual: string, corpo: { tipoId?: unknown }): Promise<Response> {
-  const tipoId = validarTipo(corpo.tipoId);
+// Substitui os campos editáveis da equipe. Os campos não enviados ficam vazios.
+async function atualizarEquipe(prefixoAtual: string, corpo: Record<string, unknown>): Promise<Response> {
+  const dados = validarDadosEquipe(corpo);
   const { data, error } = await db
     .from("equipes")
-    .update({ tipo_id: tipoId })
+    .update(dados)
     .eq("prefixo", prefixoAtual)
-    .select("prefixo");
+    .select(COLUNAS_EQUIPE);
   if (error) throw error;
   if (data.length === 0) throw new ErroValidacao("Equipe não encontrada.", 404);
-  return resposta({ prefixo: prefixoAtual, tipoId });
+  return resposta(paraEquipe(data[0]));
 }
 
 async function removerEquipe(prefixo: string): Promise<Response> {

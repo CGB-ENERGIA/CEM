@@ -1,4 +1,4 @@
-import type { BlitzResumo, Dashboard, Equipe, Materiais, NovaBlitz } from "./tipos";
+import type { BlitzResumo, Dashboard, DadosEquipe, Equipe, Materiais, NovaBlitz } from "./tipos";
 import { encerrarSessaoLocal, type Usuario } from "./sessao.svelte";
 
 export class ErroApi extends Error {
@@ -45,12 +45,12 @@ export const api = {
   materiais: () => requisitar<Materiais>("/api/materiais"),
 
   equipes: () => requisitar<Equipe[]>("/api/equipes"),
-  criarEquipe: (equipe: Equipe) =>
+  criarEquipe: (equipe: DadosEquipe & { prefixo: string }) =>
     requisitar<Equipe>("/api/equipes", { method: "POST", body: JSON.stringify(equipe) }),
-  atualizarEquipe: (prefixo: string, tipoId: string) =>
+  atualizarEquipe: (prefixo: string, dados: DadosEquipe) =>
     requisitar<Equipe>(`/api/equipes/${encodeURIComponent(prefixo)}`, {
       method: "PUT",
-      body: JSON.stringify({ tipoId }),
+      body: JSON.stringify(dados),
     }),
   removerEquipe: (prefixo: string) =>
     requisitar<void>(`/api/equipes/${encodeURIComponent(prefixo)}`, { method: "DELETE" }),
