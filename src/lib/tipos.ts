@@ -85,6 +85,8 @@ export interface BlitzResumo {
 export interface RankingEquipe {
   prefixo: string;
   tipoId: string | null;
+  processo: string | null;
+  base: string | null;
   blitzes: number;
   ultimaData: string | null;
   conforme: boolean | null;

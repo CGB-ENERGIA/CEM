@@ -408,6 +408,8 @@ async function montarDashboard(mes: string): Promise<Dashboard> {
     return {
       prefixo: equipe.prefixo,
       tipoId: equipe.tipoId,
+      processo: equipe.processo,
+      base: equipe.base,
       blitzes: lista.length,
       ultimaData: ultima?.data ?? null,
       conforme: ultima ? ultima.conforme : null,

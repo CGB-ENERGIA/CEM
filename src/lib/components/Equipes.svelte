@@ -46,6 +46,8 @@
   let equipes = $state<Equipe[]>([]);
   let carregando = $state(false);
   let salvando = $state(false);
+  // Coordenador e gerência ficam recolhidos: a tabela já é larga, e a maioria das consultas não precisa deles.
+  let mostrarDetalhes = $state(false);
 
   let formAberto = $state(false);
   let modoEdicao = $state(false);
@@ -198,6 +200,9 @@
     </div>
     <div class="cabecalho-acoes">
       <span class="chip chip-epi">{equipes.length} equipe(s)</span>
+      <button class="botao-secundario" type="button" aria-expanded={mostrarDetalhes} onclick={() => (mostrarDetalhes = !mostrarDetalhes)}>
+        {mostrarDetalhes ? "Ocultar coordenador e gerência" : "Mostrar coordenador e gerência"}
+      </button>
       <button class="botao" type="button" onclick={abrirNovo}>Nova equipe</button>
     </div>
   </div>
@@ -340,8 +345,10 @@
           <th>Nome</th>
           <th>Responsável</th>
           <th>Supervisor</th>
-          <th>Coordenador</th>
-          <th>Gerência</th>
+          {#if mostrarDetalhes}
+            <th>Coordenador</th>
+            <th>Gerência</th>
+          {/if}
           <th>Base</th>
           <th>Processo</th>
           <th>Tipo de equipe</th>
@@ -356,8 +363,10 @@
             <td data-rotulo="Nome">{equipe.nome ?? "—"}</td>
             <td data-rotulo="Responsável">{equipe.responsavel ?? "—"}</td>
             <td data-rotulo="Supervisor">{equipe.supervisor ?? "—"}</td>
-            <td data-rotulo="Coordenador">{equipe.coordenador ?? "—"}</td>
-            <td data-rotulo="Gerência">{equipe.gerencia ?? "—"}</td>
+            {#if mostrarDetalhes}
+              <td data-rotulo="Coordenador">{equipe.coordenador ?? "—"}</td>
+              <td data-rotulo="Gerência">{equipe.gerencia ?? "—"}</td>
+            {/if}
             <td data-rotulo="Base" class="nao-quebrar">{equipe.base ?? "—"}</td>
             <td data-rotulo="Processo" class="nao-quebrar">{equipe.processo ?? "—"}</td>
             <td data-rotulo="Tipo" class="nao-quebrar" class:texto-suave={!equipe.tipoId}>{nomeTipo(equipe.tipoId)}</td>
@@ -373,7 +382,7 @@
           </tr>
         {:else}
           <tr>
-            <td colspan="11" class="texto-suave sem-rotulo">
+            <td colspan={mostrarDetalhes ? 11 : 9} class="texto-suave sem-rotulo">
               {#if carregando}
                 <span class="esqueleto" style="width: 40%"></span>
               {:else}

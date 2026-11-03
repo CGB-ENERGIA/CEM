@@ -1,7 +1,7 @@
 <script lang="ts">
   import materiaisJson from "../data/materiais.json";
   import { api } from "../api";
-  import type { Dashboard, Materiais } from "../tipos";
+  import type { Dashboard, Materiais, RankingEquipe } from "../tipos";
   import { formatarMes, formatarData, formatarPercentual, mesHoje, numero } from "../format";
   import { barra, cascata, numeroAnimado } from "../actions/animar";
 
@@ -42,6 +42,18 @@
   function nomeTipo(id: string | null): string {
     if (!id) return "Sem tipo";
     return materiais.tipos.find((tipo) => tipo.id === id)?.nome ?? id;
+  }
+
+  // Agrupa as equipes pelo processo (GSTC, GOMAN, GERE...). Equipes sem processo ficam à parte.
+  function agruparPorProcesso(equipes: RankingEquipe[]): { rotulo: string; equipes: RankingEquipe[] }[] {
+    const grupos = new Map<string, RankingEquipe[]>();
+    for (const equipe of equipes) {
+      const rotulo = equipe.processo ?? "Sem processo";
+      grupos.set(rotulo, [...(grupos.get(rotulo) ?? []), equipe]);
+    }
+    return [...grupos]
+      .map(([rotulo, lista]) => ({ rotulo, equipes: lista }))
+      .sort((a, b) => a.rotulo.localeCompare(b.rotulo));
   }
 
   function percentualDe(valor: number, maximo: number): number {
@@ -141,14 +153,24 @@
         {#if dados.naoParticipantes.length === 0}
           <p class="texto-suave distancia">Todas as equipes cadastradas participaram.</p>
         {:else}
-          <ul class="pilha distancia" use:cascata={`${mes}|${dados.naoParticipantes.length}`}>
-            {#each dados.naoParticipantes as equipe (equipe.prefixo)}
-              <li class="etiqueta-mini">
-                <span class="codigo">{equipe.prefixo}</span>
-                <span class="texto-suave">{nomeTipo(equipe.tipoId)}</span>
-              </li>
-            {/each}
-          </ul>
+          {#each agruparPorProcesso(dados.naoParticipantes) as grupo (grupo.rotulo)}
+            <details class="grupo-processo distancia" open>
+              <summary>
+                <span class="codigo">{grupo.rotulo}</span>
+                <span class="contador-secao">{grupo.equipes.length}</span>
+              </summary>
+              <ul class="pilha distancia" use:cascata={`${mes}|${grupo.rotulo}|${grupo.equipes.length}`}>
+                {#each grupo.equipes as equipe (equipe.prefixo)}
+                  <li class="etiqueta-mini">
+                    <span class="codigo">{equipe.prefixo}</span>
+                    {#if equipe.base}
+                      <span class="texto-suave">{equipe.base}</span>
+                    {/if}
+                  </li>
+                {/each}
+              </ul>
+            </details>
+          {/each}
         {/if}
       </div>
 
@@ -240,6 +262,25 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+
+  /* Cada processo é um grupo recolhível, com a contagem no cabeçalho */
+  .grupo-processo summary {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    cursor: pointer;
+    font-family: var(--fonte-titulo);
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+  }
+
+  .grupo-processo summary:focus-visible {
+    outline: 2px solid var(--primaria);
+    outline-offset: 2px;
   }
 
   .etiqueta-mini {
