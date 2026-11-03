@@ -62,7 +62,8 @@ export interface NovaBlitz {
   // Gerado no celular: impede que a mesma blitz seja gravada duas vezes após uma reconexão.
   idCliente?: string;
   data: string;
-  processo: string;
+  // Nulo quando a blitz é feita pelo app de campo para uma equipe sem processo no cadastro.
+  processo: string | null;
   prefixo: string;
   tipoId: string;
   colaboradores: string[];
@@ -72,7 +73,7 @@ export interface NovaBlitz {
 export interface BlitzResumo {
   id: number;
   data: string;
-  processo: string;
+  processo: string | null;
   prefixo: string;
   tipoId: string;
   colaboradores: string[];

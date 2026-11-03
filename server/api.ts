@@ -314,8 +314,10 @@ function validarBlitz(corpo: Partial<NovaBlitz>): NovaBlitz {
     throw new ErroValidacao("Data da blitz inválida.");
   }
 
-  if (typeof corpo.processo !== "string" || !(PROCESSOS as readonly string[]).includes(corpo.processo)) {
-    throw new ErroValidacao("Selecione um processo válido.");
+  // Processo é opcional: o app de campo grava o tipo, e o processo vem do cadastro da equipe quando existe.
+  const processo = corpo.processo === undefined || corpo.processo === null || corpo.processo === "" ? null : corpo.processo;
+  if (processo !== null && (typeof processo !== "string" || !(PROCESSOS as readonly string[]).includes(processo))) {
+    throw new ErroValidacao("Processo inválido.");
   }
 
   const prefixo = normalizarPrefixo(corpo.prefixo);
@@ -372,7 +374,7 @@ function validarBlitz(corpo: Partial<NovaBlitz>): NovaBlitz {
   return {
     idCliente: idCliente ?? undefined,
     data,
-    processo: corpo.processo,
+    processo,
     prefixo,
     tipoId,
     colaboradores,

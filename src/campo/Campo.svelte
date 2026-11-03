@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import materiaisJson from "../lib/data/materiais.json";
-  import { PROCESSOS } from "../lib/compartilhado";
   import { dataHoje } from "../lib/format";
   import { mostrarAviso } from "../lib/avisos.svelte";
   import { fila, type BlitzPendente } from "../lib/fila";
@@ -29,7 +28,6 @@
   let online = $state(navigator.onLine);
 
   let data = $state(dataHoje());
-  let processo = $state("");
   let prefixo = $state("");
   let tipoEscolhido = $state("");
   let colaboradores = $state<string[]>([""]);
@@ -50,8 +48,7 @@
   const respondidos = $derived(itens.filter((item) => escolhas[item.id]).length);
   const faltam = $derived(itens.length - respondidos);
   const podeEnviar = $derived(
-    Boolean(processo) &&
-      prefixoNormalizado.length > 0 &&
+    prefixoNormalizado.length > 0 &&
       prefixoNormalizado.length <= 20 &&
       Boolean(tipoId) &&
       colaboradoresValidos.length > 0 &&
@@ -168,7 +165,8 @@
     const blitz: NovaBlitz = {
       idCliente: crypto.randomUUID(),
       data,
-      processo,
+      // O processo vem do cadastro da equipe. Equipe nova entra sem processo, até ele ser definido.
+      processo: equipeCadastrada?.processo ?? null,
       prefixo: prefixoNormalizado,
       tipoId,
       colaboradores: colaboradoresValidos,
@@ -248,7 +246,7 @@
           <li class="etiqueta pendente">
             <div class="pendente-topo">
               <strong class="codigo">{item.payload.prefixo}</strong>
-              <span class="texto-suave">{item.payload.processo} · {item.payload.data}</span>
+              <span class="texto-suave">{nomeTipo(item.payload.tipoId)} · {item.payload.data}</span>
             </div>
             {#if item.erro}
               <p class="mensagem mensagem-erro">Não enviada: {item.erro}</p>
@@ -274,40 +272,30 @@
       </div>
     </div>
 
-    <div class="grade-campos">
-      <label class="rotulo">
-        Data
-        <input type="date" bind:value={data} required />
-      </label>
-      <label class="rotulo">
-        Processo
-        <select bind:value={processo} required>
-          <option value="" disabled>Selecione o processo</option>
-          {#each PROCESSOS as nome (nome)}
-            <option value={nome}>{nome}</option>
-          {/each}
-        </select>
-      </label>
-    </div>
+    <label class="rotulo">
+      Data
+      <input type="date" bind:value={data} required />
+    </label>
 
     <div class="rotulo">
       <span>Prefixo da equipe</span>
       <BuscaEquipe id="prefixo-campo" bind:valor={prefixo} {equipes} {nomeTipo} />
     </div>
 
-    {#if prefixoNormalizado && !equipeCadastrada?.tipoId}
-      <label class="rotulo">
-        Tipo de equipe
-        <select bind:value={tipoEscolhido} required>
-          <option value="" disabled>Selecione o tipo</option>
-          {#each materiais.tipos as tipo (tipo.id)}
-            <option value={tipo.id}>{tipo.nome}</option>
-          {/each}
-        </select>
-      </label>
-    {:else if tipoId}
-      <p class="nota">Tipo: <strong>{nomeTipo(tipoId)}</strong></p>
-    {/if}
+    <label class="rotulo">
+      Tipo de equipe
+      <select
+        value={tipoId ?? ""}
+        onchange={(evento) => (tipoEscolhido = evento.currentTarget.value)}
+        disabled={Boolean(equipeCadastrada?.tipoId)}
+        required
+      >
+        <option value="" disabled>Selecione o tipo</option>
+        {#each materiais.tipos as tipo (tipo.id)}
+          <option value={tipo.id}>{tipo.nome}</option>
+        {/each}
+      </select>
+    </label>
 
     <div class="bloco-colaboradores">
       <span class="rotulo-texto">Colaboradores da equipe</span>
@@ -469,12 +457,6 @@
   .pendentes {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-  }
-
-  .grade-campos {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     gap: 14px;
   }
 
