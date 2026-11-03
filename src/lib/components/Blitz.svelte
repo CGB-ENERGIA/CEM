@@ -23,8 +23,6 @@
     observacao: string;
   }
 
-  const LIMITE_QUANTIDADE = 999;
-
   const materiais = materiaisJson as Materiais;
 
   let data = $state(dataHoje());
@@ -131,52 +129,80 @@
     return respostas[itemId];
   }
 
-  // Ao informar a quantidade encontrada, o defeito nunca passa dela.
-  function definirEncontrada(item: Item, valor: number | string) {
+  // Três situações exclusivas por item. Não há valor padrão: cada item precisa de uma escolha.
+  const opcoesSituacao = [
+    { valor: "ok", rotulo: "OK" },
+    { valor: "nao_ok", rotulo: "Não OK" },
+    { valor: "faltante", rotulo: "Faltante" },
+  ] as const;
+
+  // Unidades afetadas pela situação atual: faltam (Faltante) ou com defeito (Não OK).
+  function quantidadeDe(item: Item): number {
+    const situacao = situacaoDe(item);
+    if (situacao === "faltante") return faltamDe(item);
+    if (situacao === "nao_ok") return respostas[item.id]?.naoConforme ?? 0;
+    return 0;
+  }
+
+  // Grava a situação nas duas contagens que o servidor usa para derivar o status.
+  function escolherSituacao(item: Item, situacao: "ok" | "nao_ok" | "faltante") {
     const resposta = garantirResposta(item.id);
-    if (valor === "" || valor === null) {
-      resposta.encontrada = null;
+    const exigida = exigidaDe(item);
+    if (situacao === "ok") {
+      resposta.encontrada = exigida;
       resposta.naoConforme = 0;
       return;
     }
-    const numero = typeof valor === "number" ? valor : Number(valor);
-    if (Number.isNaN(numero)) return;
-    resposta.encontrada = limitar(numero, 0, LIMITE_QUANTIDADE);
-    resposta.naoConforme = Math.min(resposta.naoConforme, resposta.encontrada);
-  }
-
-  function definirDefeito(item: Item, valor: number | string) {
-    const resposta = garantirResposta(item.id);
-    const encontrada = resposta.encontrada ?? 0;
-    const numero = typeof valor === "number" ? valor : Number(valor);
-    if (Number.isNaN(numero)) return;
-    resposta.naoConforme = limitar(numero, 0, encontrada);
-  }
-
-  function ajustar(item: Item, campo: "encontrada" | "naoConforme", delta: number) {
-    const resposta = garantirResposta(item.id);
-    if (campo === "encontrada") {
-      definirEncontrada(item, (resposta.encontrada ?? 0) + delta);
+    // Ao trocar de situação, a quantidade anterior é mantida quando possível.
+    const quantidade = limitar(quantidadeDe(item) || 1, 1, exigida);
+    if (situacao === "nao_ok") {
+      resposta.encontrada = exigida;
+      resposta.naoConforme = quantidade;
     } else {
-      definirDefeito(item, resposta.naoConforme + delta);
+      resposta.encontrada = exigida - quantidade;
+      resposta.naoConforme = 0;
     }
   }
 
-  // "Tudo ok": encontrou todas as unidades exigidas e nenhuma com defeito.
-  function completarItem(item: Item) {
+  function ajustarQuantidade(item: Item, delta: number) {
+    const situacao = situacaoDe(item);
+    if (situacao !== "faltante" && situacao !== "nao_ok") return;
     const resposta = garantirResposta(item.id);
-    resposta.encontrada = exigidaDe(item);
-    resposta.naoConforme = 0;
+    const exigida = exigidaDe(item);
+    const quantidade = limitar(quantidadeDe(item) + delta, 1, exigida);
+    if (situacao === "nao_ok") {
+      resposta.naoConforme = quantidade;
+    } else {
+      resposta.encontrada = exigida - quantidade;
+    }
   }
 
-  function marcarTodosCompletos() {
+  // Marca todos como OK e guarda as respostas anteriores por alguns segundos, para desfazer.
+  let respostasAntes = $state<Record<number, Resposta> | null>(null);
+  let temporizadorDesfazer: ReturnType<typeof setTimeout> | undefined;
+
+  function marcarTodosOk() {
+    respostasAntes = $state.snapshot(respostas) as Record<number, Resposta>;
     for (const item of itensDaBlitz) {
-      completarItem(item);
+      escolherSituacao(item, "ok");
     }
+    clearTimeout(temporizadorDesfazer);
+    temporizadorDesfazer = setTimeout(() => (respostasAntes = null), 8000);
+  }
+
+  function desfazerMarcacao() {
+    if (!respostasAntes) return;
+    respostas = respostasAntes;
+    respostasAntes = null;
+    clearTimeout(temporizadorDesfazer);
   }
 
   function limparRespostas() {
+    const quantidadeRespondida = respondidos;
+    if (quantidadeRespondida === 0) return;
+    if (!confirm(`Apagar as ${quantidadeRespondida} resposta(s) desta blitz?`)) return;
     respostas = {};
+    respostasAntes = null;
   }
 
   async function carregarEquipes() {
@@ -486,23 +512,27 @@
       </div>
 
       <div class="barra-acoes distancia">
-        <button type="button" class="botao-secundario" onclick={marcarTodosCompletos}>
-          Marcar todos como completos
-        </button>
+        <button type="button" class="botao-secundario" onclick={marcarTodosOk}>Marcar todos como OK</button>
         <button type="button" class="botao-secundario" onclick={limparRespostas}>Limpar respostas</button>
       </div>
+
+      {#if respostasAntes}
+        <p class="desfazer-marcacao distancia" role="status">
+          Todos marcados como OK.
+          <button type="button" class="botao-secundario" onclick={desfazerMarcacao}>Desfazer</button>
+        </p>
+      {/if}
 
       <ol class="checklist distancia">
         {#each itensDaBlitz as item, posicao (item.id)}
           {@const situacao = situacaoDe(item)}
           {@const exigida = exigidaDe(item)}
-          {@const encontrada = respostas[item.id]?.encontrada ?? null}
-          {@const naoConforme = respostas[item.id]?.naoConforme ?? 0}
+          {@const quantidade = quantidadeDe(item)}
           <li
             class="etiqueta item"
             class:item-ok={situacao === "ok"}
             class:item-pendente={situacao === "faltante" || situacao === "nao_ok"}
-            use:assentar={`${situacao}|${encontrada}|${naoConforme}`}
+            use:assentar={`${situacao}|${quantidade}`}
           >
             <div class="item-topo">
               <span class="numero codigo">{String(posicao + 1).padStart(2, "0")}</span>
@@ -522,46 +552,33 @@
               </span>
             </div>
 
-            <div class="contagens">
-              <div class="campo-contagem">
-                <span class="campo-rotulo" id={`enc-${item.id}`}>Encontrados</span>
-                <div class="stepper" role="group" aria-labelledby={`enc-${item.id}`}>
-                  <button type="button" onclick={() => ajustar(item, "encontrada", -1)} disabled={!encontrada} aria-label="Diminuir encontrados">−</button>
-                  <input
-                    type="number"
-                    inputmode="numeric"
-                    min="0"
-                    max={LIMITE_QUANTIDADE}
-                    value={encontrada ?? ""}
-                    oninput={(evento) => definirEncontrada(item, evento.currentTarget.value)}
-                    aria-label={`Encontrados de ${item.descricao}`}
-                  />
-                  <button type="button" onclick={() => ajustar(item, "encontrada", 1)} aria-label="Aumentar encontrados">+</button>
-                </div>
-              </div>
-
-              <div class="campo-contagem">
-                <span class="campo-rotulo" id={`def-${item.id}`}>Com defeito</span>
-                <div class="stepper" role="group" aria-labelledby={`def-${item.id}`}>
-                  <button type="button" onclick={() => ajustar(item, "naoConforme", -1)} disabled={naoConforme === 0} aria-label="Diminuir defeitos">−</button>
-                  <input
-                    type="number"
-                    inputmode="numeric"
-                    min="0"
-                    max={encontrada ?? 0}
-                    value={naoConforme}
-                    oninput={(evento) => definirDefeito(item, evento.currentTarget.value)}
-                    disabled={!encontrada}
-                    aria-label={`Unidades com defeito de ${item.descricao}`}
-                  />
-                  <button type="button" onclick={() => ajustar(item, "naoConforme", 1)} disabled={!encontrada || naoConforme >= (encontrada ?? 0)} aria-label="Aumentar defeitos">+</button>
-                </div>
-              </div>
-
-              <button type="button" class="botao-secundario completo" onclick={() => completarItem(item)}>
-                Tudo ok
-              </button>
+            <div class="segmentos" role="group" aria-label={`Situação de ${item.descricao}`}>
+              {#each opcoesSituacao as opcao (opcao.valor)}
+                <button
+                  type="button"
+                  class="segmento"
+                  data-situacao={opcao.valor}
+                  class:ativo={situacao === opcao.valor}
+                  aria-pressed={situacao === opcao.valor}
+                  onclick={() => escolherSituacao(item, opcao.valor)}
+                >
+                  {opcao.rotulo}
+                </button>
+              {/each}
             </div>
+
+            {#if (situacao === "faltante" || situacao === "nao_ok") && exigida > 1}
+              <div class="quantidade-situacao">
+                <span class="campo-rotulo" id={`qtd-${item.id}`}>
+                  {situacao === "faltante" ? "Quantos faltam" : "Quantos com defeito"}
+                </span>
+                <div class="stepper" role="group" aria-labelledby={`qtd-${item.id}`}>
+                  <button type="button" onclick={() => ajustarQuantidade(item, -1)} disabled={quantidade <= 1} aria-label="Diminuir quantidade">−</button>
+                  <span class="quantidade-valor codigo" aria-live="polite">{quantidade}</span>
+                  <button type="button" onclick={() => ajustarQuantidade(item, 1)} disabled={quantidade >= exigida} aria-label="Aumentar quantidade">+</button>
+                </div>
+              </div>
+            {/if}
 
             {#if situacao === "faltante" || situacao === "nao_ok"}
               <input
@@ -837,19 +854,71 @@
     flex-shrink: 0;
   }
 
-  /* Duas contagens lado a lado, com o botão "Tudo ok" ao lado */
-  .contagens {
+  /* Três situações exclusivas, uma por toque. Cada cor vem do status que ela representa. */
+  .segmentos {
     display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 12px;
-    align-items: end;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
   }
 
-  .campo-contagem {
+  .segmento {
+    min-height: 48px;
+    background: var(--superficie-elevada);
+    border: 1px solid var(--borda-forte);
+    border-radius: var(--raio-etiqueta);
+    color: var(--tinta);
+    font-family: var(--fonte-titulo);
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+  }
+
+  .segmento[data-situacao="ok"].ativo {
+    background: var(--ok-suave);
+    border-color: var(--ok);
+    color: var(--ok-texto);
+  }
+
+  .segmento[data-situacao="nao_ok"].ativo {
+    background: var(--atencao-suave);
+    border-color: var(--atencao);
+    color: var(--tinta);
+  }
+
+  .segmento[data-situacao="faltante"].ativo {
+    background: var(--falta-suave);
+    border-color: var(--falta);
+    color: var(--falta);
+  }
+
+  .quantidade-situacao {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    min-width: 0;
+    max-width: 260px;
+  }
+
+  .quantidade-valor {
+    display: grid;
+    place-items: center;
+    min-height: 44px;
+    font-weight: 500;
+    border-top: 1px solid var(--borda);
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .desfazer-marcacao {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--superficie-elevada);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-etiqueta);
+    color: var(--tinta-suave);
   }
 
   .campo-rotulo {
@@ -892,30 +961,6 @@
   .stepper button:disabled {
     opacity: 0.35;
     cursor: not-allowed;
-  }
-
-  .stepper input {
-    min-height: 44px;
-    text-align: center;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    font-family: var(--fonte-codigo);
-    font-size: 1.05rem;
-    font-weight: 500;
-    -moz-appearance: textfield;
-    appearance: textfield;
-  }
-
-  .stepper input::-webkit-outer-spin-button,
-  .stepper input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  .completo {
-    min-height: 44px;
-    white-space: nowrap;
   }
 
   .observacao {
@@ -1060,12 +1105,13 @@
   }
 
   @media (max-width: 640px) {
-    .contagens {
-      grid-template-columns: 1fr 1fr;
+    /* A barra de envio fica acima da barra de abas do rodapé (58px + área segura do aparelho). */
+    .barra-envio {
+      bottom: calc(58px + env(safe-area-inset-bottom));
     }
 
-    .completo {
-      grid-column: 1 / -1;
+    .segmento {
+      min-height: 52px;
     }
 
     .item-topo {
