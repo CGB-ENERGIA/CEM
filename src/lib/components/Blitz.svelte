@@ -632,7 +632,7 @@
   <div class="cabecalho-painel distancia separador">
     <div>
       <h2>Blitzes de {formatarMes(mesHistorico)}</h2>
-      <p>Pendências abertas para adequação, por equipe.</p>
+      <p>Blitz registradas no mês, da mais recente para a mais antiga.</p>
     </div>
     <label class="rotulo">
       Mês

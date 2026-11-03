@@ -96,7 +96,11 @@
           class="kpi-valor"
           use:numeroAnimado={{ valor: dados.percentualConformes, formatar: formatarPercentual }}
         ></div>
-        <span class="nota">pela última blitz de cada equipe</span>
+        <span class="nota">
+          {dados.percentualConformes === null
+            ? "nenhuma equipe foi blitzada neste mês"
+            : "pela última blitz de cada equipe"}
+        </span>
       </div>
     </div>
 
