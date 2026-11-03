@@ -615,15 +615,28 @@
     </div>
 
     <div class="barra-envio">
-      <div class="mensagens">
-        {#if erro}
-          <p class="mensagem mensagem-erro" role="alert">{erro}</p>
-        {/if}
+      <!-- Trilho de progresso colado à borda superior: lê-se de relance, mesmo com a tela rolada. -->
+      <div class="progresso-envio" aria-hidden="true">
+        <div class="progresso-envio-preenchido" use:barra={percentualRespondido}></div>
       </div>
-      <div class="acao-envio">
-        {#if respondidos !== itensDaBlitz.length}
-          <span class="nota">Faltam {aVerificar} item(ns) para registrar.</span>
-        {/if}
+
+      {#if erro}
+        <p class="mensagem mensagem-erro" role="alert">{erro}</p>
+      {/if}
+
+      <div class="linha-envio">
+        <div class="resumo-envio" aria-live="polite">
+          <span class="contagem-envio codigo">{respondidos}/{itensDaBlitz.length}</span>
+          <span class="rotulo-envio">
+            {#if itensDaBlitz.length > 0 && aVerificar === 0}
+              Pronto para registrar
+            {:else if aVerificar === 1}
+              1 item falta
+            {:else}
+              {aVerificar} itens faltam
+            {/if}
+          </span>
+        </div>
         <button class="botao" type="submit" disabled={!podeEnviar}>
           {enviando ? "Registrando..." : online ? "Registrar blitz" : "Guardar no celular"}
         </button>
@@ -993,42 +1006,74 @@
     padding: 12px 0;
   }
 
+  /* Barra de envio: trilho de progresso no topo, resumo à esquerda e ação principal à direita. */
   .barra-envio {
     position: sticky;
     bottom: 0;
     z-index: 5;
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 18px;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 18px 12px;
     background: var(--envio-fundo);
     color: var(--envio-texto);
     border: 1px solid var(--borda);
     border-radius: var(--raio);
     box-shadow: var(--sombra-envio);
+    overflow: hidden;
     transition: background-color 180ms ease;
   }
 
-  .barra-envio .nota {
-    margin: 0;
-    color: var(--envio-suave);
+  .progresso-envio {
+    height: 3px;
+    margin: 0 -18px;
+    background: color-mix(in srgb, var(--envio-texto) 14%, transparent);
   }
 
-  .barra-envio .mensagens {
-    flex: 1 1 100%;
+  .progresso-envio-preenchido {
+    height: 100%;
+    background: var(--primaria);
+    width: 0;
+  }
+
+  .linha-envio {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 52px;
+  }
+
+  .resumo-envio {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .contagem-envio {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--envio-texto);
+  }
+
+  .rotulo-envio {
+    font-family: var(--fonte-titulo);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--envio-suave);
+    white-space: nowrap;
   }
 
   .barra-envio .mensagem {
-    margin: 0 0 8px;
+    margin: 10px 0 0;
   }
 
-  .acao-envio {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    margin-left: auto;
+  .barra-envio .botao {
+    min-height: 44px;
+    min-width: 200px;
   }
 
   /* Ação principal em azul, como nas demais telas. Âmbar fica reservado para status "Não OK". */
@@ -1172,19 +1217,21 @@
       flex-direction: column;
     }
 
-    .acao-envio {
-      width: 100%;
-      flex-direction: column;
-      align-items: stretch;
-      margin-left: 0;
+    .barra-envio {
+      padding: 0 12px 10px;
     }
 
-    .acao-envio .botao {
-      width: 100%;
+    .progresso-envio {
+      margin: 0 -12px;
     }
 
-    .acao-envio .nota {
-      text-align: center;
+    .barra-envio .botao {
+      min-width: 0;
+      padding: 10px 16px;
+    }
+
+    .rotulo-envio {
+      white-space: normal;
     }
   }
 </style>
