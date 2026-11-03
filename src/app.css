@@ -264,7 +264,7 @@ input::placeholder {
   border: 1px solid var(--borda);
   border-radius: var(--raio);
   box-shadow: var(--sombra);
-  padding: 24px;
+  padding: 18px;
   transition: var(--transicao-cor);
 }
 
@@ -689,7 +689,7 @@ input::placeholder {
   }
 
   .painel {
-    padding: 16px;
+    padding: 12px;
   }
 
   .tabela th,

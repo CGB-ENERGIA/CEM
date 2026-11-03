@@ -200,7 +200,7 @@
   }
 
   .topo-interno {
-    max-width: 1440px;
+    max-width: 1680px;
     margin: 0 auto;
     padding: 0 20px;
     min-height: 60px;
@@ -363,9 +363,9 @@
   }
 
   .conteudo {
-    max-width: 1440px;
+    max-width: 1680px;
     margin: 0 auto;
-    padding: 24px 20px 56px;
+    padding: 16px 16px 40px;
   }
 
   .rotulo-curto {
