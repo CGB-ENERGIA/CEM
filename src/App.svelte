@@ -24,7 +24,8 @@
     { id: "equipes", rotulo: "Equipes", curto: "Equipes" },
   ];
 
-  let aba = $state<Aba>("dashboard");
+  // No celular, o app abre direto na blitz, que é o uso de campo. No computador, abre no dashboard.
+  let aba = $state<Aba>(window.matchMedia("(max-width: 640px)").matches ? "blitz" : "dashboard");
   let listaAbas: HTMLElement | undefined = $state();
   let indicador: HTMLElement | undefined = $state();
   let posicaoAnterior = 0;
