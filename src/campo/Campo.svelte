@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import materiaisJson from "../lib/data/materiais.json";
   import { dataHoje, formatarData } from "../lib/format";
+  import { PROCESSOS } from "../lib/compartilhado";
   import { mostrarAviso } from "../lib/avisos.svelte";
   import { fila, type BlitzPendente } from "../lib/fila";
   import type { Item, Materiais, NovaBlitz, NovoItemBlitz } from "../lib/tipos";
@@ -30,6 +31,7 @@
   let data = $state(dataHoje());
   let prefixo = $state("");
   let tipoEscolhido = $state("");
+  let processoEscolhido = $state("");
   let colaboradores = $state<string[]>([""]);
   let escolhas = $state<Record<number, Escolha>>({});
 
@@ -41,6 +43,8 @@
   const equipeCadastrada = $derived(equipes.find((equipe) => equipe.prefixo === prefixoNormalizado));
   // Equipe cadastrada com tipo usa o tipo do cadastro. Equipe nova, ou sem tipo, usa o tipo escolhido na tela.
   const tipoId = $derived(equipeCadastrada?.tipoId ?? (tipoEscolhido || null));
+  // Processo do cadastro quando existe; equipe nova precisa escolher um.
+  const processoDaBlitz = $derived(equipeCadastrada?.processo ?? (processoEscolhido || null));
   const itens = $derived(
     tipoId ? materiais.itens.filter((item) => (item.quantidades[tipoId] ?? 0) > 0) : [],
   );
@@ -51,6 +55,7 @@
     prefixoNormalizado.length > 0 &&
       prefixoNormalizado.length <= 20 &&
       Boolean(tipoId) &&
+      Boolean(processoDaBlitz) &&
       colaboradoresValidos.length > 0 &&
       itens.length > 0 &&
       faltam === 0,
@@ -61,6 +66,7 @@
     const lista: string[] = [];
     if (prefixoNormalizado.length === 0) lista.push("prefixo");
     if (prefixoNormalizado && !tipoId) lista.push("tipo");
+    if (prefixoNormalizado && !processoDaBlitz) lista.push("processo");
     if (colaboradoresValidos.length === 0) lista.push("colaborador");
     if (tipoId && faltam > 0) lista.push(`${faltam} ${faltam === 1 ? "item" : "itens"}`);
     return lista;
@@ -144,6 +150,7 @@
   function limparFormulario() {
     prefixo = "";
     tipoEscolhido = "";
+    processoEscolhido = "";
     colaboradores = [""];
     escolhas = {};
     antesDaMarcacao = null;
@@ -206,8 +213,7 @@
     const blitz: NovaBlitz = {
       idCliente: crypto.randomUUID(),
       data,
-      // O processo vem do cadastro da equipe. Equipe nova entra sem processo, até ele ser definido.
-      processo: equipeCadastrada?.processo ?? null,
+      processo: processoDaBlitz,
       prefixo: prefixoNormalizado,
       tipoId,
       colaboradores: colaboradoresValidos,
@@ -344,6 +350,23 @@
       <p class="nota">Equipe cadastrada como <strong>{nomeTipo(tipoId)}</strong>. O tipo vem do cadastro.</p>
     {:else if prefixoNormalizado && tipoId}
       <p class="nota">Equipe nova: o tipo escolhido vai para o cadastro com esta blitz.</p>
+    {/if}
+
+    {#if prefixoNormalizado}
+      <label class="rotulo">
+        Processo
+        <select
+          value={processoDaBlitz ?? ""}
+          onchange={(evento) => (processoEscolhido = evento.currentTarget.value)}
+          disabled={Boolean(equipeCadastrada?.processo)}
+          required
+        >
+          <option value="" disabled>Selecione o processo</option>
+          {#each PROCESSOS as nome (nome)}
+            <option value={nome}>{nome}</option>
+          {/each}
+        </select>
+      </label>
     {/if}
 
     <div class="bloco-colaboradores">
