@@ -56,17 +56,18 @@
       faltam === 0,
   );
 
-  // Motivos que impedem o envio, em linguagem de campo. Aparecem só depois de uma tentativa de envio.
-  const pendencias = $derived.by(() => {
+  // O que ainda impede o envio, em termos curtos. Fica sempre visível na barra de envio.
+  const faltando = $derived.by(() => {
     const lista: string[] = [];
-    if (prefixoNormalizado.length === 0) lista.push("Informe o prefixo da equipe.");
-    else if (prefixoNormalizado.length > 20) lista.push("O prefixo passa de 20 caracteres.");
-    if (prefixoNormalizado && !tipoId) lista.push("Escolha o tipo da equipe.");
-    if (colaboradoresValidos.length === 0) lista.push("Informe ao menos um colaborador.");
-    if (tipoId && faltam > 0) lista.push(`Responda os ${faltam} item(ns) que faltam.`);
+    if (prefixoNormalizado.length === 0) lista.push("prefixo");
+    if (prefixoNormalizado && !tipoId) lista.push("tipo");
+    if (colaboradoresValidos.length === 0) lista.push("colaborador");
+    if (tipoId && faltam > 0) lista.push(`${faltam} ${faltam === 1 ? "item" : "itens"}`);
     return lista;
   });
-  let tentouEnviar = $state(false);
+  const resumoFalta = $derived(
+    faltando.length === 0 ? "Pronto para registrar" : `Falta: ${faltando.join(", ")}`,
+  );
   // Respostas de antes de "Marcar restantes como OK", para desfazer até a próxima ação.
   let antesDaMarcacao = $state<Record<number, Escolha> | null>(null);
 
@@ -136,7 +137,6 @@
     colaboradores = [""];
     escolhas = {};
     antesDaMarcacao = null;
-    tentouEnviar = false;
   }
 
   async function carregarEquipes() {
@@ -191,11 +191,8 @@
   }
 
   async function registrar() {
-    if (!podeEnviar || !tipoId) {
-      // O botão fica ativo para mostrar o que falta, em vez de ficar apagado sem explicação.
-      tentouEnviar = true;
-      return;
-    }
+    // O botão só fica ativo com tudo preenchido; o que falta aparece ao lado, na barra.
+    if (!podeEnviar || !tipoId) return;
     const blitz: NovaBlitz = {
       idCliente: crypto.randomUUID(),
       data,
@@ -443,21 +440,9 @@
       <p class="nota">Escolha a equipe, ou o tipo da equipe nova, para ver os materiais exigidos.</p>
     {/if}
 
-    {#if tentouEnviar && pendencias.length > 0}
-      <ul class="pendencias" role="alert">
-        {#each pendencias as texto (texto)}
-          <li>{texto}</li>
-        {/each}
-      </ul>
-    {/if}
-
-    <div class="barra-envio">
-      <span class="nota">
-        {#if tipoId && faltam > 0}
-          Faltam {faltam} item(ns) para registrar.
-        {/if}
-      </span>
-      <button class="botao" type="submit" disabled={enviando} aria-disabled={!podeEnviar}>
+    <div class="barra-envio" aria-live="polite">
+      <span class="falta" class:pronto={faltando.length === 0}>{resumoFalta}</span>
+      <button class="botao" type="submit" disabled={!podeEnviar || enviando}>
         {enviando ? "Registrando..." : online ? "Registrar blitz" : "Guardar no celular"}
       </button>
     </div>
@@ -695,17 +680,18 @@
     align-items: center;
   }
 
-  .pendencias {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin: 0;
-    padding: 10px 14px 10px 30px;
-    background: var(--atencao-suave);
-    border: 1px solid var(--atencao);
-    border-radius: var(--raio-etiqueta);
-    color: var(--tinta);
+  .falta {
+    min-width: 0;
     font-size: 0.92rem;
+    color: var(--envio-suave);
+  }
+
+  .falta.pronto {
+    color: var(--envio-texto);
+    font-family: var(--fonte-titulo);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   .desfazer {
