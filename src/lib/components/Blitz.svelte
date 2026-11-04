@@ -511,8 +511,8 @@
           </p>
         </div>
         <div class="contadores" aria-live="polite">
-          <span class="chip chip-ok">{completos} completos</span>
-          <span class="chip chip-atencao">{comPendencia} com pendência</span>
+          <span class="chip chip-ok">{completos} OK</span>
+          <span class="chip chip-atencao">{comPendencia} Não OK ou Faltante</span>
           <span class="chip">{aVerificar} a verificar</span>
         </div>
       </div>
@@ -680,9 +680,9 @@
             <span class="texto-suave">{nomeTipo(blitz.tipoId)}</span>
             <span class="chip">{blitz.processo}</span>
             {#if blitz.conforme}
-              <span class="chip chip-ok">Conforme</span>
+              <span class="chip chip-ok">Todos OK</span>
             {:else}
-              <span class="chip chip-falta">{blitz.naoConformes} pendência(s)</span>
+              <span class="chip chip-falta">{blitz.naoConformes} Não OK ou Faltante</span>
             {/if}
           </summary>
 
@@ -698,7 +698,7 @@
                       <th class="numerico">Exigidos</th>
                       <th class="numerico">Encontrados</th>
                       <th class="numerico">Faltam</th>
-                      <th class="numerico">Com defeito</th>
+                      <th class="numerico">Não OK</th>
                       <th>Observação</th>
                     </tr>
                   </thead>
@@ -709,7 +709,7 @@
                         <td data-rotulo="Exigidos" class="numerico codigo">{item.exigida}</td>
                         <td data-rotulo="Encontrados" class="numerico codigo">{item.encontrada}</td>
                         <td data-rotulo="Faltam" class="numerico codigo">{Math.max(0, item.exigida - item.encontrada)}</td>
-                        <td data-rotulo="Com defeito" class="numerico codigo">{item.naoConforme}</td>
+                        <td data-rotulo="Não OK" class="numerico codigo">{item.naoConforme}</td>
                         <td data-rotulo="Observação">{item.observacao ?? "—"}</td>
                       </tr>
                     {/each}
@@ -717,7 +717,7 @@
                 </table>
               </div>
             {:else}
-              <p class="texto-suave">Todos os itens estão completos.</p>
+              <p class="texto-suave">Todos os itens estão OK.</p>
             {/if}
 
             <div class="distancia">

@@ -91,7 +91,7 @@
         <span class="nota">de {numero.format(dados.equipesTotais)} cadastradas</span>
       </div>
       <div class="kpi">
-        <span class="kpi-rotulo">Equipes conformes</span>
+        <span class="kpi-rotulo">Equipes com todos OK</span>
         <div
           class="kpi-valor"
           use:numeroAnimado={{ valor: dados.percentualConformes, formatar: formatarPercentual }}
@@ -136,9 +136,9 @@
                   <td class="codigo" data-rotulo="Última blitz">{equipe.ultimaData ? formatarData(equipe.ultimaData) : "—"}</td>
                   <td data-rotulo="Situação">
                     {#if equipe.conforme === true}
-                      <span class="chip chip-ok">Conforme</span>
+                      <span class="chip chip-ok">Todos OK</span>
                     {:else if equipe.conforme === false}
-                      <span class="chip chip-falta">Não conforme</span>
+                      <span class="chip chip-falta">Não OK</span>
                     {:else}
                       <span class="chip">Sem dados</span>
                     {/if}
