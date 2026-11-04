@@ -9,7 +9,7 @@
 <div class="pilha" aria-live="polite">
   {#each avisos.lista as aviso (aviso.id)}
     <div class="aviso" data-tipo={aviso.tipo} role={aviso.tipo === "erro" ? "alert" : "status"} use:entrarAviso out:fly={{ x: 40, duration: 220 }}>
-      <span class="chip" class:chip-ok={aviso.tipo === "ok"} class:chip-falta={aviso.tipo === "erro"}>
+      <span class="chip" class:chip-ok={aviso.tipo === "ok"} class:chip-erro={aviso.tipo === "erro"}>
         {rotulos[aviso.tipo]}
       </span>
       <p class="texto">{aviso.texto}</p>
@@ -50,7 +50,12 @@
   }
 
   .aviso[data-tipo="erro"] {
-    border-color: var(--falta);
+    border-color: var(--tinta);
+  }
+
+  .chip-erro {
+    background: var(--tinta);
+    color: var(--superficie-elevada);
   }
 
   .aviso .chip {

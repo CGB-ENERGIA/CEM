@@ -440,8 +440,9 @@ input::placeholder {
 
 .botao-perigo:hover:not(:disabled),
 .botao-perigo:focus-visible {
-  background: var(--falta-suave);
-  color: var(--falta-texto);
+  background: var(--fundo);
+  color: var(--tinta);
+  border-color: var(--borda-forte);
 }
 
 /* ---------- Campos ---------- */
@@ -485,10 +486,11 @@ input:disabled {
   border: 1px solid transparent;
 }
 
+/* Erro é texto em destaque neutro: vermelho fica reservado para Faltante. */
 .mensagem-erro {
-  background: var(--falta-suave);
-  color: var(--falta-texto);
-  border-color: var(--falta);
+  background: var(--superficie-elevada);
+  color: var(--tinta);
+  border-color: var(--tinta);
 }
 
 .mensagem-ok {

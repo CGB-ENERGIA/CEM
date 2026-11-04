@@ -200,7 +200,7 @@
     --on-accent: var(--primaria-tinta);
     --tint: color-mix(in srgb, var(--fundo) 50%, transparent);
     --diag: 2px;
-    --erro: var(--falta-texto);
+    --erro: var(--tinta);
     --aviso: var(--tinta-suave);
 
     position: fixed;
@@ -406,9 +406,9 @@
   .erro {
     margin: 0 0 16px;
     padding: 10px 12px;
-    background: var(--falta-suave);
-    color: var(--falta-texto);
-    border: 1px solid var(--falta);
+    background: var(--superficie-elevada);
+    color: var(--tinta);
+    border: 1px solid var(--tinta);
     border-radius: 6px;
     font-size: 0.95rem;
   }
