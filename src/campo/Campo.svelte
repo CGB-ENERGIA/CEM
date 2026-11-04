@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import materiaisJson from "../lib/data/materiais.json";
-  import { dataHoje } from "../lib/format";
+  import { dataHoje, formatarData } from "../lib/format";
   import { mostrarAviso } from "../lib/avisos.svelte";
   import { fila, type BlitzPendente } from "../lib/fila";
   import type { Item, Materiais, NovaBlitz, NovoItemBlitz } from "../lib/tipos";
@@ -240,6 +240,8 @@
 
     enviando = false;
     limparFormulario();
+    // Volta ao topo: o formulário começa de novo e o encarregado vê a próxima equipe desde o início.
+    window.scrollTo({ top: 0, behavior: "smooth" });
     await Promise.all([carregarEquipes(), carregarPendentes()]);
   }
 
@@ -287,7 +289,7 @@
           <li class="etiqueta pendente">
             <div class="pendente-topo">
               <strong class="codigo">{item.payload.prefixo}</strong>
-              <span class="texto-suave">{nomeTipo(item.payload.tipoId)} · {item.payload.data}</span>
+              <span class="texto-suave">{nomeTipo(item.payload.tipoId)} · {formatarData(item.payload.data)}</span>
             </div>
             {#if item.erro}
               <p class="mensagem mensagem-erro">Não enviada: {item.erro}</p>

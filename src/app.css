@@ -446,6 +446,13 @@ input::placeholder {
 
 /* ---------- Campos ---------- */
 
+/* Campo bloqueado (por exemplo, tipo vindo do cadastro) precisa parecer bloqueado */
+select:disabled,
+input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .rotulo {
   display: flex;
   flex-direction: column;
@@ -714,7 +721,7 @@ input::placeholder {
   }
 
   body {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   h2 {

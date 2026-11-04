@@ -50,7 +50,7 @@ Duas superfícies usam o mesmo sistema. O **sistema administrativo** (`/`, com l
 
 Dois temas com os mesmos nomes de token em `src/app.css`:
 
-- **Claro** (padrão): aço claro como chão, tinta quase preta.
+- **Claro**: aço claro como chão, tinta quase preta.
 - **Escuro**: grafite profundo como chão (`#0d1116`), superfícies em `#131a21` e `#1a222c`, texto `#e8edf3`. O azul-aço clareia para `#7ab4ea` para manter contraste sobre o fundo. Os estados mantêm o significado da sinalização: verde, âmbar e vermelho.
 
 O tema é escolhido pelo botão no cabeçalho e salvo no navegador. Sem escolha, segue a preferência do sistema. O cabeçalho usa tokens próprios (`--topo-*`) para que o tema escuro não fique "invertido".

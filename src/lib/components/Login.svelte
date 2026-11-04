@@ -434,7 +434,6 @@
     background: color-mix(in srgb, var(--card) 85%, transparent);
     color: var(--text);
     border: 1px solid var(--line);
-    backdrop-filter: blur(6px);
   }
 
   .theme:focus-visible {

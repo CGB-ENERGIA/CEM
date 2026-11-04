@@ -66,8 +66,9 @@
   .fechar {
     display: grid;
     place-items: center;
-    width: 28px;
-    height: 28px;
+    width: 44px;
+    height: 44px;
+    margin: -8px -8px -8px 0;
     padding: 0;
     background: transparent;
     border: 1px solid transparent;
