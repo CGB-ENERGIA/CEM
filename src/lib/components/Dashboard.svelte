@@ -81,16 +81,16 @@
 
   {#if dados}
     <div class="grade-kpi">
-      <div class="kpi">
+      <div class="kpi etiqueta">
         <span class="kpi-rotulo">Blitzes no mês</span>
         <div class="kpi-valor" use:numeroAnimado={{ valor: dados.totalBlitzes, formatar: inteiro }}></div>
       </div>
-      <div class="kpi">
+      <div class="kpi etiqueta">
         <span class="kpi-rotulo">Equipes que participaram</span>
         <div class="kpi-valor" use:numeroAnimado={{ valor: dados.equipesParticipantes, formatar: inteiro }}></div>
         <span class="nota">de {numero.format(dados.equipesTotais)} cadastradas</span>
       </div>
-      <div class="kpi">
+      <div class="kpi etiqueta">
         <span class="kpi-rotulo">Equipes com todos OK</span>
         <div
           class="kpi-valor"
@@ -297,6 +297,25 @@
     border: 1px solid var(--borda-forte);
     border-radius: 3px;
     font-size: 0.92rem;
+  }
+
+  /* Ilhó da etiqueta de equipe, o mesmo furo das etiquetas de item */
+  .etiqueta-mini::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    width: 8px;
+    height: 4px;
+    margin-top: -2px;
+    border-radius: 2px;
+    background: var(--fundo);
+    border: 1px solid var(--borda-forte);
+  }
+
+  /* Indicadores como etiquetas: o ilhó sai do canto, e o texto recua para não cobri-lo */
+  .kpi.etiqueta {
+    padding: 16px 18px 16px 34px;
   }
 
 
