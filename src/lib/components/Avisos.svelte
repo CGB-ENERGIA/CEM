@@ -80,12 +80,14 @@
     border-color: var(--borda);
   }
 
-  /* No celular, os avisos ficam acima da barra de abas do rodapé. */
+  /* No celular, os avisos descem do topo, logo abaixo do cabeçalho. Assim não cobrem a barra de abas
+     nem a barra de envio, que ficam na parte de baixo da tela. */
   @media (max-width: 640px) {
     .pilha {
-      right: 16px;
-      left: 16px;
-      bottom: calc(80px + env(safe-area-inset-bottom));
+      top: calc(var(--altura-topo) + 10px);
+      right: 12px;
+      left: 12px;
+      bottom: auto;
       width: auto;
     }
   }

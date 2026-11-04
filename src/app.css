@@ -641,12 +641,20 @@ input::placeholder {
     width: 100%;
   }
 
+  /* Cada linha vira um cartão em coluna. A descrição (ou o título) vem primeiro, mesmo que a coluna
+     esteja depois na tabela. */
   .tabela-responsiva tbody tr {
+    display: flex;
+    flex-direction: column;
     margin-bottom: 10px;
     padding: 10px 14px;
     background: var(--superficie-elevada);
     border: 1px solid var(--borda);
     border-radius: var(--raio-etiqueta);
+  }
+
+  .tabela-responsiva td.titulo-cartao {
+    order: -1;
   }
 
   .tabela-responsiva tbody tr:hover td {

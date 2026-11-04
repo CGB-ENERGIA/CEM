@@ -37,6 +37,8 @@ rounded:
 
 Ferramenta de campo para inspeção de segurança. O sistema é uma etiqueta de inspeção: aço claro como chão, tinta de estêncil para títulos, etiquetas de status para cada item. Não há gradiente, vidro nem sombra colorida.
 
+Duas superfícies usam o mesmo sistema. O **sistema administrativo** (`/`, com login) cobre painel, blitz, materiais e equipes. O **app de campo** (`/campo/`, sem login) faz só a blitz, para o encarregado ou supervisor, com fila offline e PWA próprio.
+
 ## Colors
 
 - **Fundo aço**: chão da aplicação e furos das etiquetas.
@@ -70,7 +72,10 @@ Barlow Condensed para títulos, rótulos e chips (caixa alta com tracking leve).
 
 - Cabeçalho escuro com as abas em formato de etiqueta de pasta; a aba ativa assenta sobre o painel com uma faixa azul no topo.
 - Conteúdo com largura máxima de 1680px e painéis de 18px de respiro (12px no celular).
-- Mobile: abas em barra fixa no rodapé, com rótulos curtos; cabeçalho em uma linha com a marca, o tema e Sair; tabelas viram cartões com o nome de cada coluna ao lado do valor; faixa de identificação da equipe presa no checklist da blitz.
+- Mobile: abas em barra fixa no rodapé, com rótulos curtos; cabeçalho em uma linha com a marca, o tema e Sair; tabelas viram cartões, com a descrição ou o título primeiro e o nome de cada coluna ao lado do valor; faixa de identificação da equipe presa no checklist da blitz.
+- Barra de envio (blitz): fixa na parte de baixo. Trilho de progresso colado à borda superior, à esquerda a contagem e o que falta ("2/7 · 5 itens faltam" ou "Pronto para registrar"), à direita a ação principal em azul. No celular, fica acima da barra de abas.
+- Avisos: no canto inferior direito no computador; no celular, descem do topo, logo abaixo do cabeçalho, para não cobrir a barra de envio nem a de abas.
+- Alvos de toque: pelo menos 44px no celular, inclusive botões de ação, Sair e o alternador de tema.
 
 ## Elevation & Depth
 
@@ -87,6 +92,10 @@ Cantos de 4px nas etiquetas, 6px nos painéis e campos. Ilhó da etiqueta é uma
 - **Segmento de situação**: três botões OK / Não OK / Faltante por item, sem valor padrão. A selecionada assume a cor do status. Em Não OK ou Faltante, um contador informa quantas unidades (quando o item exige mais de uma).
 - **Assinatura**: ao mudar a situação de um item, a etiqueta assenta (GSAP, 450ms, `expo.out`).
 - **Trilho e preenchimento**: progresso e rankings, animados na entrada.
+- **Situação com cor**: vermelho só para Faltante; Não OK em âmbar; OK em verde. Ações (registrar, instalar, salvar) em azul-aço, nunca em âmbar ou vermelho.
+- **Rótulos de situação**: os mesmos nomes dos botões, em qualquer lugar da tela: OK, Faltante, Não OK.
+- **Planilha de equipes**: exportar e importar na aba Equipes. Importar cria e atualiza por prefixo e nunca remove; erros de linha viram um aviso só.
+- **Ícone de tema**: `IconeTema` é o único ícone de tema, usado no cabeçalho e no login.
 
 ## Do's and Don'ts
 
