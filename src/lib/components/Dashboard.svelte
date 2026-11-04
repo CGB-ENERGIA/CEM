@@ -308,7 +308,7 @@
     width: 8px;
     height: 4px;
     margin-top: -2px;
-    border-radius: 2px;
+    border-radius: var(--raio-chip);
     background: var(--fundo);
     border: 1px solid var(--borda-forte);
   }

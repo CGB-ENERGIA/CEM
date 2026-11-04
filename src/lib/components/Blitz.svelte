@@ -97,6 +97,17 @@
       !enviando,
   );
 
+  // O que ainda impede o envio, em termos curtos. Fica sempre visível na barra de envio.
+  const faltando = $derived.by(() => {
+    const lista: string[] = [];
+    if (!prefixoNormalizado) lista.push("prefixo");
+    if (prefixoNormalizado && !tipoId) lista.push("tipo");
+    if (!processo) lista.push("processo");
+    if (colaboradoresValidos.length === 0) lista.push("colaborador");
+    if (aVerificar > 0) lista.push(`${aVerificar} ${aVerificar === 1 ? "item" : "itens"}`);
+    return lista;
+  });
+
   $effect(() => {
     if (ativo) carregarEquipes();
   });
@@ -181,10 +192,15 @@
   let respostasAntes = $state<Record<number, Resposta> | null>(null);
   let temporizadorDesfazer: ReturnType<typeof setTimeout> | undefined;
 
+  // Marca como OK só os itens ainda sem resposta, depois de confirmar a quantidade. Faltante e Não OK
+  // já escolhidos não são alterados.
   function marcarTodosOk() {
+    const restantes = itensDaBlitz.filter((item) => situacaoDe(item) === "pendente").length;
+    if (restantes === 0) return;
+    if (!confirm(`Marcar ${restantes} ${restantes === 1 ? "item" : "itens"} como OK?`)) return;
     respostasAntes = $state.snapshot(respostas) as Record<number, Resposta>;
     for (const item of itensDaBlitz) {
-      escolherSituacao(item, "ok");
+      if (situacaoDe(item) === "pendente") escolherSituacao(item, "ok");
     }
     clearTimeout(temporizadorDesfazer);
     temporizadorDesfazer = setTimeout(() => (respostasAntes = null), 8000);
@@ -530,7 +546,7 @@
       </div>
 
       <div class="barra-acoes distancia">
-        <button type="button" class="botao-secundario" onclick={marcarTodosOk}>Marcar todos como OK</button>
+        <button type="button" class="botao-secundario" onclick={marcarTodosOk}>Marcar restantes como OK</button>
         <button type="button" class="botao-secundario" onclick={limparRespostas}>Limpar respostas</button>
       </div>
 
@@ -636,13 +652,7 @@
         <div class="resumo-envio" aria-live="polite">
           <span class="contagem-envio codigo">{respondidos}/{itensDaBlitz.length}</span>
           <span class="rotulo-envio">
-            {#if itensDaBlitz.length > 0 && aVerificar === 0}
-              Pronto para registrar
-            {:else if aVerificar === 1}
-              1 item falta
-            {:else}
-              {aVerificar} itens faltam
-            {/if}
+            {faltando.length === 0 ? "Pronto para registrar" : `Falta: ${faltando.join(", ")}`}
           </span>
         </div>
         <button class="botao" type="submit" disabled={!podeEnviar}>
