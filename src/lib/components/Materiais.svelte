@@ -77,15 +77,15 @@
 
   {#if tipoId}
   <div class="grade-kpi distancia">
-    <div class="kpi">
+    <div class="kpi etiqueta">
       <span class="kpi-rotulo">Materiais · {nomeTipoAtual}</span>
       <div class="kpi-valor">{numero.format(totais.linhas)}</div>
     </div>
-    <div class="kpi">
+    <div class="kpi etiqueta">
       <span class="kpi-rotulo">Unidades EPI</span>
       <div class="kpi-valor">{numero.format(totais.unidadesEpi)}</div>
     </div>
-    <div class="kpi">
+    <div class="kpi etiqueta">
       <span class="kpi-rotulo">Unidades EPC</span>
       <div class="kpi-valor">{numero.format(totais.unidadesEpc)}</div>
     </div>

@@ -700,7 +700,7 @@
             {#if blitz.conforme}
               <span class="chip chip-ok">Todos OK</span>
             {:else}
-              <span class="chip chip-falta">{blitz.naoConformes} Não OK ou Faltante</span>
+              <span class="chip chip-atencao">{blitz.naoConformes} Não OK ou Faltante</span>
             {/if}
           </summary>
 

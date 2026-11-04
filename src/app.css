@@ -571,6 +571,11 @@ input::placeholder {
   transition: var(--transicao-cor);
 }
 
+/* Indicador como etiqueta: o ilhó sai do canto e o texto recua para não cobri-lo */
+.kpi.etiqueta {
+  padding: 16px 18px 16px 34px;
+}
+
 .kpi-rotulo {
   display: block;
   font-family: var(--fonte-titulo);
@@ -609,8 +614,9 @@ input::placeholder {
   background: var(--ok);
 }
 
+/* Alerta de ranking mistura Faltante e Não OK, então usa o âmbar. Vermelho fica só para Faltante. */
 .preenchimento-alerta {
-  background: var(--falta);
+  background: var(--atencao);
 }
 
 .grade-duas {

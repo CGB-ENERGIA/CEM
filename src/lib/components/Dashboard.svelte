@@ -138,7 +138,7 @@
                     {#if equipe.conforme === true}
                       <span class="chip chip-ok">Todos OK</span>
                     {:else if equipe.conforme === false}
-                      <span class="chip chip-falta">Não OK</span>
+                      <span class="chip chip-atencao">Não OK</span>
                     {:else}
                       <span class="chip">Sem dados</span>
                     {/if}
@@ -313,10 +313,6 @@
     border: 1px solid var(--borda-forte);
   }
 
-  /* Indicadores como etiquetas: o ilhó sai do canto, e o texto recua para não cobri-lo */
-  .kpi.etiqueta {
-    padding: 16px 18px 16px 34px;
-  }
 
 
   /* Ranking de itens: maior pendência no topo, barra em cor de alerta */
