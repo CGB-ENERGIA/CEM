@@ -613,6 +613,37 @@ input:disabled {
   min-width: 80px;
 }
 
+/* Legenda das situações, recolhida por padrão: explica Faltante e Não OK sem ocupar a tela */
+.legenda-situacoes {
+  margin: 0;
+  color: var(--tinta-suave);
+  font-size: 0.9rem;
+}
+
+.legenda-situacoes summary {
+  cursor: pointer;
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.legenda-situacoes dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin: 10px 0 0;
+}
+
+.legenda-situacoes dt {
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+}
+
+.legenda-situacoes dd {
+  margin: 0;
+}
+
 .preenchimento {
   height: 100%;
   background: var(--primaria);

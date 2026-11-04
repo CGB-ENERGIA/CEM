@@ -138,7 +138,7 @@
                     {#if equipe.conforme === true}
                       <span class="chip chip-ok">Todos OK</span>
                     {:else if equipe.conforme === false}
-                      <span class="chip chip-atencao">Não OK</span>
+                      <span class="chip chip-atencao">Não OK ou Faltante</span>
                     {:else}
                       <span class="chip">Sem dados</span>
                     {/if}

@@ -550,6 +550,18 @@
         <button type="button" class="botao-secundario" onclick={limparRespostas}>Limpar respostas</button>
       </div>
 
+      <details class="legenda-situacoes">
+        <summary>O que significa cada situação?</summary>
+        <dl>
+          <dt>OK</dt>
+          <dd>a quantidade exigida está na equipe, sem defeito.</dd>
+          <dt>Faltante</dt>
+          <dd>a unidade não está na equipe.</dd>
+          <dt>Não OK</dt>
+          <dd>a unidade está na equipe, mas com defeito.</dd>
+        </dl>
+      </details>
+
       {#if respostasAntes}
         <p class="desfazer-marcacao distancia" role="status">
           Todos marcados como OK.
