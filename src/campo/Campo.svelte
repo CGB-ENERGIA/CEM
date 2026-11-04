@@ -105,6 +105,16 @@
     };
   }
 
+  // Contagem das situações escolhidas, para a mensagem de sucesso: "12 OK, 2 Não OK, 1 Faltante".
+  function resumoDasEscolhas(): string {
+    const contagem = { ok: 0, nao_ok: 0, faltante: 0 };
+    for (const item of itens) {
+      const escolha = escolhas[item.id];
+      if (escolha) contagem[escolha.situacao]++;
+    }
+    return `${contagem.ok} OK, ${contagem.nao_ok} Não OK, ${contagem.faltante} Faltante`;
+  }
+
   function ajustar(item: Item, delta: number) {
     antesDaMarcacao = null;
     const atual = escolhas[item.id];
@@ -206,8 +216,8 @@
 
     enviando = true;
     try {
-      const { id } = await apiCampo.registrarBlitz(blitz);
-      mostrarAviso("ok", `Blitz da equipe ${blitz.prefixo} registrada (nº ${id}).`);
+      await apiCampo.registrarBlitz(blitz);
+      mostrarAviso("ok", `Equipe ${blitz.prefixo} registrada: ${resumoDasEscolhas()}.`);
     } catch (falha) {
       if (!envioAdiavel(falha)) {
         mostrarAviso("erro", falha instanceof Error ? falha.message : "Não foi possível registrar a blitz.");

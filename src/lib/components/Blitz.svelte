@@ -313,8 +313,16 @@
     };
 
     try {
-      const { id } = await api.registrarBlitz(payload);
-      mostrarAviso("ok", `Blitz da equipe ${prefixoNormalizado} registrada (nº ${id}).`);
+      await api.registrarBlitz(payload);
+      const contagem = { ok: 0, nao_ok: 0, faltante: 0 };
+      for (const item of itensDaBlitz) {
+        const situacao = situacaoDe(item);
+        if (situacao !== "pendente") contagem[situacao]++;
+      }
+      mostrarAviso(
+        "ok",
+        `Equipe ${prefixoNormalizado} registrada: ${contagem.ok} OK, ${contagem.nao_ok} Não OK, ${contagem.faltante} Faltante.`,
+      );
     } catch (falha) {
       if (!(falha instanceof ErroSemConexao)) {
         erro = falha instanceof Error ? falha.message : "Não foi possível registrar a blitz.";
