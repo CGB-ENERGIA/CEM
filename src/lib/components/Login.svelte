@@ -287,21 +287,29 @@
     box-shadow: var(--sombra);
   }
 
+  /* Sigla e nome por extenso lado a lado, com um fio separando; o nome quebra em duas linhas equilibradas */
   .brand {
     display: flex;
-    align-items: baseline;
-    gap: 12px;
+    align-items: center;
+    gap: 14px;
     margin-bottom: 30px;
   }
 
   .brand b {
-    font: 700 30px/1 "Barlow Condensed", sans-serif;
-    letter-spacing: 0.02em;
+    font: 700 34px/1 "Barlow Condensed", sans-serif;
+    letter-spacing: 0.05em;
   }
 
   .brand span {
+    padding-left: 14px;
+    border-left: 1px solid var(--line, currentColor);
     color: var(--muted);
-    font-size: 15px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    text-wrap: balance;
   }
 
   h1 {
