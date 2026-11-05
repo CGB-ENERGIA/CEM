@@ -419,7 +419,7 @@
 
 <header class="topo-campo">
   <div class="marca">
-    <span class="marca-sigla">CEM</span>
+    <span class="marca-sigla">PAES</span>
     <span class="marca-nome">Blitz de campo</span>
   </div>
   {#if !online}

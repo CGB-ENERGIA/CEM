@@ -122,8 +122,8 @@
   <header class="topo">
     <div class="topo-interno">
       <div class="marca">
-        <span class="marca-sigla">CEM</span>
-        <span class="marca-nome">Consulta de Equipamentos e Materiais</span>
+        <span class="marca-sigla">PAES</span>
+        <span class="marca-nome">Programa de Acompanhamento de Equipamento de Segurança</span>
       </div>
 
       <div class="comandos">

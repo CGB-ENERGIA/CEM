@@ -1,11 +1,11 @@
-// Service worker do CEM.
+// Service worker do PAES.
 //
 // Estratégias:
 // - casca do app (HTML, scripts, estilos, ícones): cache primeiro, atualizado em segundo plano
 // - materiais e equipes: rede primeiro, com cópia em cache para uso sem conexão
 // - login, sessão, blitz e dashboard: sempre pela rede, nunca em cache
 
-const VERSAO = "cem-v1";
+const VERSAO = "cem-v2";
 const CACHE_CASCA = `${VERSAO}-casca`;
 const CACHE_DADOS = "cem-dados";
 const CASCA = ["/", "/index.html", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];

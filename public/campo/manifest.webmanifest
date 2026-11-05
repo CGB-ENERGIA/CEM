@@ -1,6 +1,6 @@
 {
-  "name": "CEM · Blitz de campo",
-  "short_name": "CEM Campo",
+  "name": "PAES · Blitz de campo",
+  "short_name": "PAES Campo",
   "description": "Blitz estática de campo: registro de materiais exigidos por equipe, mesmo sem sinal.",
   "lang": "pt-BR",
   "start_url": "/campo/",

@@ -43,7 +43,7 @@ The material list is the official reference sheet (`Estrutura de referencia cgb 
 
 ## Brand Commitments
 
-None beyond the name. "CEM" stands for **Consulta de Equipamentos e Materiais** (confirmed by the user) and is shown in the header as that full name. The user chose to create the visual identity itself.
+None beyond the name. "PAES" stands for **Programa de Acompanhamento de Equipamento de Segurança** (renamed from "CEM · Consulta de Equipamentos e Materiais" at the user's request) and is shown in the header as that full name. The user chose to create the visual identity itself.
 
 ## Evidence on Hand
 

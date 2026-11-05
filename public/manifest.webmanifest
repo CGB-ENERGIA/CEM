@@ -1,6 +1,6 @@
 {
-  "name": "CEM · Consulta de Equipamentos e Materiais",
-  "short_name": "CEM",
+  "name": "PAES · Programa de Acompanhamento de Equipamento de Segurança",
+  "short_name": "PAES",
   "description": "Blitz estática e consulta de materiais de segurança por equipe.",
   "lang": "pt-BR",
   "start_url": "/",

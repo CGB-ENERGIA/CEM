@@ -1,4 +1,4 @@
-# CEM · Consulta de Equipamentos e Materiais
+# PAES · Programa de Acompanhamento de Equipamento de Segurança
 
 Aplicação Svelte + Bun para consulta de materiais de segurança (EPI/EPC) por tipo de equipe e registro de blitz estática, com dashboard mensal.
 

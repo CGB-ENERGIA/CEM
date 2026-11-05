@@ -109,8 +109,8 @@
   <main>
     <form class="card" onsubmit={entrar} novalidate>
       <div class="brand">
-        <b>CEM</b>
-        <span>Consulta de Equipamentos e Materiais</span>
+        <b>PAES</b>
+        <span>Programa de Acompanhamento de Equipamento de Segurança</span>
       </div>
       <h1>Entrar</h1>
 

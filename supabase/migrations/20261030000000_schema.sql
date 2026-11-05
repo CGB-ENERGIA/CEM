@@ -1,4 +1,4 @@
--- Esquema do CEM (Consulta de Equipamentos e Materiais).
+-- Esquema do PAES (Programa de Acompanhamento de Equipamento de Segurança).
 --
 -- Acesso: o servidor Bun usa a chave service_role, que ignora o RLS. As tabelas têm RLS ligado
 -- sem nenhuma policy, então a chave pública (anon) não consegue ler nem escrever nada.
