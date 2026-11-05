@@ -5,7 +5,7 @@
 // - outros arquivos do próprio app: rede primeiro, com cópia guardada
 // - blitz: sempre pela rede (o envio sem sinal é feito pela fila do próprio app)
 
-const VERSAO = "cem-campo-v1";
+const VERSAO = "cem-campo-v2";
 const CACHE_CASCA = `${VERSAO}-casca`;
 const CACHE_ARQUIVOS = "cem-campo-arquivos";
 const CASCA = [
