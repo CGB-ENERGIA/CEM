@@ -5,6 +5,7 @@
   import type { DadosEquipe, Equipe, Materiais, StatusEquipe } from "../tipos";
   import { cascata, reduzirMovimento } from "../actions/animar";
   import { mostrarAviso } from "../avisos.svelte";
+  import Colaboradores from "./Colaboradores.svelte";
 
   interface Props {
     ativo: boolean;
@@ -471,6 +472,8 @@
     </table>
   </div>
 </section>
+
+<Colaboradores {ativo} />
 
 <style>
   .cabecalho-acoes {

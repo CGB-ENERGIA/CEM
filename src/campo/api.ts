@@ -42,6 +42,14 @@ export const apiCampo = {
   equipes: () => pedir<EquipeCampo[]>("/api/campo/equipes"),
   registrarBlitz: (blitz: NovaBlitz) =>
     pedir<{ id: number }>("/api/campo/blitz", { method: "POST", body: JSON.stringify(blitz) }),
+  // Nomes de colaboradores já aprovados, para sugestão.
+  colaboradores: () => pedir<string[]>("/api/campo/colaboradores"),
+  // Pedido de cadastro de um nome novo. Entra como pendente até um administrador aprovar.
+  solicitarColaborador: (nome: string) =>
+    pedir<{ nome: string; status: "aprovado" | "pendente" }>("/api/campo/colaboradores", {
+      method: "POST",
+      body: JSON.stringify({ nome }),
+    }),
 };
 
 // Vale a pena guardar no celular e tentar de novo: sem conexão, servidor fora do ar ou limite de envios.

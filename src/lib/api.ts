@@ -5,6 +5,8 @@ import type {
   Equipe,
   Materiais,
   NovaBlitz,
+  Colaborador,
+  ResultadoImportacaoColaboradores,
   ResultadoImportacaoEquipes,
 } from "./tipos";
 import { encerrarSessaoLocal, type Usuario } from "./sessao.svelte";
@@ -105,6 +107,13 @@ export const api = {
   exportarEquipes: () => baixar("/api/equipes/exportar"),
   importarEquipes: (arquivo: File) =>
     enviarArquivo<ResultadoImportacaoEquipes>("/api/equipes/importar", "arquivo", arquivo),
+
+  colaboradores: () => requisitar<Colaborador[]>("/api/colaboradores"),
+  aprovarColaborador: (id: number) =>
+    requisitar<void>(`/api/colaboradores/${id}`, { method: "PUT", body: JSON.stringify({ status: "aprovado" }) }),
+  recusarColaborador: (id: number) => requisitar<void>(`/api/colaboradores/${id}`, { method: "DELETE" }),
+  importarColaboradores: (arquivo: File) =>
+    enviarArquivo<ResultadoImportacaoColaboradores>("/api/colaboradores/importar", "arquivo", arquivo),
 
   blitzes: (mes: string) => requisitar<BlitzResumo[]>(`/api/blitz?mes=${mes}`),
   registrarBlitz: (blitz: NovaBlitz) =>

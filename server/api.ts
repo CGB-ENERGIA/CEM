@@ -382,6 +382,132 @@ async function importarEquipes(req: Request): Promise<Response> {
   return resposta(resultado);
 }
 
+// ---------- Colaboradores ----------
+
+const LIMITE_NOME_COLABORADOR = 120;
+const TAMANHO_MAXIMO_IMPORTACAO_COLABORADORES = 5 * 1024 * 1024;
+
+function nomeColaboradorValido(valor: unknown): string {
+  const nome = typeof valor === "string" ? valor.replace(/\s+/g, " ").trim() : "";
+  if (nome.length < 3) throw new ErroValidacao("Informe o nome completo do colaborador.");
+  if (nome.length > LIMITE_NOME_COLABORADOR) {
+    throw new ErroValidacao(`O nome passa de ${LIMITE_NOME_COLABORADOR} caracteres.`);
+  }
+  return nome;
+}
+
+// Chave para comparar nomes sem acento, sem maiúsculas e com espaços normalizados.
+function chaveColaborador(nome: string): string {
+  return normalizarTexto(nome).replace(/\s+/g, " ").trim();
+}
+
+// Sugestões do app de campo: só os aprovados, e só o nome.
+async function listarColaboradoresAprovados(): Promise<string[]> {
+  const { data, error } = await db.from("colaboradores").select("nome").eq("status", "aprovado").order("nome");
+  if (error) throw error;
+  return data.map((linha) => linha.nome as string);
+}
+
+// Pedido do app de campo: o nome entra como pendente e só vira sugestão depois de aprovado.
+async function solicitarColaborador(corpo: Record<string, unknown>): Promise<Response> {
+  const nome = nomeColaboradorValido(corpo.nome);
+  const chave = chaveColaborador(nome);
+  const { data: existente, error: erroBusca } = await db
+    .from("colaboradores")
+    .select("nome, status")
+    .eq("nome_normalizado", chave)
+    .maybeSingle();
+  if (erroBusca) throw erroBusca;
+  if (existente) return resposta({ nome: existente.nome, status: existente.status });
+
+  const { error } = await db.from("colaboradores").insert({ nome, nome_normalizado: chave, status: "pendente" });
+  if (error?.code === "23505") return resposta({ nome, status: "pendente" });
+  if (error) throw error;
+  return resposta({ nome, status: "pendente" }, 201);
+}
+
+async function listarColaboradores(status: string | null): Promise<Response> {
+  let consulta = db.from("colaboradores").select("id, nome, status, criado_em, aprovado_em").order("nome");
+  if (status === "aprovado" || status === "pendente") consulta = consulta.eq("status", status);
+  const { data, error } = await consulta;
+  if (error) throw error;
+  return resposta(data);
+}
+
+async function atualizarColaborador(id: number, corpo: Record<string, unknown>): Promise<Response> {
+  if (corpo.status !== "aprovado" && corpo.status !== "pendente") throw new ErroValidacao("Status inválido.");
+  const { data, error } = await db
+    .from("colaboradores")
+    .update({
+      status: corpo.status,
+      aprovado_em: corpo.status === "aprovado" ? new Date().toISOString() : null,
+    })
+    .eq("id", id)
+    .select("id, nome, status");
+  if (error) throw error;
+  if (data.length === 0) throw new ErroValidacao("Colaborador não encontrado.", 404);
+  return resposta(data[0]);
+}
+
+// Recusar um pedido pendente é apagar o nome.
+async function removerColaborador(id: number): Promise<Response> {
+  const { data, error } = await db.from("colaboradores").delete().eq("id", id).select("id");
+  if (error) throw error;
+  if (data.length === 0) throw new ErroValidacao("Colaborador não encontrado.", 404);
+  return semConteudo();
+}
+
+// Importa uma lista de nomes (coluna "Nome"), já aprovados. Nomes repetidos ou inválidos são ignorados.
+async function importarColaboradores(req: Request): Promise<Response> {
+  let formulario: FormData;
+  try {
+    formulario = await req.formData();
+  } catch {
+    throw new ErroValidacao("Não foi possível ler o arquivo enviado.");
+  }
+  const arquivo = formulario.get("arquivo");
+  if (!(arquivo instanceof File)) throw new ErroValidacao('Envie um arquivo .xlsx no campo "arquivo".');
+  if (arquivo.size > TAMANHO_MAXIMO_IMPORTACAO_COLABORADORES) throw new ErroValidacao("O arquivo é grande demais.");
+
+  let livro: XLSX.WorkBook;
+  try {
+    livro = XLSX.read(new Uint8Array(await arquivo.arrayBuffer()), { type: "array" });
+  } catch {
+    throw new ErroValidacao("Não foi possível ler a planilha. Confira se é um .xlsx válido.");
+  }
+  const primeiraAba = livro.SheetNames[0];
+  if (!primeiraAba) throw new ErroValidacao("A planilha não tem nenhuma aba.");
+  const linhas = XLSX.utils.sheet_to_json<Record<string, unknown>>(livro.Sheets[primeiraAba], { defval: "" });
+
+  const agora = new Date().toISOString();
+  const vistos = new Set<string>();
+  const registros: { nome: string; nome_normalizado: string; status: "aprovado"; aprovado_em: string }[] = [];
+  let ignoradas = 0;
+  for (const linha of linhas) {
+    const coluna = Object.keys(linha).find((cabecalho) => normalizarTexto(cabecalho).trim() === "nome");
+    const nome = coluna ? String(linha[coluna] ?? "").replace(/\s+/g, " ").trim() : "";
+    if (nome.length < 3 || nome.length > LIMITE_NOME_COLABORADOR) {
+      ignoradas++;
+      continue;
+    }
+    const chave = chaveColaborador(nome);
+    if (vistos.has(chave)) {
+      ignoradas++;
+      continue;
+    }
+    vistos.add(chave);
+    registros.push({ nome, nome_normalizado: chave, status: "aprovado", aprovado_em: agora });
+  }
+  if (registros.length === 0) throw new ErroValidacao('Nenhum nome válido. A planilha precisa de uma coluna "Nome".');
+
+  for (let inicio = 0; inicio < registros.length; inicio += TAMANHO_LOTE_IMPORTACAO) {
+    const lote = registros.slice(inicio, inicio + TAMANHO_LOTE_IMPORTACAO);
+    const { error } = await db.from("colaboradores").upsert(lote, { onConflict: "nome_normalizado" });
+    if (error) throw error;
+  }
+  return resposta({ processados: linhas.length, importados: registros.length, ignorados: ignoradas });
+}
+
 // O app de campo recebe só o que usa para identificar a equipe. Responsável, supervisor, coordenador e
 // gerência ficam de fora: são dados de gestão, que não precisam sair do sistema administrativo.
 async function listarEquipesCampo(): Promise<Pick<Equipe, "prefixo" | "nome" | "base" | "processo" | "status" | "tipoId">[]> {
@@ -769,6 +895,11 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
 
   // App de campo (/campo): sem login. Só lê o prefixo, o tipo e o processo das equipes e grava blitz.
   if (metodo === "GET" && caminho === "/api/campo/equipes") return resposta(await listarEquipesCampo());
+  if (metodo === "GET" && caminho === "/api/campo/colaboradores") return resposta(await listarColaboradoresAprovados());
+  if (metodo === "POST" && caminho === "/api/campo/colaboradores") {
+    limitarEnviosCampo(req);
+    return solicitarColaborador(await lerJson(req));
+  }
   if (metodo === "POST" && caminho === "/api/campo/blitz") {
     limitarEnviosCampo(req);
     return registrarBlitz(await lerJson<Partial<NovaBlitz>>(req));
@@ -780,6 +911,15 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
   }
 
   if (metodo === "GET" && caminho === "/api/materiais") return resposta(materiais);
+
+  if (metodo === "GET" && caminho === "/api/colaboradores") return listarColaboradores(url.searchParams.get("status"));
+  if (metodo === "POST" && caminho === "/api/colaboradores/importar") return importarColaboradores(req);
+  const matchColaborador = caminho.match(/^\/api\/colaboradores\/(\d+)$/);
+  if (matchColaborador) {
+    const id = Number(matchColaborador[1]);
+    if (metodo === "PUT") return atualizarColaborador(id, await lerJson(req));
+    if (metodo === "DELETE") return removerColaborador(id);
+  }
 
   if (metodo === "GET" && caminho === "/api/equipes/exportar") return exportarEquipes();
   if (metodo === "POST" && caminho === "/api/equipes/importar") return importarEquipes(req);

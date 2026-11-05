@@ -40,6 +40,21 @@ export interface Equipe {
 // Campos editáveis de uma equipe (o prefixo identifica a equipe e não muda).
 export type DadosEquipe = Omit<Equipe, "prefixo">;
 
+// Colaborador do cadastro. Pendente = pedido do app de campo, ainda sem aprovação.
+export interface Colaborador {
+  id: number;
+  nome: string;
+  status: "aprovado" | "pendente";
+  criado_em: string;
+  aprovado_em: string | null;
+}
+
+export interface ResultadoImportacaoColaboradores {
+  processados: number;
+  importados: number;
+  ignorados: number;
+}
+
 // Resultado da importação da planilha de equipes: nunca remove, só cria e atualiza.
 export interface ResultadoImportacaoEquipes {
   processadas: number;

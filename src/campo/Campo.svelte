@@ -33,6 +33,9 @@
   let tipoEscolhido = $state("");
   let processoEscolhido = $state("");
   let colaboradores = $state<string[]>([""]);
+  // Nomes aprovados, para sugestão. Vazio enquanto não carrega ou se o servidor não responder.
+  let sugestoes = $state<string[]>([]);
+  let solicitando = $state(false);
   let escolhas = $state<Record<number, Escolha>>({});
 
   let pendentes = $state<BlitzPendente[]>([]);
@@ -164,6 +167,35 @@
     }
   }
 
+  async function carregarSugestoes() {
+    try {
+      sugestoes = await apiCampo.colaboradores();
+    } catch {
+      // Sem sugestões, o nome continua podendo ser digitado.
+    }
+  }
+
+  // Envia o pedido de cadastro de um nome novo. Ele pode ser usado nesta blitz enquanto espera aprovação.
+  async function solicitarCadastro(nome: string) {
+    solicitando = true;
+    try {
+      const resultado = await apiCampo.solicitarColaborador(nome);
+      if (resultado.status === "aprovado") {
+        mostrarAviso("ok", `${resultado.nome} já está cadastrado.`);
+        if (!sugestoes.includes(resultado.nome)) sugestoes = [...sugestoes, resultado.nome];
+      } else {
+        mostrarAviso(
+          "info",
+          `Pedido enviado para ${resultado.nome}. Você pode usar o nome nesta blitz; ele vira sugestão depois da aprovação.`,
+        );
+      }
+    } catch (falha) {
+      mostrarAviso("erro", falha instanceof Error ? falha.message : "Não foi possível enviar o pedido.");
+    } finally {
+      solicitando = false;
+    }
+  }
+
   async function carregarPendentes() {
     try {
       pendentes = await fila.listar();
@@ -253,6 +285,7 @@
 
   onMount(() => {
     carregarEquipes();
+    carregarSugestoes();
     carregarPendentes();
     enviarPendentes(false);
   });
@@ -375,10 +408,21 @@
         <div class="linha-colaborador">
           <input
             bind:value={colaboradores[indice]}
+            list="lista-colaboradores"
             placeholder="Nome completo"
             aria-label={`Colaborador ${indice + 1}`}
             maxlength="120"
           />
+          {#if colaboradores[indice]?.trim().length >= 3 && !sugestoes.includes(colaboradores[indice].trim())}
+            <button
+              type="button"
+              class="botao-secundario"
+              disabled={solicitando}
+              onclick={() => solicitarCadastro(colaboradores[indice].trim())}
+            >
+              Solicitar cadastro
+            </button>
+          {/if}
           {#if colaboradores.length > 1}
             <button
               type="button"
@@ -390,6 +434,11 @@
           {/if}
         </div>
       {/each}
+      <datalist id="lista-colaboradores">
+        {#each sugestoes as nome (nome)}
+          <option value={nome}></option>
+        {/each}
+      </datalist>
       {#if colaboradores.length < LIMITE_COLABORADORES}
         <button type="button" class="botao-secundario" onclick={() => (colaboradores = [...colaboradores, ""])}>
           Adicionar colaborador
