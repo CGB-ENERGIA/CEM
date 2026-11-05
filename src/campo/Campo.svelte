@@ -412,6 +412,9 @@
 <svelte:window
   bind:online
   ononline={() => enviarPendentes(false)}
+  onkeydown={(evento) => {
+    if (evento.key === "Escape" && caixaEpi) caixaEpi = null;
+  }}
 />
 
 <header class="topo-campo">
