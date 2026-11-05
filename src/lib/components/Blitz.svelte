@@ -157,7 +157,7 @@
   // Três situações exclusivas por item. Não há valor padrão: cada item precisa de uma escolha.
   const opcoesSituacao = [
     { valor: "ok", rotulo: "OK" },
-    { valor: "nao_ok", rotulo: "Não OK" },
+    { valor: "nao_ok", rotulo: "Troca" },
     { valor: "faltante", rotulo: "Faltante" },
   ] as const;
 
@@ -351,7 +351,7 @@
       }
       mostrarAviso(
         "ok",
-        `Equipe ${prefixoNormalizado} registrada: ${contagem.ok} OK, ${contagem.nao_ok} Não OK, ${contagem.faltante} Faltante.`,
+        `Equipe ${prefixoNormalizado} registrada: ${contagem.ok} OK, ${contagem.nao_ok} Troca, ${contagem.faltante} Faltante.`,
       );
     } catch (falha) {
       if (!(falha instanceof ErroSemConexao)) {
@@ -394,7 +394,7 @@
     pendente: "A verificar",
     ok: "OK",
     faltante: "Faltante",
-    nao_ok: "Não OK",
+    nao_ok: "Troca",
   };
 
   const classeSituacao: Record<Situacao, string> = {
@@ -444,7 +444,7 @@
   <div class="cabecalho-painel">
     <div>
       <h2>Blitz estática</h2>
-      <p>Confira cada material exigido para a equipe: quantas unidades foram encontradas e quantas estão com defeito.</p>
+      <p>Confira cada material exigido para a equipe: quantas unidades foram encontradas e quantas estão danificadas.</p>
     </div>
   </div>
 
@@ -550,7 +550,7 @@
         </div>
         <div class="contadores" aria-live="polite">
           <span class="chip chip-ok">{completos} OK</span>
-          <span class="chip chip-atencao">{comPendencia} Não OK ou Faltante</span>
+          <span class="chip chip-atencao">{comPendencia} Troca ou Faltante</span>
           <span class="chip">{aVerificar} a verificar</span>
         </div>
       </div>
@@ -591,8 +591,8 @@
           <dd>a quantidade exigida está na equipe, sem defeito.</dd>
           <dt>Faltante</dt>
           <dd>a unidade não está na equipe.</dd>
-          <dt>Não OK</dt>
-          <dd>a unidade está na equipe, mas com defeito.</dd>
+          <dt>Troca</dt>
+          <dd>a unidade está na equipe, mas danificada e precisa ser trocada.</dd>
         </dl>
       </details>
 
@@ -651,7 +651,7 @@
             {#if (situacao === "faltante" || situacao === "nao_ok") && exigida > 1}
               <div class="quantidade-situacao">
                 <span class="campo-rotulo" id={`qtd-${item.id}`}>
-                  {situacao === "faltante" ? "Quantos faltam" : "Quantos com defeito"}
+                  {situacao === "faltante" ? "Quantos faltam" : "Quantas com troca"}
                 </span>
                 <div class="stepper" role="group" aria-labelledby={`qtd-${item.id}`}>
                   <button type="button" onclick={() => ajustarQuantidade(item, -1)} disabled={quantidade <= 1} aria-label="Diminuir quantidade">−</button>
@@ -746,7 +746,7 @@
             {#if blitz.conforme}
               <span class="chip chip-ok">Todos OK</span>
             {:else}
-              <span class="chip chip-atencao">{blitz.naoConformes} Não OK ou Faltante</span>
+              <span class="chip chip-atencao">{blitz.naoConformes} Troca ou Faltante</span>
             {/if}
           </summary>
 
@@ -762,7 +762,7 @@
                       <th class="numerico">Exigidos</th>
                       <th class="numerico">Encontrados</th>
                       <th class="numerico">Faltam</th>
-                      <th class="numerico">Não OK</th>
+                      <th class="numerico">Troca</th>
                       <th>Observação</th>
                     </tr>
                   </thead>
@@ -773,7 +773,7 @@
                         <td data-rotulo="Exigidos" class="numerico codigo">{item.exigida}</td>
                         <td data-rotulo="Encontrados" class="numerico codigo">{item.encontrada}</td>
                         <td data-rotulo="Faltam" class="numerico codigo">{Math.max(0, item.exigida - item.encontrada)}</td>
-                        <td data-rotulo="Não OK" class="numerico codigo">{item.naoConforme}</td>
+                        <td data-rotulo="Troca" class="numerico codigo">{item.naoConforme}</td>
                         <td data-rotulo="Observação">{item.observacao ?? "—"}</td>
                       </tr>
                     {/each}

@@ -10,6 +10,7 @@ import type {
   ItemBlitz,
   Materiais,
   NovaBlitz,
+  PessoaItem,
   RankingEquipe,
   RankingItem,
   StatusItem,
@@ -699,7 +700,9 @@ function validarBlitz(corpo: Partial<NovaBlitz>): NovaBlitz {
   }
 
   const aplicaveis = itensAplicaveis(tipoId);
-  const esperados = new Set(aplicaveis.map((item) => item.id));
+  // Com o detalhe por pessoa (app de campo), os EPIs vêm por colaborador e os itens enviados são só EPC.
+  const porPessoa = Array.isArray(corpo.pessoas);
+  const esperados = new Set(aplicaveis.filter((item) => !porPessoa || item.grupo === "EPC").map((item) => item.id));
   const recebidos = Array.isArray(corpo.itens) ? corpo.itens : [];
   const vistos = new Set<number>();
 
@@ -734,20 +737,56 @@ function validarBlitz(corpo: Partial<NovaBlitz>): NovaBlitz {
     throw new ErroValidacao("Identificador da blitz inválido.");
   }
 
-  return {
-    idCliente: idCliente ?? undefined,
-    data,
-    processo,
-    prefixo,
-    tipoId,
-    colaboradores,
-    itens: recebidos.map((item) => ({
-      itemId: item.itemId,
-      encontrada: item.encontrada,
-      naoConforme: item.naoConforme,
-      observacao: item.observacao?.trim() || undefined,
-    })),
-  };
+  const itensEnviados = recebidos.map((item) => ({
+    itemId: item.itemId,
+    encontrada: item.encontrada,
+    naoConforme: item.naoConforme,
+    observacao: item.observacao?.trim() || undefined,
+  }));
+  const base = { idCliente: idCliente ?? undefined, data, processo, prefixo, tipoId, colaboradores };
+  if (!porPessoa) return { ...base, itens: itensEnviados };
+
+  // Totais de EPI derivados do detalhe por pessoa: encontrado = presente (OK ou Troca), defeito = Troca.
+  const pessoas = validarPessoas(corpo.pessoas, colaboradores, aplicaveis);
+  const itensEpi = aplicaveis
+    .filter((item) => item.grupo === "EPI")
+    .map((item) => {
+      const quantidade = item.quantidades[tipoId] ?? 0;
+      const presentes = pessoas.filter((p) => p.itemId === item.id && p.status !== "faltante").length;
+      const trocas = pessoas.filter((p) => p.itemId === item.id && p.status === "troca").length;
+      return { itemId: item.id, encontrada: quantidade * presentes, naoConforme: quantidade * trocas };
+    });
+  return { ...base, itens: [...itensEnviados, ...itensEpi], pessoas };
+}
+
+// Valida o EPI de cada colaborador: nome da equipe, EPI do tipo, situação válida e nenhum EPI faltando.
+function validarPessoas(bruto: unknown, colaboradores: string[], aplicaveis: Item[]): PessoaItem[] {
+  if (!Array.isArray(bruto)) throw new ErroValidacao("Detalhe de EPI inválido.");
+  const epis = new Set(aplicaveis.filter((item) => item.grupo === "EPI").map((item) => item.id));
+  const nomes = new Set(colaboradores);
+  const vistos = new Set<string>();
+  const pessoas: PessoaItem[] = [];
+  for (const registro of bruto as Array<Record<string, unknown>>) {
+    const colaborador = typeof registro?.colaborador === "string" ? registro.colaborador.trim() : "";
+    const itemId = registro?.itemId;
+    const status = registro?.status;
+    if (!nomes.has(colaborador)) throw new ErroValidacao("EPI informado para um colaborador que não está na equipe.");
+    if (typeof itemId !== "number" || !epis.has(itemId)) {
+      throw new ErroValidacao(`O item ${String(itemId)} não é um EPI deste tipo de equipe.`);
+    }
+    if (status !== "ok" && status !== "faltante" && status !== "troca") {
+      throw new ErroValidacao("Situação de EPI inválida.");
+    }
+    const chave = `${colaborador}|${itemId}`;
+    if (vistos.has(chave)) throw new ErroValidacao("Um EPI foi informado mais de uma vez para o mesmo colaborador.");
+    vistos.add(chave);
+    pessoas.push({ colaborador, itemId, status });
+  }
+  const faltando = [...nomes].flatMap((nome) => [...epis].filter((id) => !vistos.has(`${nome}|${id}`)));
+  if (faltando.length > 0) {
+    throw new ErroValidacao(`Falta informar ${faltando.length} EPI(s) de colaborador.`);
+  }
+  return pessoas;
 }
 
 async function registrarBlitz(corpo: Partial<NovaBlitz>): Promise<Response> {
@@ -761,9 +800,13 @@ async function registrarBlitz(corpo: Partial<NovaBlitz>): Promise<Response> {
     p_tipo_id: blitz.tipoId,
     p_colaboradores: blitz.colaboradores,
     p_id_cliente: blitz.idCliente ?? null,
+    p_pessoas: blitz.pessoas ?? [],
     p_itens: blitz.itens.map((item) => ({
       itemId: item.itemId,
-      exigida: itensPorId.get(item.itemId)?.quantidades[blitz.tipoId] ?? 0,
+      // EPI por pessoa: a quantidade exigida é por colaborador, então o total é multiplicado pela equipe.
+      exigida:
+        (itensPorId.get(item.itemId)?.quantidades[blitz.tipoId] ?? 0) *
+        (blitz.pessoas && itensPorId.get(item.itemId)?.grupo === "EPI" ? blitz.colaboradores.length : 1),
       encontrada: item.encontrada,
       naoConforme: item.naoConforme,
       observacao: item.observacao ?? null,

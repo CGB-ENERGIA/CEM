@@ -5,7 +5,7 @@
   import { PROCESSOS } from "../lib/compartilhado";
   import { mostrarAviso } from "../lib/avisos.svelte";
   import { fila, type BlitzPendente } from "../lib/fila";
-  import type { Item, Materiais, NovaBlitz, NovoItemBlitz } from "../lib/tipos";
+  import type { Item, Materiais, NovaBlitz, NovoItemBlitz, SituacaoEpi } from "../lib/tipos";
   import BuscaEquipe from "../lib/components/BuscaEquipe.svelte";
   import BuscaColaborador from "../lib/components/BuscaColaborador.svelte";
   import Avisos from "../lib/components/Avisos.svelte";
@@ -22,7 +22,7 @@
   const LIMITE_COLABORADORES = 30;
   const opcoes: { valor: Situacao; rotulo: string }[] = [
     { valor: "ok", rotulo: "OK" },
-    { valor: "nao_ok", rotulo: "Não OK" },
+    { valor: "nao_ok", rotulo: "Troca" },
     { valor: "faltante", rotulo: "Faltante" },
   ];
 
@@ -37,7 +37,10 @@
   // Nomes aprovados, para sugestão. Vazio enquanto não carrega ou se o servidor não responder.
   let sugestoes = $state<string[]>([]);
   let solicitando = $state(false);
+  // EPC é por equipe. EPI é por colaborador: cada pessoa tem a própria situação de cada EPI.
   let escolhas = $state<Record<number, Escolha>>({});
+  let escolhasEpi = $state<Record<string, Record<number, Situacao>>>({});
+  let pessoaAtual = $state("");
 
   let pendentes = $state<BlitzPendente[]>([]);
   let enviando = $state(false);
@@ -53,23 +56,55 @@
     tipoId ? materiais.itens.filter((item) => (item.quantidades[tipoId] ?? 0) > 0) : [],
   );
   const colaboradoresValidos = $derived(colaboradores.map((nome) => nome.trim()).filter(Boolean));
-  const respondidos = $derived(itens.filter((item) => escolhas[item.id]).length);
-  const faltam = $derived(itens.length - respondidos);
+  const itensEpi = $derived(itens.filter((item) => item.grupo === "EPI"));
+  const itensEpc = $derived(itens.filter((item) => item.grupo === "EPC"));
+
+  // Pessoa mostrada nas abas de EPI: a escolhida, ou a primeira da equipe.
+  const pessoaMostrada = $derived(
+    colaboradoresValidos.includes(pessoaAtual) ? pessoaAtual : (colaboradoresValidos[0] ?? ""),
+  );
+
+  function respondidosEpiDe(nome: string): number {
+    return itensEpi.filter((item) => escolhasEpi[nome]?.[item.id]).length;
+  }
+
+  const respondidosEpi = $derived(colaboradoresValidos.reduce((soma, nome) => soma + respondidosEpiDe(nome), 0));
+  const totalEpi = $derived(colaboradoresValidos.length * itensEpi.length);
+  const respondidosEpc = $derived(itensEpc.filter((item) => escolhas[item.id]).length);
+  const faltam = $derived(itensEpc.length - respondidosEpc + (totalEpi - respondidosEpi));
 
   // EPI e EPC são mostrados um de cada vez, para a pessoa escolher por onde começar.
   let grupoAtual = $state<"EPI" | "EPC">("EPI");
-  const itensDoGrupo = $derived(itens.filter((item) => item.grupo === grupoAtual));
-  const restantesDoGrupo = $derived(itensDoGrupo.filter((item) => !escolhas[item.id]).length);
-
   const GRUPOS = ["EPI", "EPC"] as const;
 
+  const itensDoGrupo = $derived(grupoAtual === "EPI" ? itensEpi : itensEpc);
+  const restantesDoGrupo = $derived(
+    grupoAtual === "EPI"
+      ? itensEpi.filter((item) => !escolhasEpi[pessoaMostrada]?.[item.id]).length
+      : itensEpc.filter((item) => !escolhas[item.id]).length,
+  );
+
+  function itensDoTipo(grupo: "EPI" | "EPC"): number {
+    return grupo === "EPI" ? itensEpi.length : itensEpc.length;
+  }
+
   function totalDoGrupo(grupo: "EPI" | "EPC"): number {
-    return itens.filter((item) => item.grupo === grupo).length;
+    return grupo === "EPI" ? totalEpi : itensEpc.length;
   }
 
   function respondidosDoGrupo(grupo: "EPI" | "EPC"): number {
-    return itens.filter((item) => item.grupo === grupo && escolhas[item.id]).length;
+    return grupo === "EPI" ? respondidosEpi : respondidosEpc;
   }
+
+  // Situação mostrada para um item: a da pessoa atual (EPI) ou a da equipe (EPC).
+  function escolhaDo(item: Item): Escolha | undefined {
+    if (item.grupo === "EPI") {
+      const situacao = escolhasEpi[pessoaMostrada]?.[item.id];
+      return situacao ? { situacao, quantidade: 1, observacao: "" } : undefined;
+    }
+    return escolhas[item.id];
+  }
+
   const podeEnviar = $derived(
     prefixoNormalizado.length > 0 &&
       prefixoNormalizado.length <= 20 &&
@@ -94,7 +129,10 @@
     faltando.length === 0 ? "Pronto para registrar" : `Falta: ${faltando.join(", ")}`,
   );
   // Respostas de antes de "Marcar restantes como OK", para desfazer até a próxima ação.
-  let antesDaMarcacao = $state<Record<number, Escolha> | null>(null);
+  let antesDaMarcacao = $state<{
+    escolhas: Record<number, Escolha>;
+    escolhasEpi: Record<string, Record<number, Situacao>>;
+  } | null>(null);
 
   function nomeTipo(id: string | null): string {
     if (!id) return "Sem tipo";
@@ -118,8 +156,19 @@
     return { itemId: item.id, encontrada: exigida - escolha.quantidade, naoConforme: 0, observacao };
   }
 
+  // Situação de EPI no formato do servidor: Não OK vira Troca.
+  function situacaoEpi(situacao: Situacao): SituacaoEpi {
+    return situacao === "nao_ok" ? "troca" : situacao;
+  }
+
   function escolher(item: Item, situacao: Situacao) {
     antesDaMarcacao = null;
+    if (item.grupo === "EPI") {
+      const nome = pessoaMostrada;
+      if (!nome) return;
+      escolhasEpi = { ...escolhasEpi, [nome]: { ...escolhasEpi[nome], [item.id]: situacao } };
+      return;
+    }
     const atual = escolhas[item.id];
     const exigida = exigidaDe(item);
     const quantidade = Math.min(Math.max(atual?.quantidade ?? 1, 1), exigida);
@@ -130,14 +179,20 @@
     };
   }
 
-  // Contagem das situações escolhidas, para a mensagem de sucesso: "12 OK, 2 Não OK, 1 Faltante".
+  // Contagem das situações escolhidas, para a mensagem de sucesso: "12 OK, 2 Troca, 1 Faltante".
   function resumoDasEscolhas(): string {
     const contagem = { ok: 0, nao_ok: 0, faltante: 0 };
-    for (const item of itens) {
+    for (const item of itensEpc) {
       const escolha = escolhas[item.id];
       if (escolha) contagem[escolha.situacao]++;
     }
-    return `${contagem.ok} OK, ${contagem.nao_ok} Não OK, ${contagem.faltante} Faltante`;
+    for (const nome of colaboradoresValidos) {
+      for (const item of itensEpi) {
+        const situacao = escolhasEpi[nome]?.[item.id];
+        if (situacao) contagem[situacao]++;
+      }
+    }
+    return `${contagem.ok} OK, ${contagem.nao_ok} Troca, ${contagem.faltante} Faltante`;
   }
 
   function ajustar(item: Item, delta: number) {
@@ -152,17 +207,22 @@
   function marcarRestantesOk() {
     const restantes = restantesDoGrupo;
     if (restantes === 0) return;
-    if (!confirm(`Marcar ${restantes} ${restantes === 1 ? "item" : "itens"} de ${grupoAtual} como OK?`)) return;
-    const anteriores = $state.snapshot(escolhas) as Record<number, Escolha>;
+    const alvo = grupoAtual === "EPI" ? `de EPI de ${pessoaMostrada}` : "de EPC";
+    if (!confirm(`Marcar ${restantes} ${restantes === 1 ? "item" : "itens"} ${alvo} como OK?`)) return;
+    const anteriores = {
+      escolhas: $state.snapshot(escolhas) as Record<number, Escolha>,
+      escolhasEpi: $state.snapshot(escolhasEpi) as Record<string, Record<number, Situacao>>,
+    };
     for (const item of itensDoGrupo) {
-      if (!escolhas[item.id]) escolher(item, "ok");
+      if (!escolhaDo(item)) escolher(item, "ok");
     }
     antesDaMarcacao = anteriores;
   }
 
   function desfazerMarcacao() {
     if (!antesDaMarcacao) return;
-    escolhas = antesDaMarcacao;
+    escolhas = antesDaMarcacao.escolhas;
+    escolhasEpi = antesDaMarcacao.escolhasEpi;
     antesDaMarcacao = null;
   }
 
@@ -172,6 +232,8 @@
     processoEscolhido = "";
     colaboradores = [""];
     escolhas = {};
+    escolhasEpi = {};
+    pessoaAtual = "";
     antesDaMarcacao = null;
   }
 
@@ -265,7 +327,14 @@
       prefixo: prefixoNormalizado,
       tipoId,
       colaboradores: colaboradoresValidos,
-      itens: itens.map((item) => paraEnvio(item)).filter((item): item is NovoItemBlitz => item !== null),
+      itens: itensEpc.map((item) => paraEnvio(item)).filter((item): item is NovoItemBlitz => item !== null),
+      pessoas: colaboradoresValidos.flatMap((nome) =>
+        itensEpi.map((item) => ({
+          colaborador: nome,
+          itemId: item.id,
+          status: situacaoEpi(escolhasEpi[nome]?.[item.id] ?? "faltante"),
+        })),
+      ),
     };
 
     enviando = true;
@@ -459,7 +528,7 @@
     {#if tipoId}
       <div class="grupos" role="tablist" aria-label="Grupo de materiais">
         {#each GRUPOS as grupo (grupo)}
-          {#if totalDoGrupo(grupo) > 0}
+          {#if itensDoTipo(grupo) > 0}
             <button
               type="button"
               role="tab"
@@ -475,9 +544,34 @@
         {/each}
       </div>
 
+      {#if grupoAtual === "EPI"}
+        {#if colaboradoresValidos.length > 0}
+          <div class="pessoas" role="tablist" aria-label="Colaboradores">
+            {#each colaboradoresValidos as nome (nome)}
+              <button
+                type="button"
+                role="tab"
+                class="pessoa"
+                class:ativo={pessoaMostrada === nome}
+                aria-selected={pessoaMostrada === nome}
+                onclick={() => (pessoaAtual = nome)}
+              >
+                <span class="pessoa-nome">{nome}</span>
+                <span class="codigo">{respondidosEpiDe(nome)}/{itensEpi.length}</span>
+              </button>
+            {/each}
+          </div>
+        {/if}
+      {/if}
+
       <div class="progresso">
         <span class="texto-suave">
-          {grupoAtual}: <span class="codigo">{respondidosDoGrupo(grupoAtual)}/{itensDoGrupo.length}</span> respondidos
+          {#if grupoAtual === "EPI"}
+            EPI de {pessoaMostrada || "—"}:
+          {:else}
+            EPC:
+          {/if}
+          <span class="codigo">{grupoAtual === "EPI" ? respondidosEpiDe(pessoaMostrada) : respondidosEpc}/{itensDoGrupo.length}</span> respondidos
         </span>
         <button type="button" class="botao-secundario" onclick={marcarRestantesOk} disabled={restantesDoGrupo === 0}>
           Marcar restantes como OK
@@ -491,8 +585,8 @@
           <dd>a quantidade exigida está na equipe, sem defeito.</dd>
           <dt>Faltante</dt>
           <dd>a unidade não está na equipe.</dd>
-          <dt>Não OK</dt>
-          <dd>a unidade está na equipe, mas com defeito.</dd>
+          <dt>Troca</dt>
+          <dd>a unidade está na equipe, mas danificada e precisa ser trocada.</dd>
         </dl>
       </details>
 
@@ -504,8 +598,11 @@
       {/if}
 
       <ol class="checklist">
+        {#if grupoAtual === "EPI" && colaboradoresValidos.length === 0}
+          <li class="texto-suave">Informe os colaboradores da equipe para marcar os EPIs de cada um.</li>
+        {/if}
         {#each itensDoGrupo as item (item.id)}
-          {@const escolha = escolhas[item.id]}
+          {@const escolha = escolhaDo(item)}
           {@const exigida = exigidaDe(item)}
           <li class="etiqueta item">
             <div class="item-topo">
@@ -534,10 +631,10 @@
               {/each}
             </div>
 
-            {#if escolha && escolha.situacao !== "ok" && exigida > 1}
+            {#if escolha && escolha.situacao !== "ok" && exigida > 1 && item.grupo === "EPC"}
               <div class="quantidade-situacao">
                 <span class="rotulo-texto">
-                  {escolha.situacao === "faltante" ? "Quantos faltam" : "Quantos com defeito"}
+                  {escolha.situacao === "faltante" ? "Quantos faltam" : "Quantas com troca"}
                 </span>
                 <div class="stepper" role="group" aria-label="Quantidade">
                   <button type="button" onclick={() => ajustar(item, -1)} disabled={escolha.quantidade <= 1} aria-label="Diminuir quantidade">−</button>
@@ -547,7 +644,7 @@
               </div>
             {/if}
 
-            {#if escolha && escolha.situacao !== "ok"}
+            {#if escolha && escolha.situacao !== "ok" && item.grupo === "EPC"}
               <input
                 class="observacao"
                 bind:value={escolhas[item.id].observacao}

@@ -82,6 +82,16 @@ export interface ItemBlitz {
   observacao?: string;
 }
 
+// EPI de um colaborador: EPI é individual, então cada colaborador tem a própria situação.
+// OK = tem e está bom; Troca = tem, mas danificado e precisa trocar; Faltante = não tem.
+export type SituacaoEpi = "ok" | "troca" | "faltante";
+
+export interface PessoaItem {
+  colaborador: string;
+  itemId: number;
+  status: SituacaoEpi;
+}
+
 export interface NovaBlitz {
   // Gerado no celular: impede que a mesma blitz seja gravada duas vezes após uma reconexão.
   idCliente?: string;
@@ -92,6 +102,8 @@ export interface NovaBlitz {
   tipoId: string;
   colaboradores: string[];
   itens: NovoItemBlitz[];
+  // Detalhe de EPI por colaborador, quando a blitz vem do app de campo.
+  pessoas?: PessoaItem[];
 }
 
 export interface BlitzResumo {

@@ -643,6 +643,36 @@ input:disabled {
   color: var(--primaria-tinta);
 }
 
+/* Colaboradores para o EPI individual: uma aba por pessoa, com a contagem dos EPIs dela */
+.pessoas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pessoa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 12px;
+  background: var(--superficie-elevada);
+  border: 1px solid var(--borda-forte);
+  border-radius: var(--raio-chip);
+  color: var(--tinta);
+  font-size: 0.95rem;
+}
+
+.pessoa.ativo {
+  background: var(--primaria-suave);
+  border-color: var(--primaria);
+  color: var(--tinta);
+}
+
+.pessoa-nome {
+  font-weight: 600;
+}
+
 /* Legenda das situações, recolhida por padrão: explica Faltante e Não OK sem ocupar a tela */
 .legenda-situacoes {
   margin: 0;

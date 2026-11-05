@@ -138,7 +138,7 @@
                     {#if equipe.conforme === true}
                       <span class="chip chip-ok">Todos OK</span>
                     {:else if equipe.conforme === false}
-                      <span class="chip chip-atencao">Não OK ou Faltante</span>
+                      <span class="chip chip-atencao">Troca ou Faltante</span>
                     {:else}
                       <span class="chip">Sem dados</span>
                     {/if}
@@ -195,7 +195,7 @@
                 <div class="trilho distancia">
                   <div class="preenchimento preenchimento-alerta" use:barra={percentualDe(item.total, maxPendencias)}></div>
                 </div>
-                <span class="texto-suave detalhe">{numero.format(item.unidadesFaltantes)} unidade(s) faltando em {item.faltantes} blitz(es) · {item.naoOk} com defeito</span>
+                <span class="texto-suave detalhe">{numero.format(item.unidadesFaltantes)} unidade(s) faltando em {item.faltantes} blitz(es) · {item.naoOk} com troca</span>
               </li>
             {/each}
           </ol>

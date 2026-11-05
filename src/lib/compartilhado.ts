@@ -5,6 +5,6 @@ export const PROCESSOS = ["GSTC", "GOMAN", "GERE"] as const;
 
 export const STATUS_LABEL: Record<StatusItem, string> = {
   ok: "OK",
-  nao_ok: "Não OK",
+  nao_ok: "Troca",
   faltante: "Faltante",
 };
