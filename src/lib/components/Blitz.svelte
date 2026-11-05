@@ -82,6 +82,20 @@
   const completos = $derived(itensDaBlitz.filter((item) => situacaoDe(item) === "ok").length);
   const comPendencia = $derived(respondidos - completos);
   const aVerificar = $derived(itensDaBlitz.length - respondidos);
+
+  // EPI e EPC são mostrados um de cada vez, para a pessoa escolher por onde começar.
+  const GRUPOS = ["EPI", "EPC"] as const;
+  let grupoAtual = $state<"EPI" | "EPC">("EPI");
+  const itensDoGrupo = $derived(itensDaBlitz.filter((item) => item.grupo === grupoAtual));
+  const pendentesDoGrupo = $derived(itensDoGrupo.filter((item) => situacaoDe(item) === "pendente").length);
+
+  function totalDoGrupo(grupo: "EPI" | "EPC"): number {
+    return itensDaBlitz.filter((item) => item.grupo === grupo).length;
+  }
+
+  function respondidosDoGrupo(grupo: "EPI" | "EPC"): number {
+    return itensDaBlitz.filter((item) => item.grupo === grupo && situacaoDe(item) !== "pendente").length;
+  }
   const percentualRespondido = $derived(
     itensDaBlitz.length > 0 ? (respondidos / itensDaBlitz.length) * 100 : 0,
   );
@@ -195,11 +209,11 @@
   // Marca como OK só os itens ainda sem resposta, depois de confirmar a quantidade. Faltante e Não OK
   // já escolhidos não são alterados.
   function marcarTodosOk() {
-    const restantes = itensDaBlitz.filter((item) => situacaoDe(item) === "pendente").length;
+    const restantes = itensDoGrupo.filter((item) => situacaoDe(item) === "pendente").length;
     if (restantes === 0) return;
-    if (!confirm(`Marcar ${restantes} ${restantes === 1 ? "item" : "itens"} como OK?`)) return;
+    if (!confirm(`Marcar ${restantes} ${restantes === 1 ? "item" : "itens"} de ${grupoAtual} como OK?`)) return;
     respostasAntes = $state.snapshot(respostas) as Record<number, Resposta>;
-    for (const item of itensDaBlitz) {
+    for (const item of itensDoGrupo) {
       if (situacaoDe(item) === "pendente") escolherSituacao(item, "ok");
     }
     clearTimeout(temporizadorDesfazer);
@@ -545,8 +559,28 @@
         <div class="preenchimento preenchimento-ok" use:barra={percentualRespondido}></div>
       </div>
 
+      <div class="grupos distancia" role="tablist" aria-label="Grupo de materiais">
+        {#each GRUPOS as grupo (grupo)}
+          {#if totalDoGrupo(grupo) > 0}
+            <button
+              type="button"
+              role="tab"
+              class="grupo"
+              class:ativo={grupoAtual === grupo}
+              aria-selected={grupoAtual === grupo}
+              onclick={() => (grupoAtual = grupo)}
+            >
+              {grupo}
+              <span class="codigo">{respondidosDoGrupo(grupo)}/{totalDoGrupo(grupo)}</span>
+            </button>
+          {/if}
+        {/each}
+      </div>
+
       <div class="barra-acoes distancia">
-        <button type="button" class="botao-secundario" onclick={marcarTodosOk}>Marcar restantes como OK</button>
+        <button type="button" class="botao-secundario" onclick={marcarTodosOk} disabled={pendentesDoGrupo === 0}>
+          Marcar restantes como OK
+        </button>
         <button type="button" class="botao-secundario" onclick={limparRespostas}>Limpar respostas</button>
       </div>
 
@@ -570,7 +604,7 @@
       {/if}
 
       <ol class="checklist distancia">
-        {#each itensDaBlitz as item, posicao (item.id)}
+        {#each itensDoGrupo as item (item.id)}
           {@const situacao = situacaoDe(item)}
           {@const exigida = exigidaDe(item)}
           {@const quantidade = quantidadeDe(item)}
@@ -582,7 +616,7 @@
             use:assentar={`${situacao}|${quantidade}`}
           >
             <div class="item-topo">
-              <span class="numero codigo">{String(posicao + 1).padStart(2, "0")}</span>
+              <span class="numero codigo">{String(itensDaBlitz.indexOf(item) + 1).padStart(2, "0")}</span>
               <div class="item-texto">
                 <span class="item-descricao">{item.descricao}</span>
                 <span class="item-meta">

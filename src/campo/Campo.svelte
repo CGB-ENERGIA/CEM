@@ -55,6 +55,21 @@
   const colaboradoresValidos = $derived(colaboradores.map((nome) => nome.trim()).filter(Boolean));
   const respondidos = $derived(itens.filter((item) => escolhas[item.id]).length);
   const faltam = $derived(itens.length - respondidos);
+
+  // EPI e EPC são mostrados um de cada vez, para a pessoa escolher por onde começar.
+  let grupoAtual = $state<"EPI" | "EPC">("EPI");
+  const itensDoGrupo = $derived(itens.filter((item) => item.grupo === grupoAtual));
+  const restantesDoGrupo = $derived(itensDoGrupo.filter((item) => !escolhas[item.id]).length);
+
+  const GRUPOS = ["EPI", "EPC"] as const;
+
+  function totalDoGrupo(grupo: "EPI" | "EPC"): number {
+    return itens.filter((item) => item.grupo === grupo).length;
+  }
+
+  function respondidosDoGrupo(grupo: "EPI" | "EPC"): number {
+    return itens.filter((item) => item.grupo === grupo && escolhas[item.id]).length;
+  }
   const podeEnviar = $derived(
     prefixoNormalizado.length > 0 &&
       prefixoNormalizado.length <= 20 &&
@@ -135,11 +150,11 @@
   // Marca como OK só os itens ainda sem resposta, depois de confirmar a quantidade.
   // Os que já têm situação não são alterados. Um desfazer fica disponível até a próxima ação.
   function marcarRestantesOk() {
-    const restantes = itens.filter((item) => !escolhas[item.id]).length;
+    const restantes = restantesDoGrupo;
     if (restantes === 0) return;
-    if (!confirm(`Marcar ${restantes} ${restantes === 1 ? "item" : "itens"} como OK?`)) return;
+    if (!confirm(`Marcar ${restantes} ${restantes === 1 ? "item" : "itens"} de ${grupoAtual} como OK?`)) return;
     const anteriores = $state.snapshot(escolhas) as Record<number, Escolha>;
-    for (const item of itens) {
+    for (const item of itensDoGrupo) {
       if (!escolhas[item.id]) escolher(item, "ok");
     }
     antesDaMarcacao = anteriores;
@@ -442,10 +457,29 @@
     </div>
 
     {#if tipoId}
+      <div class="grupos" role="tablist" aria-label="Grupo de materiais">
+        {#each GRUPOS as grupo (grupo)}
+          {#if totalDoGrupo(grupo) > 0}
+            <button
+              type="button"
+              role="tab"
+              class="grupo"
+              class:ativo={grupoAtual === grupo}
+              aria-selected={grupoAtual === grupo}
+              onclick={() => (grupoAtual = grupo)}
+            >
+              {grupo}
+              <span class="codigo">{respondidosDoGrupo(grupo)}/{totalDoGrupo(grupo)}</span>
+            </button>
+          {/if}
+        {/each}
+      </div>
+
       <div class="progresso">
-        <span class="codigo">{respondidos}/{itens.length}</span>
-        <span class="texto-suave">respondidos</span>
-        <button type="button" class="botao-secundario" onclick={marcarRestantesOk} disabled={faltam === 0}>
+        <span class="texto-suave">
+          {grupoAtual}: <span class="codigo">{respondidosDoGrupo(grupoAtual)}/{itensDoGrupo.length}</span> respondidos
+        </span>
+        <button type="button" class="botao-secundario" onclick={marcarRestantesOk} disabled={restantesDoGrupo === 0}>
           Marcar restantes como OK
         </button>
       </div>
@@ -470,12 +504,12 @@
       {/if}
 
       <ol class="checklist">
-        {#each itens as item, posicao (item.id)}
+        {#each itensDoGrupo as item (item.id)}
           {@const escolha = escolhas[item.id]}
           {@const exigida = exigidaDe(item)}
           <li class="etiqueta item">
             <div class="item-topo">
-              <span class="numero codigo">{String(posicao + 1).padStart(2, "0")}</span>
+              <span class="numero codigo">{String(itens.indexOf(item) + 1).padStart(2, "0")}</span>
               <div class="item-texto">
                 <span class="item-descricao">{item.descricao}</span>
                 <span class="item-meta">
@@ -605,6 +639,7 @@
     align-items: center;
     gap: 10px;
   }
+
 
   .rotulo-texto {
     font-family: var(--fonte-titulo);

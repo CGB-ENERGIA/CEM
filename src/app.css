@@ -613,6 +613,36 @@ input:disabled {
   min-width: 80px;
 }
 
+/* Seletor de grupo (EPI e EPC): um grupo por vez, com a contagem de cada um */
+.grupos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.grupo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  background: var(--superficie-elevada);
+  border: 1px solid var(--borda-forte);
+  border-radius: var(--raio-etiqueta);
+  color: var(--tinta);
+  font-family: var(--fonte-titulo);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.grupo.ativo {
+  background: var(--primaria);
+  border-color: var(--primaria);
+  color: var(--primaria-tinta);
+}
+
 /* Legenda das situações, recolhida por padrão: explica Faltante e Não OK sem ocupar a tela */
 .legenda-situacoes {
   margin: 0;
