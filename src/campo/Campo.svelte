@@ -530,24 +530,28 @@
             {sugestoes}
             bind:valor={colaboradores[indice]}
           />
-          {#if colaboradores[indice]?.trim().length >= 3 && !sugestoes.includes(colaboradores[indice].trim())}
-            <button
-              type="button"
-              class="botao-secundario"
-              disabled={solicitando}
-              onclick={() => solicitarCadastro(colaboradores[indice].trim())}
-            >
-              Solicitar cadastro
-            </button>
-          {/if}
-          {#if colaboradores.length > 1}
-            <button
-              type="button"
-              class="botao-perigo"
-              onclick={() => (colaboradores = colaboradores.filter((_item, posicao) => posicao !== indice))}
-            >
-              Remover
-            </button>
+          {#if colaboradores[indice]?.trim().length >= 3 && !sugestoes.includes(colaboradores[indice].trim()) || colaboradores.length > 1}
+            <div class="acoes-colaborador">
+              {#if colaboradores[indice]?.trim().length >= 3 && !sugestoes.includes(colaboradores[indice].trim())}
+                <button
+                  type="button"
+                  class="botao-secundario"
+                  disabled={solicitando}
+                  onclick={() => solicitarCadastro(colaboradores[indice].trim())}
+                >
+                  Solicitar cadastro
+                </button>
+              {/if}
+              {#if colaboradores.length > 1}
+                <button
+                  type="button"
+                  class="botao-perigo"
+                  onclick={() => (colaboradores = colaboradores.filter((_item, posicao) => posicao !== indice))}
+                >
+                  Remover
+                </button>
+              {/if}
+            </div>
           {/if}
         </div>
       {/each}
@@ -817,14 +821,34 @@
     color: var(--tinta-suave);
   }
 
+  /* Nome ocupa a largura toda; as ações ficam numa linha abaixo, sem apertar o campo no celular */
   .linha-colaborador {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
   }
 
   .linha-colaborador :global(.busca-colaborador) {
-    flex: 1;
+    flex: 1 1 100%;
     min-width: 0;
+  }
+
+  .acoes-colaborador {
+    display: flex;
+    flex: 1 1 100%;
+    gap: 8px;
+  }
+
+  .acoes-colaborador > button {
+    min-height: 44px;
+  }
+
+  .acoes-colaborador > button:first-child:not(:last-child) {
+    flex: 1 1 0;
+  }
+
+  .acoes-colaborador > button:last-child {
+    margin-left: auto;
   }
 
   .checklist {
