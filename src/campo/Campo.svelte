@@ -161,9 +161,42 @@
     return situacao === "nao_ok" ? "troca" : situacao;
   }
 
+  // Caixa para escolher quem está com o EPI faltando ou com troca. Quem não for marcado fica OK.
+  let caixaEpi = $state<{ item: Item; situacao: "nao_ok" | "faltante"; selecionadas: string[] } | null>(null);
+
+  function abrirCaixaEpi(item: Item, situacao: "nao_ok" | "faltante") {
+    const selecionadas = colaboradoresValidos.filter((nome) => escolhasEpi[nome]?.[item.id] === situacao);
+    caixaEpi = { item, situacao, selecionadas };
+  }
+
+  function alternarPessoaCaixa(nome: string) {
+    if (!caixaEpi) return;
+    const selecionadas = caixaEpi.selecionadas.includes(nome)
+      ? caixaEpi.selecionadas.filter((n) => n !== nome)
+      : [...caixaEpi.selecionadas, nome];
+    caixaEpi = { ...caixaEpi, selecionadas };
+  }
+
+  function confirmarCaixaEpi() {
+    if (!caixaEpi) return;
+    const { item, situacao, selecionadas } = caixaEpi;
+    const novas = { ...escolhasEpi };
+    for (const nome of colaboradoresValidos) {
+      novas[nome] = { ...novas[nome], [item.id]: selecionadas.includes(nome) ? situacao : "ok" };
+    }
+    escolhasEpi = novas;
+    antesDaMarcacao = null;
+    caixaEpi = null;
+  }
+
   function escolher(item: Item, situacao: Situacao) {
     antesDaMarcacao = null;
     if (item.grupo === "EPI") {
+      if (situacao !== "ok") {
+        if (colaboradoresValidos.length === 0) return;
+        abrirCaixaEpi(item, situacao);
+        return;
+      }
       const nome = pessoaMostrada;
       if (!nome) return;
       escolhasEpi = { ...escolhasEpi, [nome]: { ...escolhasEpi[nome], [item.id]: situacao } };
@@ -670,6 +703,43 @@
     </div>
   </form>
 </main>
+
+{#if caixaEpi}
+  <div class="caixa-fundo" role="presentation" onclick={() => (caixaEpi = null)}></div>
+  <div
+    class="caixa-epi"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="caixa-epi-titulo"
+    tabindex="-1"
+    onkeydown={(evento) => {
+      if (evento.key === "Escape") caixaEpi = null;
+    }}
+  >
+    <h3 id="caixa-epi-titulo">
+      Quem está com {caixaEpi.situacao === "faltante" ? "falta" : "troca"} de {caixaEpi.item.descricao}?
+    </h3>
+    <p class="texto-suave">Quem não for marcado fica OK.</p>
+    <ul class="caixa-lista">
+      {#each colaboradoresValidos as nome (nome)}
+        <li>
+          <label class="caixa-opcao">
+            <input
+              type="checkbox"
+              checked={caixaEpi.selecionadas.includes(nome)}
+              onchange={() => alternarPessoaCaixa(nome)}
+            />
+            <span>{nome}</span>
+          </label>
+        </li>
+      {/each}
+    </ul>
+    <div class="caixa-acoes">
+      <button type="button" class="botao-secundario" onclick={() => (caixaEpi = null)}>Cancelar</button>
+      <button type="button" class="botao" onclick={confirmarCaixaEpi}>Confirmar</button>
+    </div>
+  </div>
+{/if}
 
 <Avisos />
 
