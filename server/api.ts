@@ -402,10 +402,23 @@ function chaveColaborador(nome: string): string {
 }
 
 // Sugestões do app de campo: só os aprovados, e só o nome.
+// O Supabase devolve no máximo 1000 linhas por consulta, então lê em páginas.
+const TAMANHO_PAGINA_COLABORADORES = 1000;
+
 async function listarColaboradoresAprovados(): Promise<string[]> {
-  const { data, error } = await db.from("colaboradores").select("nome").eq("status", "aprovado").order("nome");
-  if (error) throw error;
-  return data.map((linha) => linha.nome as string);
+  const nomes: string[] = [];
+  for (let inicio = 0; ; inicio += TAMANHO_PAGINA_COLABORADORES) {
+    const { data, error } = await db
+      .from("colaboradores")
+      .select("nome")
+      .eq("status", "aprovado")
+      .order("nome")
+      .range(inicio, inicio + TAMANHO_PAGINA_COLABORADORES - 1);
+    if (error) throw error;
+    nomes.push(...data.map((linha) => linha.nome as string));
+    if (data.length < TAMANHO_PAGINA_COLABORADORES) break;
+  }
+  return nomes;
 }
 
 // Pedido do app de campo: o nome entra como pendente e só vira sugestão depois de aprovado.
@@ -427,11 +440,20 @@ async function solicitarColaborador(corpo: Record<string, unknown>): Promise<Res
 }
 
 async function listarColaboradores(status: string | null): Promise<Response> {
-  let consulta = db.from("colaboradores").select("id, nome, status, criado_em, aprovado_em").order("nome");
-  if (status === "aprovado" || status === "pendente") consulta = consulta.eq("status", status);
-  const { data, error } = await consulta;
-  if (error) throw error;
-  return resposta(data);
+  const linhas: unknown[] = [];
+  for (let inicio = 0; ; inicio += TAMANHO_PAGINA_COLABORADORES) {
+    let consulta = db
+      .from("colaboradores")
+      .select("id, nome, status, criado_em, aprovado_em")
+      .order("nome")
+      .range(inicio, inicio + TAMANHO_PAGINA_COLABORADORES - 1);
+    if (status === "aprovado" || status === "pendente") consulta = consulta.eq("status", status);
+    const { data, error } = await consulta;
+    if (error) throw error;
+    linhas.push(...data);
+    if (data.length < TAMANHO_PAGINA_COLABORADORES) break;
+  }
+  return resposta(linhas);
 }
 
 async function atualizarColaborador(id: number, corpo: Record<string, unknown>): Promise<Response> {
