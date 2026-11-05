@@ -7,6 +7,7 @@
   import { fila, type BlitzPendente } from "../lib/fila";
   import type { Item, Materiais, NovaBlitz, NovoItemBlitz } from "../lib/tipos";
   import BuscaEquipe from "../lib/components/BuscaEquipe.svelte";
+  import BuscaColaborador from "../lib/components/BuscaColaborador.svelte";
   import Avisos from "../lib/components/Avisos.svelte";
   import { apiCampo, envioAdiavel, type EquipeCampo } from "./api";
 
@@ -406,12 +407,11 @@
       <span class="rotulo-texto">Colaboradores da equipe</span>
       {#each colaboradores as _nome, indice (indice)}
         <div class="linha-colaborador">
-          <input
-            bind:value={colaboradores[indice]}
-            list="lista-colaboradores"
-            placeholder="Nome completo"
-            aria-label={`Colaborador ${indice + 1}`}
-            maxlength="120"
+          <BuscaColaborador
+            id={`colaborador-${indice}`}
+            rotulo={`Colaborador ${indice + 1}`}
+            {sugestoes}
+            bind:valor={colaboradores[indice]}
           />
           {#if colaboradores[indice]?.trim().length >= 3 && !sugestoes.includes(colaboradores[indice].trim())}
             <button
@@ -434,11 +434,6 @@
           {/if}
         </div>
       {/each}
-      <datalist id="lista-colaboradores">
-        {#each sugestoes as nome (nome)}
-          <option value={nome}></option>
-        {/each}
-      </datalist>
       {#if colaboradores.length < LIMITE_COLABORADORES}
         <button type="button" class="botao-secundario" onclick={() => (colaboradores = [...colaboradores, ""])}>
           Adicionar colaborador
@@ -625,8 +620,9 @@
     gap: 8px;
   }
 
-  .linha-colaborador input {
+  .linha-colaborador :global(.busca-colaborador) {
     flex: 1;
+    min-width: 0;
   }
 
   .checklist {
