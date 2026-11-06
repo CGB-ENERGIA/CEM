@@ -1,11 +1,11 @@
 // Service worker do app de campo (/campo). Escopo próprio, separado do sistema administrativo.
 //
-// - casca do app: cache primeiro, para abrir sem sinal
-// - lista de equipes: rede primeiro, com cópia guardada para usar sem sinal
+// - casca do app (página, JS, CSS e fontes): guardada na instalação, para abrir sem sinal já na primeira vez
+// - listas de equipes e de colaboradores: rede primeiro, com cópia guardada para usar sem sinal
 // - outros arquivos do próprio app: rede primeiro, com cópia guardada
 // - blitz: sempre pela rede (o envio sem sinal é feito pela fila do próprio app)
 
-const VERSAO = "cem-campo-v3";
+const VERSAO = "cem-campo-v4";
 const CACHE_CASCA = `${VERSAO}-casca`;
 const CACHE_ARQUIVOS = "cem-campo-arquivos";
 const CASCA = [
@@ -16,10 +16,49 @@ const CASCA = [
   "/icons/icon-512.png",
 ];
 
-const ROTA_EQUIPES = "/api/campo/equipes";
+// Respostas de leitura que ficam guardadas para o app funcionar sem sinal.
+const ROTAS_COM_COPIA = ["/api/campo/equipes", "/api/campo/colaboradores"];
+
+// Arquivos com hash que a página de entrada usa (JS, CSS) e as fontes citadas nos estilos.
+// Sem isso, só abriria sem sinal depois de uma segunda visita.
+async function guardarArquivosDoApp(cache) {
+  const resposta = await fetch("/campo/index.html", { cache: "reload" });
+  const html = await resposta.text();
+  const arquivos = new Set(
+    [...html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)].map((achado) => achado[1]),
+  );
+
+  for (const arquivo of [...arquivos]) {
+    if (!arquivo.endsWith(".css")) continue;
+    try {
+      const css = await (await fetch(arquivo)).text();
+      for (const achado of css.matchAll(/url\((\/assets\/[^)]+\.woff2)\)/g)) arquivos.add(achado[1]);
+    } catch {
+      // Um estilo que não leu não impede o resto.
+    }
+  }
+
+  await Promise.all(
+    [...arquivos].map((arquivo) =>
+      cache.add(arquivo).catch(() => {
+        // Se um arquivo falhar, ele ainda é guardado na primeira vez que o app o usar.
+      }),
+    ),
+  );
+}
+
+async function instalar() {
+  const cache = await caches.open(CACHE_CASCA);
+  await cache.addAll(CASCA);
+  try {
+    await guardarArquivosDoApp(cache);
+  } catch {
+    // Sem esses arquivos a instalação continua; eles entram no cache a partir do uso normal.
+  }
+}
 
 self.addEventListener("install", (evento) => {
-  evento.waitUntil(caches.open(CACHE_CASCA).then((cache) => cache.addAll(CASCA)));
+  evento.waitUntil(instalar());
   self.skipWaiting();
 });
 
@@ -58,7 +97,7 @@ self.addEventListener("fetch", (evento) => {
   const url = new URL(requisicao.url);
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname === ROTA_EQUIPES) {
+  if (ROTAS_COM_COPIA.includes(url.pathname)) {
     evento.respondWith(redeDepoisCache(requisicao, CACHE_ARQUIVOS));
     return;
   }

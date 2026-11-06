@@ -10,6 +10,7 @@
   import BuscaColaborador from "../lib/components/BuscaColaborador.svelte";
   import Avisos from "../lib/components/Avisos.svelte";
   import { apiCampo, envioAdiavel, type EquipeCampo } from "./api";
+  import { guardarPedido, listarPedidos, removerPedido } from "./pedidos";
 
   type Situacao = "ok" | "nao_ok" | "faltante";
   interface Escolha {
@@ -301,9 +302,35 @@
         );
       }
     } catch (falha) {
-      mostrarAviso("erro", falha instanceof Error ? falha.message : "Não foi possível enviar o pedido.");
+      if (envioAdiavel(falha)) {
+        // Sem sinal: o pedido fica guardado e vai sozinho quando a conexão voltar.
+        guardarPedido(nome);
+        mostrarAviso(
+          "info",
+          `Sem conexão: o pedido de cadastro de ${nome} foi guardado e será enviado quando houver sinal. Você pode usar o nome nesta blitz.`,
+        );
+      } else {
+        mostrarAviso("erro", falha instanceof Error ? falha.message : "Não foi possível enviar o pedido.");
+      }
     } finally {
       solicitando = false;
+    }
+  }
+
+  // Envia os pedidos de cadastro guardados sem sinal. Para ao primeiro sinal de que ainda não há conexão.
+  async function enviarPedidosGuardados() {
+    for (const nome of listarPedidos()) {
+      try {
+        const resultado = await apiCampo.solicitarColaborador(nome);
+        removerPedido(nome);
+        if (resultado.status === "aprovado" && !sugestoes.includes(resultado.nome)) {
+          sugestoes = [...sugestoes, resultado.nome];
+        }
+      } catch (falha) {
+        if (envioAdiavel(falha)) return;
+        // Recusado pelo servidor (nome inválido): não adianta tentar de novo.
+        removerPedido(nome);
+      }
     }
   }
 
@@ -406,12 +433,18 @@
     carregarSugestoes();
     carregarPendentes();
     enviarPendentes(false);
+    enviarPedidosGuardados();
   });
 </script>
 
 <svelte:window
   bind:online
-  ononline={() => enviarPendentes(false)}
+  ononline={() => {
+    enviarPendentes(false);
+    enviarPedidosGuardados();
+    carregarEquipes();
+    carregarSugestoes();
+  }}
   onkeydown={(evento) => {
     if (evento.key === "Escape" && caixaEpi) caixaEpi = null;
   }}
