@@ -10,7 +10,10 @@ import type {
   ItemBlitz,
   Materiais,
   NovaBlitz,
+  ListaPendencias,
+  Pendencia,
   PessoaItem,
+  PessoaPendente,
   RankingEquipe,
   RankingItem,
   StatusItem,
@@ -218,7 +221,7 @@ async function exportarEquipes(): Promise<Response> {
   return new Response(bytes, {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": `attachment; filename="equipes-cem-${data}.xlsx"`,
+      "Content-Disposition": `attachment; filename="equipes-paes-${data}.xlsx"`,
     },
   });
 }
@@ -639,11 +642,30 @@ async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
     itensPorBlitz.set(item.blitz_id, lista);
   }
 
+  // EPI por colaborador (blitz do app de campo): quem está com Troca ou Faltante em cada item.
+  const { data: pessoasEpi, error: erroPessoas } = await db
+    .from("blitz_epi_pessoas")
+    .select("blitz_id, item_id, colaborador, status")
+    .in(
+      "blitz_id",
+      blitzes.map((b) => b.id),
+    )
+    .neq("status", "ok");
+  if (erroPessoas) throw erroPessoas;
+
+  const pessoasPorItem = new Map<string, PessoaPendente[]>();
+  for (const linha of pessoasEpi as { blitz_id: number; item_id: number; colaborador: string; status: "troca" | "faltante" }[]) {
+    const chave = `${linha.blitz_id}:${linha.item_id}`;
+    const lista = pessoasPorItem.get(chave) ?? [];
+    lista.push({ colaborador: linha.colaborador, status: linha.status });
+    pessoasPorItem.set(chave, lista);
+  }
+
   return blitzes.map((blitz) => {
     const itensBlitz = itensPorBlitz.get(blitz.id) ?? [];
     const naoConformes = itensBlitz
       .filter((item) => item.status !== "ok")
-      .map((item): ItemBlitz & { descricao: string; grupo: Item["grupo"] } => {
+      .map((item): ItemBlitz & { descricao: string; grupo: Item["grupo"]; pessoas?: PessoaPendente[] } => {
         const material = itensPorId.get(item.item_id);
         return {
           itemId: item.item_id,
@@ -654,6 +676,9 @@ async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
           observacao: item.observacao ?? undefined,
           descricao: material?.descricao ?? `Item ${item.item_id}`,
           grupo: material?.grupo ?? "EPC",
+          pessoas: pessoasPorItem
+            .get(`${blitz.id}:${item.item_id}`)
+            ?.sort((a, b) => a.colaborador.localeCompare(b.colaborador)),
         };
       });
 
@@ -832,10 +857,244 @@ async function removerBlitz(id: number): Promise<Response> {
   return semConteudo();
 }
 
+// ---------- Controle de pendências ----------
+
+const MENSAGEM_SEM_MIGRACAO =
+  "O controle de pendências ainda não está ativo no banco. Rode a migração 20261106100000_pendencias_resolvidas.sql no Supabase.";
+
+// Coluna inexistente: a migração do controle ainda não foi rodada.
+function colunaAusente(erro: { code?: string } | null): boolean {
+  return erro?.code === "42703" || erro?.code === "PGRST204";
+}
+
+const TAMANHO_PAGINA_PENDENCIAS = 1000;
+const LOTE_BLITZES_PENDENCIAS = 200;
+
+interface LinhaPessoaPendente {
+  id: number;
+  blitz_id: number;
+  item_id: number;
+  colaborador: string;
+  status: "troca" | "faltante";
+  resolvido_em: string | null;
+  resolvido_por: string | null;
+}
+
+interface LinhaItemPendente {
+  blitz_id: number;
+  item_id: number;
+  status: "nao_ok" | "faltante";
+  observacao: string | null;
+  quantidade_exigida: number;
+  quantidade_encontrada: number;
+  quantidade_nao_conforme: number;
+  resolvido_em: string | null;
+  resolvido_por: string | null;
+}
+
+// Todas as Trocas e Faltantes já registrados, em aberto ou resolvidos, do mais recente para o mais antigo.
+async function carregarPendencias(): Promise<Pendencia[]> {
+  const pessoas: LinhaPessoaPendente[] = [];
+  for (let inicio = 0; ; inicio += TAMANHO_PAGINA_PENDENCIAS) {
+    const { data, error } = await db
+      .from("blitz_epi_pessoas")
+      .select("id, blitz_id, item_id, colaborador, status, resolvido_em, resolvido_por")
+      .neq("status", "ok")
+      .order("id")
+      .range(inicio, inicio + TAMANHO_PAGINA_PENDENCIAS - 1);
+    if (colunaAusente(error)) throw new ErroValidacao(MENSAGEM_SEM_MIGRACAO, 503);
+    if (error) throw error;
+    pessoas.push(...(data as LinhaPessoaPendente[]));
+    if (data.length < TAMANHO_PAGINA_PENDENCIAS) break;
+  }
+
+  const itens: LinhaItemPendente[] = [];
+  for (let inicio = 0; ; inicio += TAMANHO_PAGINA_PENDENCIAS) {
+    const { data, error } = await db
+      .from("blitz_itens")
+      .select(
+        "blitz_id, item_id, status, observacao, quantidade_exigida, quantidade_encontrada, quantidade_nao_conforme, resolvido_em, resolvido_por",
+      )
+      .neq("status", "ok")
+      .order("blitz_id")
+      .order("item_id")
+      .range(inicio, inicio + TAMANHO_PAGINA_PENDENCIAS - 1);
+    if (colunaAusente(error)) throw new ErroValidacao(MENSAGEM_SEM_MIGRACAO, 503);
+    if (error) throw error;
+    itens.push(...(data as LinhaItemPendente[]));
+    if (data.length < TAMANHO_PAGINA_PENDENCIAS) break;
+  }
+
+  // O EPI de blitz do app de campo já aparece por colaborador; a linha da equipe seria uma repetição.
+  const coberto = new Set(pessoas.map((linha) => `${linha.blitz_id}:${linha.item_id}`));
+  const itensDaEquipe = itens.filter((linha) => !coberto.has(`${linha.blitz_id}:${linha.item_id}`));
+
+  const idsBlitz = [...new Set([...pessoas.map((l) => l.blitz_id), ...itensDaEquipe.map((l) => l.blitz_id)])];
+  const blitzes = new Map<number, { data: string; prefixo: string; processo: string | null }>();
+  for (let inicio = 0; inicio < idsBlitz.length; inicio += LOTE_BLITZES_PENDENCIAS) {
+    const { data, error } = await db
+      .from("blitzes")
+      .select("id, data, prefixo, processo")
+      .in("id", idsBlitz.slice(inicio, inicio + LOTE_BLITZES_PENDENCIAS));
+    if (error) throw error;
+    for (const blitz of data) blitzes.set(blitz.id, { data: blitz.data, prefixo: blitz.prefixo, processo: blitz.processo });
+  }
+
+  const pendencias: Pendencia[] = [];
+  const base = (blitzId: number, itemId: number) => {
+    const material = itensPorId.get(itemId);
+    const blitz = blitzes.get(blitzId);
+    return {
+      blitzId,
+      itemId,
+      descricao: material?.descricao ?? `Item ${itemId}`,
+      grupo: material?.grupo ?? ("EPC" as Item["grupo"]),
+      prefixo: blitz?.prefixo ?? "",
+      processo: blitz?.processo ?? null,
+      data: blitz?.data ?? "",
+    };
+  };
+
+  for (const linha of pessoas) {
+    pendencias.push({
+      ...base(linha.blitz_id, linha.item_id),
+      chave: `epi:${linha.id}`,
+      status: linha.status,
+      quantidade: 1,
+      colaborador: linha.colaborador,
+      observacao: null,
+      resolvidaEm: linha.resolvido_em,
+      resolvidaPor: linha.resolvido_por,
+    });
+  }
+  for (const linha of itensDaEquipe) {
+    const faltante = linha.status === "faltante";
+    pendencias.push({
+      ...base(linha.blitz_id, linha.item_id),
+      chave: `item:${linha.blitz_id}:${linha.item_id}`,
+      status: faltante ? "faltante" : "troca",
+      quantidade: Math.max(1, faltante ? linha.quantidade_exigida - linha.quantidade_encontrada : linha.quantidade_nao_conforme),
+      colaborador: null,
+      observacao: linha.observacao,
+      resolvidaEm: linha.resolvido_em,
+      resolvidaPor: linha.resolvido_por,
+    });
+  }
+
+  return pendencias.sort(
+    (a, b) =>
+      b.data.localeCompare(a.data) ||
+      a.prefixo.localeCompare(b.prefixo) ||
+      a.descricao.localeCompare(b.descricao) ||
+      (a.colaborador ?? "").localeCompare(b.colaborador ?? ""),
+  );
+}
+
+type FiltroSituacao = "abertas" | "resolvidas" | "todas";
+
+function lerFiltroPendencias(url: URL): FiltroSituacao {
+  const valor = url.searchParams.get("situacao") ?? "abertas";
+  if (valor !== "abertas" && valor !== "resolvidas" && valor !== "todas") {
+    throw new ErroValidacao("Filtro de situação inválido.");
+  }
+  return valor;
+}
+
+function filtrarPendencias(todas: Pendencia[], filtro: FiltroSituacao): Pendencia[] {
+  if (filtro === "abertas") return todas.filter((p) => p.resolvidaEm === null);
+  if (filtro === "resolvidas") return todas.filter((p) => p.resolvidaEm !== null);
+  return todas;
+}
+
+async function listarPendencias(filtro: FiltroSituacao): Promise<ListaPendencias> {
+  const todas = await carregarPendencias();
+  const abertas = todas.filter((p) => p.resolvidaEm === null).length;
+  return { pendencias: filtrarPendencias(todas, filtro), abertas, resolvidas: todas.length - abertas };
+}
+
+// Marca como resolvida (item trocado ou entregue) ou reabre uma pendência.
+async function resolverPendencia(corpo: Record<string, unknown>, usuario: UsuarioSessao): Promise<Response> {
+  const chave = typeof corpo.chave === "string" ? corpo.chave : "";
+  if (typeof corpo.resolvida !== "boolean") throw new ErroValidacao("Informe se a pendência foi resolvida.");
+  const alteracao = corpo.resolvida
+    ? { resolvido_em: new Date().toISOString(), resolvido_por: usuario.nome }
+    : { resolvido_em: null, resolvido_por: null };
+
+  const pessoa = chave.match(/^epi:(\d+)$/);
+  const item = chave.match(/^item:(\d+):(\d+)$/);
+  if (!pessoa && !item) throw new ErroValidacao("Pendência inválida.");
+
+  const consulta = pessoa
+    ? db.from("blitz_epi_pessoas").update(alteracao).eq("id", Number(pessoa[1])).neq("status", "ok").select("id")
+    : db
+        .from("blitz_itens")
+        .update(alteracao)
+        .eq("blitz_id", Number(item![1]))
+        .eq("item_id", Number(item![2]))
+        .neq("status", "ok")
+        .select("blitz_id");
+  const { data, error } = await consulta;
+  if (colunaAusente(error)) throw new ErroValidacao(MENSAGEM_SEM_MIGRACAO, 503);
+  if (error) throw error;
+  if (data.length === 0) throw new ErroValidacao("Pendência não encontrada.", 404);
+  return resposta({ chave, resolvidaEm: alteracao.resolvido_em, resolvidaPor: alteracao.resolvido_por });
+}
+
+const COLUNAS_PENDENCIAS = [
+  "Data da blitz",
+  "Equipe",
+  "Processo",
+  "Material",
+  "Grupo",
+  "Situação",
+  "Quantidade",
+  "Colaborador",
+  "Observação",
+  "Controle",
+  "Resolvida em",
+  "Resolvida por",
+] as const;
+
+async function exportarPendencias(filtro: FiltroSituacao): Promise<Response> {
+  const lista = filtrarPendencias(await carregarPendencias(), filtro);
+  const formatarDia = (iso: string) => iso.slice(0, 10).split("-").reverse().join("/");
+  const linhas = lista.map((p) => ({
+    "Data da blitz": formatarDia(p.data),
+    Equipe: p.prefixo,
+    Processo: p.processo ?? "",
+    Material: p.descricao,
+    Grupo: p.grupo,
+    Situação: p.status === "faltante" ? "Faltante" : "Troca",
+    Quantidade: p.quantidade,
+    Colaborador: p.colaborador ?? "Equipe",
+    Observação: p.observacao ?? "",
+    Controle: p.resolvidaEm ? "Resolvida" : "Em aberto",
+    "Resolvida em": p.resolvidaEm ? formatarDia(p.resolvidaEm) : "",
+    "Resolvida por": p.resolvidaPor ?? "",
+  }));
+  const planilha = XLSX.utils.json_to_sheet(linhas, { header: [...COLUNAS_PENDENCIAS] });
+  planilha["!cols"] = COLUNAS_PENDENCIAS.map((coluna) => ({ wch: coluna === "Material" ? 60 : Math.max(coluna.length + 2, 14) }));
+  const livro = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(livro, planilha, "Pendências");
+  const bytes = XLSX.write(livro, { type: "buffer", bookType: "xlsx" }) as BodyInit;
+  const data = new Date().toISOString().slice(0, 10);
+  return new Response(bytes, {
+    headers: {
+      "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "Content-Disposition": `attachment; filename="pendencias-paes-${data}.xlsx"`,
+    },
+  });
+}
+
 // ---------- Dashboard ----------
 
 async function montarDashboard(mes: string): Promise<Dashboard> {
-  const [blitzes, equipes] = await Promise.all([carregarBlitzes(mes), listarEquipes()]);
+  const [blitzes, equipes, pendencias] = await Promise.all([
+    carregarBlitzes(mes),
+    listarEquipes(),
+    // Nulo enquanto a migração do controle não foi rodada: o dashboard continua funcionando sem o número.
+    carregarPendencias().catch(() => null),
+  ]);
 
   const porEquipe = new Map<string, BlitzResumo[]>();
   for (const blitz of blitzes) {
@@ -900,6 +1159,7 @@ async function montarDashboard(mes: string): Promise<Dashboard> {
     equipesParticipantes: participantes.length,
     equipesTotais: equipes.length,
     percentualConformes,
+    pendenciasAbertas: pendencias ? pendencias.filter((p) => p.resolvidaEm === null).length : null,
     participantes,
     naoParticipantes,
     itensPendentes,
@@ -971,7 +1231,8 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
   }
 
   // Daqui em diante, toda rota exige sessão válida.
-  if (!(await usuarioDaSessao(lerTokenDoCookie(req.headers.get("cookie"))))) {
+  const usuario = await usuarioDaSessao(lerTokenDoCookie(req.headers.get("cookie")));
+  if (!usuario) {
     throw new ErroValidacao("Sessão expirada. Entre novamente.", 401);
   }
 
@@ -1008,6 +1269,10 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
 
   const matchBlitz = caminho.match(/^\/api\/blitz\/(\d+)$/);
   if (matchBlitz && metodo === "DELETE") return removerBlitz(Number(matchBlitz[1]));
+
+  if (metodo === "GET" && caminho === "/api/pendencias") return resposta(await listarPendencias(lerFiltroPendencias(url)));
+  if (metodo === "GET" && caminho === "/api/pendencias/exportar") return exportarPendencias(lerFiltroPendencias(url));
+  if (metodo === "POST" && caminho === "/api/pendencias/resolver") return resolverPendencia(await lerJson(req), usuario);
 
   if (metodo === "GET" && caminho === "/api/dashboard") return resposta(await montarDashboard(lerMes(url)));
 

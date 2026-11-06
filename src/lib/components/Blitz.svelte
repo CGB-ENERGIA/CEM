@@ -742,7 +742,9 @@
             <span class="codigo data">{formatarData(blitz.data)}</span>
             <strong class="codigo">{blitz.prefixo}</strong>
             <span class="texto-suave">{nomeTipo(blitz.tipoId)}</span>
-            <span class="chip">{blitz.processo}</span>
+            {#if blitz.processo}
+              <span class="chip">{blitz.processo}</span>
+            {/if}
             {#if blitz.conforme}
               <span class="chip chip-ok">Todos OK</span>
             {:else}
@@ -759,6 +761,7 @@
                   <thead>
                     <tr>
                       <th>Material</th>
+                      <th>Quem</th>
                       <th class="numerico">Exigidos</th>
                       <th class="numerico">Encontrados</th>
                       <th class="numerico">Faltam</th>
@@ -770,6 +773,22 @@
                     {#each blitz.itensNaoConformes as item (item.itemId)}
                       <tr>
                         <td class="titulo-cartao">{item.descricao}</td>
+                        <td data-rotulo="Quem">
+                          {#if item.pessoas && item.pessoas.length > 0}
+                            <ul class="quem">
+                              {#each item.pessoas as pessoa (pessoa.colaborador)}
+                                <li>
+                                  <span>{pessoa.colaborador}</span>
+                                  <span class="chip" class:chip-atencao={pessoa.status === "troca"} class:chip-falta={pessoa.status === "faltante"}>
+                                    {pessoa.status === "troca" ? "Troca" : "Faltante"}
+                                  </span>
+                                </li>
+                              {/each}
+                            </ul>
+                          {:else}
+                            <span class="texto-suave">Equipe</span>
+                          {/if}
+                        </td>
                         <td data-rotulo="Exigidos" class="numerico codigo">{item.exigida}</td>
                         <td data-rotulo="Encontrados" class="numerico codigo">{item.encontrada}</td>
                         <td data-rotulo="Faltam" class="numerico codigo">{Math.max(0, item.exigida - item.encontrada)}</td>
@@ -1233,6 +1252,23 @@
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid var(--borda);
+  }
+
+  /* Colaboradores com Troca ou Faltante num EPI */
+  .quem {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .quem li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
   }
 
   @media (max-width: 640px) {

@@ -106,6 +106,12 @@ export interface NovaBlitz {
   pessoas?: PessoaItem[];
 }
 
+// Colaborador com um EPI em Troca ou Faltante, no detalhe de uma blitz feita pelo app de campo.
+export interface PessoaPendente {
+  colaborador: string;
+  status: "troca" | "faltante";
+}
+
 export interface BlitzResumo {
   id: number;
   data: string;
@@ -116,7 +122,35 @@ export interface BlitzResumo {
   totalItens: number;
   naoConformes: number;
   conforme: boolean;
-  itensNaoConformes: (ItemBlitz & { descricao: string; grupo: Grupo })[];
+  itensNaoConformes: (ItemBlitz & { descricao: string; grupo: Grupo; pessoas?: PessoaPendente[] })[];
+}
+
+// Controle de pendências: cada Troca ou Faltante registrado numa blitz, até alguém marcar como resolvido.
+// EPI vem por colaborador; EPC (e EPI de blitz feita pelo painel) vem por equipe.
+export interface Pendencia {
+  // "epi:<id>" (EPI de um colaborador) ou "item:<blitz>:<item>" (item da equipe).
+  chave: string;
+  blitzId: number;
+  itemId: number;
+  descricao: string;
+  grupo: Grupo;
+  status: "troca" | "faltante";
+  quantidade: number;
+  colaborador: string | null;
+  prefixo: string;
+  processo: string | null;
+  data: string;
+  observacao: string | null;
+  resolvidaEm: string | null;
+  resolvidaPor: string | null;
+}
+
+export type FiltroPendencias = "abertas" | "resolvidas" | "todas";
+
+export interface ListaPendencias {
+  pendencias: Pendencia[];
+  abertas: number;
+  resolvidas: number;
 }
 
 export interface RankingEquipe {
@@ -145,6 +179,8 @@ export interface Dashboard {
   equipesParticipantes: number;
   equipesTotais: number;
   percentualConformes: number | null;
+  // Trocas e Faltantes ainda não resolvidos; nulo se o controle não está ativo no banco.
+  pendenciasAbertas: number | null;
   participantes: RankingEquipe[];
   naoParticipantes: RankingEquipe[];
   itensPendentes: RankingItem[];

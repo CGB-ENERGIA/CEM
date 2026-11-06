@@ -102,6 +102,13 @@
             : "pela última blitz de cada equipe"}
         </span>
       </div>
+      {#if dados.pendenciasAbertas !== null}
+        <div class="kpi etiqueta">
+          <span class="kpi-rotulo">Pendências em aberto</span>
+          <div class="kpi-valor" use:numeroAnimado={{ valor: dados.pendenciasAbertas, formatar: inteiro }}></div>
+          <span class="nota">Trocas e Faltantes sem solução, de todos os meses</span>
+        </div>
+      {/if}
     </div>
 
     <div class="painel-interno distancia">

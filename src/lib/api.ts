@@ -3,6 +3,8 @@ import type {
   Dashboard,
   DadosEquipe,
   Equipe,
+  FiltroPendencias,
+  ListaPendencias,
   Materiais,
   NovaBlitz,
   Colaborador,
@@ -119,6 +121,14 @@ export const api = {
   registrarBlitz: (blitz: NovaBlitz) =>
     requisitar<{ id: number }>("/api/blitz", { method: "POST", body: JSON.stringify(blitz) }),
   removerBlitz: (id: number) => requisitar<void>(`/api/blitz/${id}`, { method: "DELETE" }),
+
+  pendencias: (situacao: FiltroPendencias) => requisitar<ListaPendencias>(`/api/pendencias?situacao=${situacao}`),
+  resolverPendencia: (chave: string, resolvida: boolean) =>
+    requisitar<{ chave: string; resolvidaEm: string | null; resolvidaPor: string | null }>("/api/pendencias/resolver", {
+      method: "POST",
+      body: JSON.stringify({ chave, resolvida }),
+    }),
+  exportarPendencias: (situacao: FiltroPendencias) => baixar(`/api/pendencias/exportar?situacao=${situacao}`),
 
   dashboard: (mes: string) => requisitar<Dashboard>(`/api/dashboard?mes=${mes}`),
 };

@@ -5,6 +5,7 @@
   import Blitz from "./lib/components/Blitz.svelte";
   import Dashboard from "./lib/components/Dashboard.svelte";
   import Equipes from "./lib/components/Equipes.svelte";
+  import Controle from "./lib/components/Controle.svelte";
   import Avisos from "./lib/components/Avisos.svelte";
   import Login from "./lib/components/Login.svelte";
   import IconeTema from "./lib/components/IconeTema.svelte";
@@ -15,12 +16,13 @@
   import { definirUsuario, encerrarSessaoLocal, lerUsuarioGuardado, sessao } from "./lib/sessao.svelte";
   import { alternarTema, tema } from "./lib/tema.svelte";
 
-  type Aba = "materiais" | "blitz" | "dashboard" | "equipes";
+  type Aba = "materiais" | "blitz" | "dashboard" | "equipes" | "controle";
 
   // No celular, a barra de abas usa o rótulo curto.
   const abas: { id: Aba; rotulo: string; curto: string }[] = [
     { id: "dashboard", rotulo: "Dashboard", curto: "Início" },
     { id: "blitz", rotulo: "Blitz Estática", curto: "Blitz" },
+    { id: "controle", rotulo: "Controle", curto: "Controle" },
     { id: "materiais", rotulo: "Materiais", curto: "Materiais" },
     { id: "equipes", rotulo: "Equipes", curto: "Equipes" },
   ];
@@ -168,6 +170,9 @@
     </div>
     <div data-aba="blitz" id="painel-blitz" role="tabpanel" aria-labelledby="aba-blitz" class:oculto={aba !== "blitz"}>
       <Blitz ativo={aba === "blitz"} />
+    </div>
+    <div data-aba="controle" id="painel-controle" role="tabpanel" aria-labelledby="aba-controle" class:oculto={aba !== "controle"}>
+      <Controle ativo={aba === "controle"} />
     </div>
     <div data-aba="materiais" id="painel-materiais" role="tabpanel" aria-labelledby="aba-materiais" class:oculto={aba !== "materiais"}>
       <Materiais />
@@ -425,7 +430,8 @@
       bottom: 0;
       z-index: 15;
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
       background: var(--topo-fundo);
       border-top: 1px solid var(--topo-borda);
       padding-bottom: env(safe-area-inset-bottom);

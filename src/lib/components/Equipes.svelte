@@ -201,7 +201,7 @@
       const url = URL.createObjectURL(arquivo);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `equipes-cem-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      link.download = `equipes-paes-${new Date().toISOString().slice(0, 10)}.xlsx`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (falha) {

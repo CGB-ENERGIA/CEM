@@ -57,6 +57,16 @@ A senha vem da variável `CEM_SENHA` ou, se ela não existir, da primeira linha 
 - A sessão dura 12 horas e fica em cookie `HttpOnly`.
 - Após 5 falhas de senha para o mesmo login, o acesso fica bloqueado por 15 minutos. O bloqueio fica na memória do servidor.
 
+## Controle de pendências
+
+A aba **Controle** lista cada Troca ou Faltante registrado numa blitz, até alguém marcar como resolvido (item trocado ou entregue).
+
+- EPI de blitz feita no app de campo aparece por colaborador; EPC aparece por equipe.
+- Filtros: em aberto, resolvidas ou todas; busca por equipe, colaborador ou material; processo, situação e grupo.
+- Botão **Exportar planilha** gera um `.xlsx` com o filtro de situação escolhido.
+- O Dashboard mostra o total de pendências em aberto, de todos os meses.
+- Precisa da migração `supabase/migrations/20261106100000_pendencias_resolvidas.sql`, rodada no SQL Editor depois das anteriores. Sem ela, a aba mostra um aviso e o Dashboard continua funcionando sem esse indicador.
+
 ## Pendências de configuração
 
 - Lista oficial de processos em `src/lib/compartilhado.ts` (`PROCESSOS`): hoje contém GSTC, GOMAN e GERE.
