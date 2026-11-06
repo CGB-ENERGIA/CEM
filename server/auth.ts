@@ -11,22 +11,42 @@ export interface UsuarioSessao {
   id: number;
   login: string;
   nome: string;
-  // Pode abrir a página Usuários. Falso para todos enquanto a migração de perfil não tiver rodado.
+  // Administrador altera dados do sistema. Quem não é administrador só consulta.
   admin: boolean;
+  // Só o proprietário abre a página Usuários. Ele também é administrador.
+  proprietario: boolean;
 }
 
-// As colunas admin e ativo vêm da migração 20261107100000_usuarios_perfil.sql. Enquanto ela não rodou, o login
-// continua funcionando: todos entram como usuário comum e ativo, em vez de o sistema inteiro parar.
-let perfilDisponivel: boolean | null = null;
+// Perfis: proprietário (abre a página Usuários), administrador (altera tudo, menos Usuários) e usuário (só consulta).
+// As colunas vêm das migrações 20261107100000_usuarios_perfil.sql (admin, ativo) e
+// 20261107120000_usuarios_proprietario.sql (proprietario). Enquanto elas não rodam, o login continua funcionando
+// com o comportamento de antes, em vez de o sistema parar:
+//   completo: tudo disponível.
+//   intermediario: sem a coluna proprietario; quem era admin continua abrindo a página Usuários.
+//   minimo: sem colunas de perfil; todos entram como administrador, como era antes de existirem perfis.
+type NivelPerfil = "completo" | "intermediario" | "minimo";
+
+const COLUNAS_POR_NIVEL: Record<NivelPerfil, string> = {
+  completo: "id, login, nome, admin, ativo, proprietario",
+  intermediario: "id, login, nome, admin, ativo",
+  minimo: "id, login, nome",
+};
+
+let nivelPerfil: NivelPerfil | null = null;
 let proximaSondaPerfil = 0;
 
-async function colunasDeUsuario(): Promise<string> {
-  if (perfilDisponivel === null || (!perfilDisponivel && Date.now() >= proximaSondaPerfil)) {
-    const { error } = await db.from("usuarios").select("admin, ativo").limit(1);
-    perfilDisponivel = !error;
+async function nivelDePerfil(): Promise<NivelPerfil> {
+  if (nivelPerfil === null || (nivelPerfil !== "completo" && Date.now() >= proximaSondaPerfil)) {
+    const completo = await db.from("usuarios").select("admin, ativo, proprietario").limit(1);
+    if (!completo.error) {
+      nivelPerfil = "completo";
+    } else {
+      const intermediario = await db.from("usuarios").select("admin, ativo").limit(1);
+      nivelPerfil = intermediario.error ? "minimo" : "intermediario";
+    }
     proximaSondaPerfil = Date.now() + 30_000;
   }
-  return perfilDisponivel ? "id, login, nome, admin, ativo" : "id, login, nome";
+  return nivelPerfil;
 }
 
 interface LinhaUsuario {
@@ -35,11 +55,16 @@ interface LinhaUsuario {
   nome: string;
   admin?: boolean;
   ativo?: boolean;
+  proprietario?: boolean;
   senha_hash?: string;
 }
 
-function paraSessao(linha: LinhaUsuario): UsuarioSessao {
-  return { id: linha.id, login: linha.login, nome: linha.nome, admin: linha.admin === true };
+function paraSessao(linha: LinhaUsuario, nivel: NivelPerfil): UsuarioSessao {
+  const base = { id: linha.id, login: linha.login, nome: linha.nome };
+  if (nivel === "minimo") return { ...base, admin: true, proprietario: false };
+  if (nivel === "intermediario") return { ...base, admin: linha.admin === true, proprietario: linha.admin === true };
+  const proprietario = linha.proprietario === true;
+  return { ...base, admin: linha.admin === true || proprietario, proprietario };
 }
 
 // Hash descartável: faz a verificação de senha levar o mesmo tempo quando o login não existe.
@@ -82,10 +107,10 @@ export function limparFalhasLogin(login: string) {
 }
 
 export async function verificarCredenciais(login: string, senha: string): Promise<UsuarioSessao | null> {
-  const colunas = await colunasDeUsuario();
+  const nivel = await nivelDePerfil();
   const { data: bruto, error } = await db
     .from("usuarios")
-    .select(`${colunas}, senha_hash`)
+    .select(`${COLUNAS_POR_NIVEL[nivel]}, senha_hash`)
     .eq("login", chaveLogin(login))
     .maybeSingle();
   if (error) throw error;
@@ -94,7 +119,7 @@ export async function verificarCredenciais(login: string, senha: string): Promis
   const senhaConfere = await Bun.password.verify(senha, data?.senha_hash ?? HASH_DESCARTAVEL);
   // Usuário desativado recebe a mesma resposta de senha errada.
   if (!data || !senhaConfere || data.ativo === false) return null;
-  return paraSessao(data);
+  return paraSessao(data, nivel);
 }
 
 export async function criarSessao(usuarioId: number): Promise<string> {
@@ -115,10 +140,10 @@ export async function usuarioDaSessao(token: string | null): Promise<UsuarioSess
   if (!token) return null;
   const hash = hashToken(token);
 
-  const colunas = await colunasDeUsuario();
+  const nivel = await nivelDePerfil();
   const { data, error } = await db
     .from("sessoes")
-    .select(`expira_em, usuarios(${colunas})`)
+    .select(`expira_em, usuarios(${COLUNAS_POR_NIVEL[nivel]})`)
     .eq("token_hash", hash)
     .maybeSingle();
   if (error) throw error;
@@ -130,7 +155,7 @@ export async function usuarioDaSessao(token: string | null): Promise<UsuarioSess
     await db.from("sessoes").delete().eq("token_hash", hash);
     return null;
   }
-  return paraSessao(usuario);
+  return paraSessao(usuario, nivel);
 }
 
 // Encerra as sessões abertas de um usuário (senha redefinida, usuário desativado). Pode manter a sessão atual.

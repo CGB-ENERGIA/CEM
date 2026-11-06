@@ -54,15 +54,25 @@ bun run usuario:criar <login> "<nome completo>"
 
 A senha vem da variável `CEM_SENHA` ou, se ela não existir, da primeira linha da entrada padrão. Ela nunca é passada como argumento. A senha precisa ter pelo menos 8 caracteres. O login não diferencia maiúsculas de minúsculas.
 
-O primeiro administrador vem da migração `supabase/migrations/20261107100000_usuarios_perfil.sql`, que marca o login `italo.fontes@cgbengenharia.com.br`. Rode-a no SQL Editor; sem ela o login continua funcionando, mas ninguém é administrador.
+### Perfis
 
-### Página Usuários (só administrador)
+| Perfil | O que pode |
+| --- | --- |
+| Proprietário | Tudo, inclusive a página **Usuários**. Só o login `italo.fontes@cgbengenharia.com.br`, definido na migração; a página não cria outro proprietário. |
+| Administrador | Todas as funcionalidades do sistema, menos a página Usuários: equipes, colaboradores, importações, exclusão de blitz e resolução de pendências. |
+| Usuário | Só consulta: vê Dashboard, Blitzes, Controle, Materiais e Equipes, e exporta planilhas, sem alterar nada. |
 
-Administradores veem a aba **Usuários**: criar, editar nome, login e perfil, redefinir senha (informada ou gerada, mostrada uma única vez), desativar, reativar e excluir. O servidor confere o perfil em toda rota `/api/usuarios`; esconder a aba não é a proteção.
+O servidor impõe os perfis em toda rota: quem só consulta recebe 403 em qualquer alteração, e só o proprietário acessa `/api/usuarios`. Esconder botões e abas no painel é conforto, não proteção.
 
-- Ninguém desativa, exclui ou tira o perfil de administrador da própria conta, e o último administrador ativo é sempre preservado.
+As colunas vêm de duas migrações, nesta ordem: `20261107100000_usuarios_perfil.sql` (admin, ativo) e `20261107120000_usuarios_proprietario.sql` (proprietario). Enquanto elas não rodam, o login continua funcionando como antes: sem as colunas, todos entram como administrador; só com a primeira, quem era admin ainda abre a página Usuários.
+
+### Página Usuários (só o proprietário)
+
+Criar, editar nome, login e perfil, redefinir senha (informada ou gerada, mostrada uma única vez), desativar, reativar e excluir.
+
+- O proprietário não é rebaixado, desativado nem excluído, e ninguém mexe nele além dele mesmo.
 - Redefinir a senha ou desativar um usuário encerra as sessões abertas dele. Na própria conta, a sessão atual é mantida.
-- O script `usuario:criar` continua valendo e cria usuários comuns.
+- O script `usuario:criar` continua valendo e cria usuários comuns (só consulta, até um administrador promover).
 
 - A sessão dura 12 horas e fica em cookie `HttpOnly`.
 - Após 5 falhas de senha para o mesmo login, o acesso fica bloqueado por 15 minutos. O bloqueio fica na memória do servidor.

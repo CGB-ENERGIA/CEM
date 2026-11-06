@@ -2,6 +2,7 @@
   import { api } from "../api";
   import type { Colaborador } from "../tipos";
   import { mostrarAviso } from "../avisos.svelte";
+  import { podeEditar } from "../sessao.svelte";
 
   interface Props {
     ativo: boolean;
@@ -86,18 +87,20 @@
         ficam aguardando sua aprovação.
       </p>
     </div>
-    <div class="cabecalho-acoes">
-      <input
-        bind:this={entradaArquivo}
-        type="file"
-        accept=".xlsx"
-        class="entrada-arquivo-oculta"
-        onchange={importarArquivo}
-      />
-      <button class="botao-secundario" type="button" onclick={() => entradaArquivo?.click()} disabled={importando}>
-        {importando ? "Importando..." : "Importar base"}
-      </button>
-    </div>
+    {#if podeEditar()}
+      <div class="cabecalho-acoes">
+        <input
+          bind:this={entradaArquivo}
+          type="file"
+          accept=".xlsx"
+          class="entrada-arquivo-oculta"
+          onchange={importarArquivo}
+        />
+        <button class="botao-secundario" type="button" onclick={() => entradaArquivo?.click()} disabled={importando}>
+          {importando ? "Importando..." : "Importar base"}
+        </button>
+      </div>
+    {/if}
   </div>
 
   <h3>Aguardando aprovação ({pendentes.length})</h3>
@@ -111,10 +114,12 @@
       {#each pendentes as colaborador (colaborador.id)}
         <li class="etiqueta pedido">
           <span class="nome">{colaborador.nome}</span>
-          <div class="acoes-pedido">
-            <button class="botao" type="button" onclick={() => aprovar(colaborador)}>Aprovar</button>
-            <button class="botao-perigo" type="button" onclick={() => recusar(colaborador)}>Recusar</button>
-          </div>
+          {#if podeEditar()}
+            <div class="acoes-pedido">
+              <button class="botao" type="button" onclick={() => aprovar(colaborador)}>Aprovar</button>
+              <button class="botao-perigo" type="button" onclick={() => recusar(colaborador)}>Recusar</button>
+            </div>
+          {/if}
         </li>
       {/each}
     </ul>

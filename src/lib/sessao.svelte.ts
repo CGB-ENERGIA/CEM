@@ -2,14 +2,21 @@ export interface Usuario {
   id: number;
   login: string;
   nome: string;
-  // Administrador vê a página Usuários. O servidor confere de novo em toda rota.
+  // Administrador altera dados; sem este perfil o usuário só consulta. O servidor confere em toda rota.
   admin?: boolean;
+  // Proprietário também abre a página Usuários.
+  proprietario?: boolean;
 }
 
 export const sessao = $state<{ estado: "carregando" | "entrou" | "saiu"; usuario: Usuario | null }>({
   estado: "carregando",
   usuario: null,
 });
+
+// Quem só consulta não vê os botões que alteram dados. Quem decide de verdade é o servidor.
+export function podeEditar(): boolean {
+  return sessao.usuario?.admin === true;
+}
 
 const CHAVE_USUARIO = "cem-usuario";
 

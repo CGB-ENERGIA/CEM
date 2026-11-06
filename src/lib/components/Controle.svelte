@@ -4,6 +4,7 @@
   import type { FiltroPendencias, Pendencia } from "../tipos";
   import { cascata } from "../actions/animar";
   import { mostrarAviso } from "../avisos.svelte";
+  import { podeEditar } from "../sessao.svelte";
   import { formatarData, normalizarTexto, numero } from "../format";
 
   interface Props {
@@ -238,15 +239,17 @@
                   <span class="texto-suave observacao">
                     {formatarData(pendencia.resolvidaEm)}{pendencia.resolvidaPor ? ` · ${pendencia.resolvidaPor}` : ""}
                   </span>
-                  <button
-                    type="button"
-                    class="botao-secundario"
-                    disabled={ocupadas.includes(pendencia.chave)}
-                    onclick={() => alterar(pendencia, false)}
-                  >
-                    Reabrir
-                  </button>
-                {:else}
+                  {#if podeEditar()}
+                    <button
+                      type="button"
+                      class="botao-secundario"
+                      disabled={ocupadas.includes(pendencia.chave)}
+                      onclick={() => alterar(pendencia, false)}
+                    >
+                      Reabrir
+                    </button>
+                  {/if}
+                {:else if podeEditar()}
                   <button
                     type="button"
                     class="botao"
@@ -255,6 +258,8 @@
                   >
                     Marcar como resolvido
                   </button>
+                {:else}
+                  <span class="chip">Em aberto</span>
                 {/if}
               </td>
             </tr>

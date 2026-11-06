@@ -5,6 +5,7 @@
   import { formatarData, formatarMes, mesHoje, normalizarTexto, numero } from "../format";
   import { cascata } from "../actions/animar";
   import { mostrarAviso } from "../avisos.svelte";
+  import { podeEditar } from "../sessao.svelte";
   import SeletorMes from "./SeletorMes.svelte";
 
   interface Props {
@@ -203,9 +204,11 @@
               <p class="texto-suave">Todos os itens estão OK.</p>
             {/if}
 
-            <div class="distancia">
-              <button type="button" class="botao-perigo" onclick={() => excluir(blitz.id)}>Excluir blitz</button>
-            </div>
+            {#if podeEditar()}
+              <div class="distancia">
+                <button type="button" class="botao-perigo" onclick={() => excluir(blitz.id)}>Excluir blitz</button>
+              </div>
+            {/if}
           </div>
         </details>
       {/each}

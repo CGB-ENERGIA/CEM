@@ -1171,10 +1171,10 @@ async function montarDashboard(mes: string): Promise<Dashboard> {
 
 // ---------- Usuários (só administrador) ----------
 
-const COLUNAS_USUARIO = "id, login, nome, admin, ativo, criado_em";
+const COLUNAS_USUARIO = "id, login, nome, admin, ativo, proprietario, criado_em";
 
 const MENSAGEM_SEM_PERFIL =
-  "A página Usuários ainda não está ativa no banco. Rode a migração 20261107100000_usuarios_perfil.sql no Supabase.";
+  "A página Usuários ainda não está ativa no banco. Rode as migrações 20261107100000_usuarios_perfil.sql e 20261107120000_usuarios_proprietario.sql no Supabase.";
 
 interface LinhaUsuarioCompleta {
   id: number;
@@ -1182,6 +1182,7 @@ interface LinhaUsuarioCompleta {
   nome: string;
   admin: boolean;
   ativo: boolean;
+  proprietario: boolean;
   criado_em: string;
 }
 
@@ -1190,7 +1191,8 @@ function paraUsuarioGerenciado(linha: LinhaUsuarioCompleta): UsuarioGerenciado {
     id: linha.id,
     login: linha.login,
     nome: linha.nome,
-    admin: linha.admin,
+    admin: linha.admin || linha.proprietario,
+    proprietario: linha.proprietario,
     ativo: linha.ativo,
     criadoEm: linha.criado_em,
   };
@@ -1239,17 +1241,6 @@ async function carregarUsuario(id: number): Promise<LinhaUsuarioCompleta> {
   return data as unknown as LinhaUsuarioCompleta;
 }
 
-async function outrosAdministradoresAtivos(excluindoId: number): Promise<number> {
-  const { count, error } = await db
-    .from("usuarios")
-    .select("id", { count: "exact", head: true })
-    .eq("admin", true)
-    .eq("ativo", true)
-    .neq("id", excluindoId);
-  if (error) throw error;
-  return count ?? 0;
-}
-
 async function listarUsuarios(): Promise<Response> {
   const { data, error } = await db.from("usuarios").select(COLUNAS_USUARIO).order("nome");
   if (error?.code === "42703") throw new ErroValidacao(MENSAGEM_SEM_PERFIL, 503);
@@ -1282,12 +1273,12 @@ async function atualizarUsuario(id: number, corpo: Record<string, unknown>, quem
   const admin = booleanoOpcional(corpo, "admin") ?? alvo.admin;
   const ativo = booleanoOpcional(corpo, "ativo") ?? alvo.ativo;
 
-  if (id === quemEdita.id && (!admin || !ativo)) {
-    throw new ErroValidacao("Você não pode tirar o seu próprio perfil de administrador nem desativar a sua conta.", 409);
+  // O proprietário não perde o perfil nem o acesso por esta página, nem por ele mesmo.
+  if (alvo.proprietario && (!admin || !ativo)) {
+    throw new ErroValidacao("O proprietário não pode ser rebaixado nem desativado.", 409);
   }
-  const deixaDeSerAdministradorAtivo = alvo.admin && alvo.ativo && (!admin || !ativo);
-  if (deixaDeSerAdministradorAtivo && (await outrosAdministradoresAtivos(id)) === 0) {
-    throw new ErroValidacao("É preciso manter pelo menos um administrador ativo.", 409);
+  if (alvo.proprietario && id !== quemEdita.id) {
+    throw new ErroValidacao("O proprietário só pode ser alterado por ele mesmo.", 409);
   }
 
   const { data, error } = await db
@@ -1326,9 +1317,7 @@ async function redefinirSenhaUsuario(
 async function excluirUsuario(id: number, quemEdita: UsuarioSessao): Promise<Response> {
   if (id === quemEdita.id) throw new ErroValidacao("Você não pode excluir a sua própria conta.", 409);
   const alvo = await carregarUsuario(id);
-  if (alvo.admin && alvo.ativo && (await outrosAdministradoresAtivos(id)) === 0) {
-    throw new ErroValidacao("É preciso manter pelo menos um administrador ativo.", 409);
-  }
+  if (alvo.proprietario) throw new ErroValidacao("O proprietário não pode ser excluído.", 409);
   // As sessões do usuário saem junto (chave estrangeira com exclusão em cascata).
   const { error } = await db.from("usuarios").delete().eq("id", id);
   if (error) throw error;
@@ -1405,9 +1394,14 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
     throw new ErroValidacao("Sessão expirada. Entre novamente.", 401);
   }
 
-  // Página Usuários: só administrador. A conferência é do servidor; esconder a aba no painel não basta.
+  // Quem só consulta (perfil Usuário) não altera nada. O servidor recusa; esconder botões no painel não basta.
+  if (metodo !== "GET" && !usuario.admin) {
+    throw new ErroValidacao("Seu perfil é só de consulta. Peça a um administrador para fazer esta alteração.", 403);
+  }
+
+  // Página Usuários: só o proprietário. A conferência é do servidor; esconder a aba no painel não basta.
   if (caminho === "/api/usuarios" || caminho.startsWith("/api/usuarios/")) {
-    if (!usuario.admin) throw new ErroValidacao("Acesso restrito ao administrador.", 403);
+    if (!usuario.proprietario) throw new ErroValidacao("Acesso restrito ao proprietário.", 403);
     if (caminho === "/api/usuarios") {
       if (metodo === "GET") return listarUsuarios();
       if (metodo === "POST") return criarUsuario(await lerJson(req));

@@ -13,7 +13,7 @@
   import { api, ErroSemConexao } from "./lib/api";
   import { instalacao, instalarApp, limparDadosGuardados } from "./lib/pwa.svelte";
   import { deslizarPainel, reduzirMovimento } from "./lib/actions/animar";
-  import { definirUsuario, encerrarSessaoLocal, lerUsuarioGuardado, sessao } from "./lib/sessao.svelte";
+  import { definirUsuario, encerrarSessaoLocal, lerUsuarioGuardado, podeEditar, sessao } from "./lib/sessao.svelte";
   import { alternarTema, tema } from "./lib/tema.svelte";
 
   type Aba = "materiais" | "blitzes" | "dashboard" | "equipes" | "controle" | "usuarios";
@@ -27,9 +27,9 @@
     { id: "equipes", rotulo: "Equipes", curto: "Equipes" },
   ];
 
-  // A aba Usuários só existe para administradores. O servidor também recusa quem não for.
+  // A aba Usuários só existe para o proprietário. O servidor também recusa quem não for.
   const abas = $derived(
-    sessao.usuario?.admin
+    sessao.usuario?.proprietario
       ? [...abasComuns, { id: "usuarios" as Aba, rotulo: "Usuários", curto: "Usuários" }]
       : abasComuns,
   );
@@ -155,6 +155,9 @@
         {@render botaoTema()}
 
         <div class="sessao">
+          {#if !podeEditar()}
+            <span class="chip modo-consulta" title="Seu perfil permite consultar, não alterar.">Somente consulta</span>
+          {/if}
           <span class="usuario" title={sessao.usuario?.login}>{sessao.usuario?.nome}</span>
           <button type="button" class="sair" onclick={sair}>Sair</button>
         </div>
@@ -178,7 +181,7 @@
     <div data-aba="equipes" id="painel-equipes" role="tabpanel" aria-labelledby="aba-equipes" class:oculto={aba !== "equipes"}>
       <Equipes ativo={aba === "equipes"} />
     </div>
-    {#if sessao.usuario?.admin}
+    {#if sessao.usuario?.proprietario}
       <div data-aba="usuarios" id="painel-usuarios" role="tabpanel" aria-labelledby="aba-usuarios" class:oculto={aba !== "usuarios"}>
         <Usuarios ativo={aba === "usuarios"} />
       </div>
@@ -324,6 +327,11 @@
 
   .alternar-tema:active {
     transform: scale(0.96);
+  }
+
+  .modo-consulta {
+    margin-right: 10px;
+    white-space: nowrap;
   }
 
   .sessao {

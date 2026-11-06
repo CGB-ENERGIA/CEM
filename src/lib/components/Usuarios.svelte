@@ -28,7 +28,8 @@
   let nome = $state("");
   let login = $state("");
   let senha = $state("");
-  let admin = $state(false);
+  // Perfil escolhido no formulário. O proprietário não aparece aqui: ele vem da migração e não muda por esta página.
+  let perfil = $state<"usuario" | "admin">("usuario");
 
   // Senha gerada pelo servidor: aparece uma única vez, e só aqui.
   let senhaGerada = $state<{ nome: string; senha: string } | null>(null);
@@ -68,11 +69,11 @@
     if (novoModo.tipo === "novo") {
       nome = "";
       login = "";
-      admin = false;
+      perfil = "usuario";
     } else if (novoModo.tipo === "editar") {
       nome = novoModo.usuario.nome;
       login = novoModo.usuario.login;
-      admin = novoModo.usuario.admin;
+      perfil = novoModo.usuario.admin ? "admin" : "usuario";
     }
   }
 
@@ -88,10 +89,10 @@
     salvando = true;
     try {
       if (modo.tipo === "novo") {
-        const criado = await api.criarUsuario({ nome, login, senha, admin });
+        const criado = await api.criarUsuario({ nome, login, senha, admin: perfil === "admin" });
         mostrarAviso("ok", `Usuário ${criado.nome} criado.`);
       } else if (modo.tipo === "editar") {
-        await api.atualizarUsuario(modo.usuario.id, { nome, login, admin });
+        await api.atualizarUsuario(modo.usuario.id, { nome, login, admin: perfil === "admin" });
         mostrarAviso("ok", "Usuário atualizado.");
       } else {
         await api.redefinirSenha(modo.usuario.id, { senha });
@@ -168,15 +169,13 @@
   }
 
   const ehEu = (usuario: UsuarioGerenciado) => usuario.id === meuId;
-  // O último administrador ativo não pode ser desativado, excluído nem perder o perfil: o servidor também impede.
-  const ultimoAdmin = (usuario: UsuarioGerenciado) => usuario.admin && usuario.ativo && totalAdmins <= 1;
 </script>
 
 <section class="painel">
   <div class="cabecalho-painel">
     <div>
       <h2>Usuários</h2>
-      <p>Quem pode entrar no painel. Só administradores veem esta página.</p>
+      <p>Quem pode entrar no painel e com qual perfil. Só o proprietário vê esta página.</p>
     </div>
     <div class="cabecalho-acoes">
       <button type="button" class="botao" onclick={() => abrir({ tipo: "novo" })} disabled={modo?.tipo === "novo"}>
@@ -222,17 +221,20 @@
             <input bind:value={login} maxlength="120" autocomplete="off" placeholder="nome.sobrenome@empresa.com.br" required />
           </label>
         </div>
-        <label class="opcao-admin">
-          <input
-            type="checkbox"
-            bind:checked={admin}
-            disabled={modo.tipo === "editar" && ehEu(modo.usuario)}
-          />
-          <span>
-            <strong>Administrador</strong>
-            <span class="texto-suave">Pode abrir a página Usuários e gerenciar quem tem acesso.</span>
-          </span>
-        </label>
+        <div class="campo-perfil">
+          <label class="rotulo">
+            Perfil
+            <select bind:value={perfil} disabled={modo.tipo === "editar" && modo.usuario.proprietario}>
+              <option value="usuario">Usuário: só consulta</option>
+              <option value="admin">Administrador: altera tudo, menos a página Usuários</option>
+            </select>
+          </label>
+          {#if modo.tipo === "editar" && modo.usuario.proprietario}
+            <p class="texto-suave">O proprietário tem todas as funcionalidades e não pode ser rebaixado.</p>
+          {:else}
+            <p class="texto-suave">A página Usuários é só do proprietário e não pode ser dada a outro perfil.</p>
+          {/if}
+        </div>
       {/if}
 
       {#if modo.tipo !== "editar"}
@@ -315,8 +317,10 @@
               </td>
               <td data-rotulo="Login" class="codigo">{usuario.login}</td>
               <td data-rotulo="Perfil">
-                {#if usuario.admin}
-                  <span class="chip chip-epc">Administrador</span>
+                {#if usuario.proprietario}
+                  <span class="chip chip-epc">Proprietário</span>
+                {:else if usuario.admin}
+                  <span class="chip chip-epi">Administrador</span>
                 {:else}
                   <span class="chip">Usuário</span>
                 {/if}
@@ -337,7 +341,7 @@
                     type="button"
                     class="botao-secundario"
                     onclick={() => alternarAtivo(usuario)}
-                    disabled={usuario.ativo && (ehEu(usuario) || ultimoAdmin(usuario))}
+                    disabled={usuario.ativo && (ehEu(usuario) || usuario.proprietario)}
                     title={usuario.ativo && ehEu(usuario) ? "Você não pode desativar a sua própria conta." : undefined}
                   >
                     {usuario.ativo ? "Desativar" : "Reativar"}
@@ -346,7 +350,7 @@
                     type="button"
                     class="botao-perigo"
                     onclick={() => excluir(usuario)}
-                    disabled={ehEu(usuario) || ultimoAdmin(usuario)}
+                    disabled={ehEu(usuario) || usuario.proprietario}
                     title={ehEu(usuario) ? "Você não pode excluir a sua própria conta." : undefined}
                   >
                     Excluir
@@ -386,25 +390,16 @@
     gap: 14px;
   }
 
-  .opcao-admin {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    min-height: 44px;
-    cursor: pointer;
-  }
-
-  .opcao-admin input {
-    width: 20px;
-    height: 20px;
-    margin-top: 2px;
-    flex: 0 0 auto;
-  }
-
-  .opcao-admin span {
+  .campo-perfil {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 6px;
+    max-width: 520px;
+  }
+
+  .campo-perfil p {
+    margin: 0;
+    font-size: 0.88rem;
   }
 
   .campo-senha {

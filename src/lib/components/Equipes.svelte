@@ -5,6 +5,7 @@
   import type { DadosEquipe, Equipe, Materiais, StatusEquipe } from "../tipos";
   import { cascata, reduzirMovimento } from "../actions/animar";
   import { mostrarAviso } from "../avisos.svelte";
+  import { podeEditar } from "../sessao.svelte";
   import Colaboradores from "./Colaboradores.svelte";
 
   interface Props {
@@ -263,28 +264,32 @@
       <button class="botao-secundario" type="button" aria-expanded={mostrarDetalhes} onclick={() => (mostrarDetalhes = !mostrarDetalhes)}>
         {mostrarDetalhes ? "Ocultar coordenador e gerência" : "Mostrar coordenador e gerência"}
       </button>
-      <input
-        bind:this={entradaArquivo}
-        type="file"
-        accept=".xlsx"
-        class="entrada-arquivo-oculta"
-        onchange={importarArquivo}
-      />
       <button class="botao-secundario" type="button" onclick={exportar} disabled={exportando}>
         {exportando ? "Exportando..." : "Exportar planilha"}
       </button>
-      <button class="botao-secundario" type="button" onclick={abrirSeletorArquivo} disabled={importando}>
-        {importando ? "Importando..." : "Importar planilha"}
-      </button>
-      <button class="botao" type="button" onclick={abrirNovo}>Nova equipe</button>
+      {#if podeEditar()}
+        <input
+          bind:this={entradaArquivo}
+          type="file"
+          accept=".xlsx"
+          class="entrada-arquivo-oculta"
+          onchange={importarArquivo}
+        />
+        <button class="botao-secundario" type="button" onclick={abrirSeletorArquivo} disabled={importando}>
+          {importando ? "Importando..." : "Importar planilha"}
+        </button>
+        <button class="botao" type="button" onclick={abrirNovo}>Nova equipe</button>
+      {/if}
     </div>
   </div>
-  <p class="nota-importacao">
-    A planilha importada precisa ter as mesmas colunas da exportada. Linhas com prefixo já cadastrado
-    atualizam a equipe; prefixos novos criam equipes. Nenhuma equipe é removida pela importação.
-  </p>
+  {#if podeEditar()}
+    <p class="nota-importacao">
+      A planilha importada precisa ter as mesmas colunas da exportada. Linhas com prefixo já cadastrado
+      atualizam a equipe; prefixos novos criam equipes. Nenhuma equipe é removida pela importação.
+    </p>
+  {/if}
 
-  {#if formAberto}
+  {#if formAberto && podeEditar()}
     <form
       class="formulario-equipe"
       bind:this={formulario}
@@ -430,7 +435,9 @@
           <th>Processo</th>
           <th>Tipo de equipe</th>
           <th>Status</th>
-          <th class="numerico">Ações</th>
+          {#if podeEditar()}
+            <th class="numerico">Ações</th>
+          {/if}
         </tr>
       </thead>
       <tbody use:cascata={`${busca}|${filtroProcesso}|${filtroBase}|${filtroTipo}|${filtroStatus}|${equipes.length}`}>
@@ -450,16 +457,18 @@
             <td data-rotulo="Status" class="nao-quebrar" class:texto-suave={equipe.status === "inativo"}>
               {equipe.status === "ativo" ? "Ativa" : "Inativa"}
             </td>
-            <td class="numerico sem-rotulo acoes">
-              <div class="acoes-linha">
-                <button type="button" class="botao-secundario" onclick={() => abrirEdicao(equipe)}>Editar</button>
-                <button type="button" class="botao-perigo" onclick={() => remover(equipe.prefixo)}>Remover</button>
-              </div>
-            </td>
+            {#if podeEditar()}
+              <td class="numerico sem-rotulo acoes">
+                <div class="acoes-linha">
+                  <button type="button" class="botao-secundario" onclick={() => abrirEdicao(equipe)}>Editar</button>
+                  <button type="button" class="botao-perigo" onclick={() => remover(equipe.prefixo)}>Remover</button>
+                </div>
+              </td>
+            {/if}
           </tr>
         {:else}
           <tr>
-            <td colspan={mostrarDetalhes ? 11 : 9} class="texto-suave sem-rotulo">
+            <td colspan={(mostrarDetalhes ? 11 : 9) - (podeEditar() ? 0 : 1)} class="texto-suave sem-rotulo">
               {#if carregando}
                 <span class="esqueleto" style="width: 40%"></span>
               {:else}

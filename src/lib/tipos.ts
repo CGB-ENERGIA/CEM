@@ -150,7 +150,10 @@ export interface UsuarioGerenciado {
   id: number;
   login: string;
   nome: string;
+  // Administrador: altera tudo, menos a página Usuários. Sem este perfil, o usuário só consulta.
   admin: boolean;
+  // Proprietário: administrador que também abre a página Usuários. Não muda por ela.
+  proprietario: boolean;
   ativo: boolean;
   criadoEm: string;
 }
