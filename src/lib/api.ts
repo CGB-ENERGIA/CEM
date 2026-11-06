@@ -2,10 +2,12 @@ import type {
   BlitzResumo,
   Dashboard,
   DadosEquipe,
+  DadosNovoUsuario,
   Equipe,
   FiltroPendencias,
   ListaPendencias,
   Materiais,
+  UsuarioGerenciado,
   Colaborador,
   ResultadoImportacaoColaboradores,
   ResultadoImportacaoEquipes,
@@ -126,6 +128,15 @@ export const api = {
       body: JSON.stringify({ chave, resolvida }),
     }),
   exportarPendencias: (situacao: FiltroPendencias) => baixar(`/api/pendencias/exportar?situacao=${situacao}`),
+
+  usuarios: () => requisitar<UsuarioGerenciado[]>("/api/usuarios"),
+  criarUsuario: (dados: DadosNovoUsuario) =>
+    requisitar<UsuarioGerenciado>("/api/usuarios", { method: "POST", body: JSON.stringify(dados) }),
+  atualizarUsuario: (id: number, dados: Partial<Pick<UsuarioGerenciado, "nome" | "login" | "admin" | "ativo">>) =>
+    requisitar<UsuarioGerenciado>(`/api/usuarios/${id}`, { method: "PUT", body: JSON.stringify(dados) }),
+  redefinirSenha: (id: number, opcao: { senha: string } | { gerar: true }) =>
+    requisitar<{ senha: string | null }>(`/api/usuarios/${id}/senha`, { method: "POST", body: JSON.stringify(opcao) }),
+  excluirUsuario: (id: number) => requisitar<void>(`/api/usuarios/${id}`, { method: "DELETE" }),
 
   dashboard: (mes: string) => requisitar<Dashboard>(`/api/dashboard?mes=${mes}`),
 };

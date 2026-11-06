@@ -11,6 +11,35 @@ export interface UsuarioSessao {
   id: number;
   login: string;
   nome: string;
+  // Pode abrir a página Usuários. Falso para todos enquanto a migração de perfil não tiver rodado.
+  admin: boolean;
+}
+
+// As colunas admin e ativo vêm da migração 20261107100000_usuarios_perfil.sql. Enquanto ela não rodou, o login
+// continua funcionando: todos entram como usuário comum e ativo, em vez de o sistema inteiro parar.
+let perfilDisponivel: boolean | null = null;
+let proximaSondaPerfil = 0;
+
+async function colunasDeUsuario(): Promise<string> {
+  if (perfilDisponivel === null || (!perfilDisponivel && Date.now() >= proximaSondaPerfil)) {
+    const { error } = await db.from("usuarios").select("admin, ativo").limit(1);
+    perfilDisponivel = !error;
+    proximaSondaPerfil = Date.now() + 30_000;
+  }
+  return perfilDisponivel ? "id, login, nome, admin, ativo" : "id, login, nome";
+}
+
+interface LinhaUsuario {
+  id: number;
+  login: string;
+  nome: string;
+  admin?: boolean;
+  ativo?: boolean;
+  senha_hash?: string;
+}
+
+function paraSessao(linha: LinhaUsuario): UsuarioSessao {
+  return { id: linha.id, login: linha.login, nome: linha.nome, admin: linha.admin === true };
 }
 
 // Hash descartável: faz a verificação de senha levar o mesmo tempo quando o login não existe.
@@ -53,16 +82,19 @@ export function limparFalhasLogin(login: string) {
 }
 
 export async function verificarCredenciais(login: string, senha: string): Promise<UsuarioSessao | null> {
-  const { data, error } = await db
+  const colunas = await colunasDeUsuario();
+  const { data: bruto, error } = await db
     .from("usuarios")
-    .select("id, login, nome, senha_hash")
+    .select(`${colunas}, senha_hash`)
     .eq("login", chaveLogin(login))
     .maybeSingle();
   if (error) throw error;
+  const data = bruto as unknown as LinhaUsuario | null;
 
   const senhaConfere = await Bun.password.verify(senha, data?.senha_hash ?? HASH_DESCARTAVEL);
-  if (!data || !senhaConfere) return null;
-  return { id: data.id, login: data.login, nome: data.nome };
+  // Usuário desativado recebe a mesma resposta de senha errada.
+  if (!data || !senhaConfere || data.ativo === false) return null;
+  return paraSessao(data);
 }
 
 export async function criarSessao(usuarioId: number): Promise<string> {
@@ -83,20 +115,30 @@ export async function usuarioDaSessao(token: string | null): Promise<UsuarioSess
   if (!token) return null;
   const hash = hashToken(token);
 
+  const colunas = await colunasDeUsuario();
   const { data, error } = await db
     .from("sessoes")
-    .select("expira_em, usuarios(id, login, nome)")
+    .select(`expira_em, usuarios(${colunas})`)
     .eq("token_hash", hash)
     .maybeSingle();
   if (error) throw error;
-  if (!data || !data.usuarios) return null;
+  const sessaoLida = data as unknown as { expira_em: string; usuarios: LinhaUsuario | null } | null;
+  if (!sessaoLida || !sessaoLida.usuarios) return null;
 
-  const usuario = data.usuarios as unknown as UsuarioSessao;
-  if (new Date(data.expira_em).getTime() < Date.now()) {
+  const usuario = sessaoLida.usuarios;
+  if (new Date(sessaoLida.expira_em).getTime() < Date.now() || usuario.ativo === false) {
     await db.from("sessoes").delete().eq("token_hash", hash);
     return null;
   }
-  return { id: usuario.id, login: usuario.login, nome: usuario.nome };
+  return paraSessao(usuario);
+}
+
+// Encerra as sessões abertas de um usuário (senha redefinida, usuário desativado). Pode manter a sessão atual.
+export async function encerrarSessoesDoUsuario(usuarioId: number, manterToken?: string | null) {
+  let consulta = db.from("sessoes").delete().eq("usuario_id", usuarioId);
+  if (manterToken) consulta = consulta.neq("token_hash", hashToken(manterToken));
+  const { error } = await consulta;
+  if (error) throw error;
 }
 
 export async function encerrarSessao(token: string) {

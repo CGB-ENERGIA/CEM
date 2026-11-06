@@ -54,6 +54,16 @@ bun run usuario:criar <login> "<nome completo>"
 
 A senha vem da variável `CEM_SENHA` ou, se ela não existir, da primeira linha da entrada padrão. Ela nunca é passada como argumento. A senha precisa ter pelo menos 8 caracteres. O login não diferencia maiúsculas de minúsculas.
 
+O primeiro administrador vem da migração `supabase/migrations/20261107100000_usuarios_perfil.sql`, que marca o login `italo.fontes@cgbengenharia.com.br`. Rode-a no SQL Editor; sem ela o login continua funcionando, mas ninguém é administrador.
+
+### Página Usuários (só administrador)
+
+Administradores veem a aba **Usuários**: criar, editar nome, login e perfil, redefinir senha (informada ou gerada, mostrada uma única vez), desativar, reativar e excluir. O servidor confere o perfil em toda rota `/api/usuarios`; esconder a aba não é a proteção.
+
+- Ninguém desativa, exclui ou tira o perfil de administrador da própria conta, e o último administrador ativo é sempre preservado.
+- Redefinir a senha ou desativar um usuário encerra as sessões abertas dele. Na própria conta, a sessão atual é mantida.
+- O script `usuario:criar` continua valendo e cria usuários comuns.
+
 - A sessão dura 12 horas e fica em cookie `HttpOnly`.
 - Após 5 falhas de senha para o mesmo login, o acesso fica bloqueado por 15 minutos. O bloqueio fica na memória do servidor.
 

@@ -5,6 +5,7 @@
   import Blitzes from "./lib/components/Blitzes.svelte";
   import Dashboard from "./lib/components/Dashboard.svelte";
   import Equipes from "./lib/components/Equipes.svelte";
+  import Usuarios from "./lib/components/Usuarios.svelte";
   import Controle from "./lib/components/Controle.svelte";
   import Avisos from "./lib/components/Avisos.svelte";
   import Login from "./lib/components/Login.svelte";
@@ -15,16 +16,23 @@
   import { definirUsuario, encerrarSessaoLocal, lerUsuarioGuardado, sessao } from "./lib/sessao.svelte";
   import { alternarTema, tema } from "./lib/tema.svelte";
 
-  type Aba = "materiais" | "blitzes" | "dashboard" | "equipes" | "controle";
+  type Aba = "materiais" | "blitzes" | "dashboard" | "equipes" | "controle" | "usuarios";
 
   // No celular, a barra de abas usa o rótulo curto.
-  const abas: { id: Aba; rotulo: string; curto: string }[] = [
+  const abasComuns: { id: Aba; rotulo: string; curto: string }[] = [
     { id: "dashboard", rotulo: "Dashboard", curto: "Início" },
     { id: "blitzes", rotulo: "Blitzes", curto: "Blitzes" },
     { id: "controle", rotulo: "Controle", curto: "Controle" },
     { id: "materiais", rotulo: "Materiais", curto: "Materiais" },
     { id: "equipes", rotulo: "Equipes", curto: "Equipes" },
   ];
+
+  // A aba Usuários só existe para administradores. O servidor também recusa quem não for.
+  const abas = $derived(
+    sessao.usuario?.admin
+      ? [...abasComuns, { id: "usuarios" as Aba, rotulo: "Usuários", curto: "Usuários" }]
+      : abasComuns,
+  );
 
   // Setas esquerda e direita trocam de aba, como em qualquer barra de abas.
   function navegarAbas(evento: KeyboardEvent) {
@@ -170,6 +178,11 @@
     <div data-aba="equipes" id="painel-equipes" role="tabpanel" aria-labelledby="aba-equipes" class:oculto={aba !== "equipes"}>
       <Equipes ativo={aba === "equipes"} />
     </div>
+    {#if sessao.usuario?.admin}
+      <div data-aba="usuarios" id="painel-usuarios" role="tabpanel" aria-labelledby="aba-usuarios" class:oculto={aba !== "usuarios"}>
+        <Usuarios ativo={aba === "usuarios"} />
+      </div>
+    {/if}
   </main>
 {/if}
 

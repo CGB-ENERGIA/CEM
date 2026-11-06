@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import * as XLSX from "xlsx";
 import materiaisJson from "../src/lib/data/materiais.json";
 import { PROCESSOS } from "../src/lib/compartilhado";
@@ -17,11 +18,13 @@ import type {
   RankingEquipe,
   RankingItem,
   StatusItem,
+  UsuarioGerenciado,
 } from "../src/lib/tipos";
 import {
   cabecalhoCookie,
   criarSessao,
   encerrarSessao,
+  encerrarSessoesDoUsuario,
   limparFalhasLogin,
   loginBloqueado,
   lerTokenDoCookie,
@@ -1166,6 +1169,172 @@ async function montarDashboard(mes: string): Promise<Dashboard> {
   };
 }
 
+// ---------- Usuários (só administrador) ----------
+
+const COLUNAS_USUARIO = "id, login, nome, admin, ativo, criado_em";
+
+const MENSAGEM_SEM_PERFIL =
+  "A página Usuários ainda não está ativa no banco. Rode a migração 20261107100000_usuarios_perfil.sql no Supabase.";
+
+interface LinhaUsuarioCompleta {
+  id: number;
+  login: string;
+  nome: string;
+  admin: boolean;
+  ativo: boolean;
+  criado_em: string;
+}
+
+function paraUsuarioGerenciado(linha: LinhaUsuarioCompleta): UsuarioGerenciado {
+  return {
+    id: linha.id,
+    login: linha.login,
+    nome: linha.nome,
+    admin: linha.admin,
+    ativo: linha.ativo,
+    criadoEm: linha.criado_em,
+  };
+}
+
+function loginDeUsuarioValido(bruto: unknown): string {
+  const login = typeof bruto === "string" ? bruto.trim().toLowerCase() : "";
+  if (!/^[a-z0-9._@+-]{3,120}$/.test(login)) {
+    throw new ErroValidacao("Login inválido. Use de 3 a 120 caracteres: letras, números e . _ @ + -");
+  }
+  return login;
+}
+
+function nomeDeUsuarioValido(bruto: unknown): string {
+  const nome = typeof bruto === "string" ? bruto.trim().replace(/\s+/g, " ") : "";
+  if (nome.length < 2 || nome.length > 120) throw new ErroValidacao("Informe o nome, com 2 a 120 caracteres.");
+  return nome;
+}
+
+function senhaDeUsuarioValida(bruto: unknown): string {
+  if (typeof bruto !== "string" || bruto.length < 8 || bruto.length > 128) {
+    throw new ErroValidacao("A senha precisa ter de 8 a 128 caracteres.");
+  }
+  return bruto;
+}
+
+function booleanoOpcional(corpo: Record<string, unknown>, campo: string): boolean | undefined {
+  const valor = corpo[campo];
+  if (valor === undefined) return undefined;
+  if (typeof valor !== "boolean") throw new ErroValidacao(`Valor inválido para "${campo}".`);
+  return valor;
+}
+
+// Senha gerada: 12 caracteres sem os que se confundem (0 O 1 l I), em grupos de quatro para ditar ou digitar.
+function gerarSenha(): string {
+  const alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
+  const caracteres = Array.from({ length: 12 }, () => alfabeto[randomInt(alfabeto.length)]);
+  return [caracteres.slice(0, 4), caracteres.slice(4, 8), caracteres.slice(8, 12)].map((g) => g.join("")).join("-");
+}
+
+async function carregarUsuario(id: number): Promise<LinhaUsuarioCompleta> {
+  const { data, error } = await db.from("usuarios").select(COLUNAS_USUARIO).eq("id", id).maybeSingle();
+  if (error?.code === "42703") throw new ErroValidacao(MENSAGEM_SEM_PERFIL, 503);
+  if (error) throw error;
+  if (!data) throw new ErroValidacao("Usuário não encontrado.", 404);
+  return data as unknown as LinhaUsuarioCompleta;
+}
+
+async function outrosAdministradoresAtivos(excluindoId: number): Promise<number> {
+  const { count, error } = await db
+    .from("usuarios")
+    .select("id", { count: "exact", head: true })
+    .eq("admin", true)
+    .eq("ativo", true)
+    .neq("id", excluindoId);
+  if (error) throw error;
+  return count ?? 0;
+}
+
+async function listarUsuarios(): Promise<Response> {
+  const { data, error } = await db.from("usuarios").select(COLUNAS_USUARIO).order("nome");
+  if (error?.code === "42703") throw new ErroValidacao(MENSAGEM_SEM_PERFIL, 503);
+  if (error) throw error;
+  return resposta((data as unknown as LinhaUsuarioCompleta[]).map(paraUsuarioGerenciado));
+}
+
+async function criarUsuario(corpo: Record<string, unknown>): Promise<Response> {
+  const login = loginDeUsuarioValido(corpo.login);
+  const nome = nomeDeUsuarioValido(corpo.nome);
+  const senha = senhaDeUsuarioValida(corpo.senha);
+  const admin = booleanoOpcional(corpo, "admin") ?? false;
+
+  const { data, error } = await db
+    .from("usuarios")
+    .insert({ login, nome, senha_hash: await Bun.password.hash(senha), admin, ativo: true })
+    .select(COLUNAS_USUARIO)
+    .single();
+  if (error?.code === "23505") throw new ErroValidacao("Já existe um usuário com este login.", 409);
+  if (error?.code === "42703") throw new ErroValidacao(MENSAGEM_SEM_PERFIL, 503);
+  if (error) throw error;
+  return resposta(paraUsuarioGerenciado(data as unknown as LinhaUsuarioCompleta), 201);
+}
+
+// Edita nome, login, perfil e situação. A senha tem rota própria.
+async function atualizarUsuario(id: number, corpo: Record<string, unknown>, quemEdita: UsuarioSessao): Promise<Response> {
+  const alvo = await carregarUsuario(id);
+  const nome = corpo.nome !== undefined ? nomeDeUsuarioValido(corpo.nome) : alvo.nome;
+  const login = corpo.login !== undefined ? loginDeUsuarioValido(corpo.login) : alvo.login;
+  const admin = booleanoOpcional(corpo, "admin") ?? alvo.admin;
+  const ativo = booleanoOpcional(corpo, "ativo") ?? alvo.ativo;
+
+  if (id === quemEdita.id && (!admin || !ativo)) {
+    throw new ErroValidacao("Você não pode tirar o seu próprio perfil de administrador nem desativar a sua conta.", 409);
+  }
+  const deixaDeSerAdministradorAtivo = alvo.admin && alvo.ativo && (!admin || !ativo);
+  if (deixaDeSerAdministradorAtivo && (await outrosAdministradoresAtivos(id)) === 0) {
+    throw new ErroValidacao("É preciso manter pelo menos um administrador ativo.", 409);
+  }
+
+  const { data, error } = await db
+    .from("usuarios")
+    .update({ nome, login, admin, ativo })
+    .eq("id", id)
+    .select(COLUNAS_USUARIO)
+    .single();
+  if (error?.code === "23505") throw new ErroValidacao("Já existe um usuário com este login.", 409);
+  if (error) throw error;
+
+  // Desativar derruba as sessões abertas na hora.
+  if (alvo.ativo && !ativo) await encerrarSessoesDoUsuario(id);
+  return resposta(paraUsuarioGerenciado(data as unknown as LinhaUsuarioCompleta));
+}
+
+// Define a nova senha informada ou gera uma. A senha gerada volta uma única vez, na resposta.
+async function redefinirSenhaUsuario(
+  id: number,
+  corpo: Record<string, unknown>,
+  quemEdita: UsuarioSessao,
+  tokenAtual: string | null,
+): Promise<Response> {
+  const gerar = corpo.gerar === true;
+  const senha = gerar ? gerarSenha() : senhaDeUsuarioValida(corpo.senha);
+  await carregarUsuario(id);
+
+  const { error } = await db.from("usuarios").update({ senha_hash: await Bun.password.hash(senha) }).eq("id", id);
+  if (error) throw error;
+
+  // Quem perdeu a senha antiga não pode continuar logado com ela. Na própria conta, a sessão atual é mantida.
+  await encerrarSessoesDoUsuario(id, id === quemEdita.id ? tokenAtual : null);
+  return resposta({ senha: gerar ? senha : null });
+}
+
+async function excluirUsuario(id: number, quemEdita: UsuarioSessao): Promise<Response> {
+  if (id === quemEdita.id) throw new ErroValidacao("Você não pode excluir a sua própria conta.", 409);
+  const alvo = await carregarUsuario(id);
+  if (alvo.admin && alvo.ativo && (await outrosAdministradoresAtivos(id)) === 0) {
+    throw new ErroValidacao("É preciso manter pelo menos um administrador ativo.", 409);
+  }
+  // As sessões do usuário saem junto (chave estrangeira com exclusão em cascata).
+  const { error } = await db.from("usuarios").delete().eq("id", id);
+  if (error) throw error;
+  return semConteudo();
+}
+
 // ---------- Autenticação ----------
 
 function respostaComSessao(usuario: UsuarioSessao, token: string, seguro: boolean): Response {
@@ -1234,6 +1403,27 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
   const usuario = await usuarioDaSessao(lerTokenDoCookie(req.headers.get("cookie")));
   if (!usuario) {
     throw new ErroValidacao("Sessão expirada. Entre novamente.", 401);
+  }
+
+  // Página Usuários: só administrador. A conferência é do servidor; esconder a aba no painel não basta.
+  if (caminho === "/api/usuarios" || caminho.startsWith("/api/usuarios/")) {
+    if (!usuario.admin) throw new ErroValidacao("Acesso restrito ao administrador.", 403);
+    if (caminho === "/api/usuarios") {
+      if (metodo === "GET") return listarUsuarios();
+      if (metodo === "POST") return criarUsuario(await lerJson(req));
+    }
+    const matchUsuario = caminho.match(/^\/api\/usuarios\/(\d+)(\/senha)?$/);
+    if (matchUsuario) {
+      const id = Number(matchUsuario[1]);
+      if (matchUsuario[2]) {
+        if (metodo === "POST") {
+          return redefinirSenhaUsuario(id, await lerJson(req), usuario, lerTokenDoCookie(req.headers.get("cookie")));
+        }
+      } else {
+        if (metodo === "PUT") return atualizarUsuario(id, await lerJson(req), usuario);
+        if (metodo === "DELETE") return excluirUsuario(id, usuario);
+      }
+    }
   }
 
   if (metodo === "GET" && caminho === "/api/materiais") return resposta(materiais);

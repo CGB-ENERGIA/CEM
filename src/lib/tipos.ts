@@ -145,6 +145,23 @@ export interface Pendencia {
   resolvidaPor: string | null;
 }
 
+// Usuário do sistema como a página Usuários o vê. A senha nunca sai do servidor.
+export interface UsuarioGerenciado {
+  id: number;
+  login: string;
+  nome: string;
+  admin: boolean;
+  ativo: boolean;
+  criadoEm: string;
+}
+
+export interface DadosNovoUsuario {
+  nome: string;
+  login: string;
+  senha: string;
+  admin: boolean;
+}
+
 export type FiltroPendencias = "abertas" | "resolvidas" | "todas";
 
 export interface ListaPendencias {

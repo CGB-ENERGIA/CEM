@@ -2,6 +2,8 @@ export interface Usuario {
   id: number;
   login: string;
   nome: string;
+  // Administrador vê a página Usuários. O servidor confere de novo em toda rota.
+  admin?: boolean;
 }
 
 export const sessao = $state<{ estado: "carregando" | "entrou" | "saiu"; usuario: Usuario | null }>({
