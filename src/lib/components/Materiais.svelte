@@ -34,6 +34,18 @@
     return { linhas: itens.length, unidadesEpi, unidadesEpc };
   });
 
+  // Resumo de cada tipo, para a grade de escolha: quantos materiais EPI e EPC ele exige.
+  const resumoTipos = materiais.tipos.map((tipo) => {
+    let epi = 0;
+    let epc = 0;
+    for (const item of materiais.itens) {
+      if ((item.quantidades[tipo.id] ?? 0) <= 0) continue;
+      if (item.grupo === "EPI") epi += 1;
+      else epc += 1;
+    }
+    return { id: tipo.id, nome: tipo.nome, epi, epc };
+  });
+
   const nomeTipoAtual = $derived(materiais.tipos.find((tipo) => tipo.id === tipoId)?.nome ?? "");
 
   function tempoUtil(meses: number): string {
@@ -124,9 +136,16 @@
     </table>
   </div>
   {:else}
-  <p class="orientacao distancia texto-suave">
-    Escolha o tipo de equipe para ver os materiais exigidos e as quantidades de cada um.
-  </p>
+  <h3 class="distancia">Escolha o tipo de equipe</h3>
+  <p class="texto-suave">Toque num tipo para ver os materiais exigidos e as quantidades de cada um.</p>
+  <div class="grade-tipos distancia" use:cascata={"tipos"}>
+    {#each resumoTipos as tipo (tipo.id)}
+      <button type="button" class="tipo-etiqueta etiqueta" onclick={() => (tipoId = tipo.id)}>
+        <span class="tipo-nome">{tipo.nome}</span>
+        <span class="texto-suave tipo-contagem">{tipo.epi} EPI · {tipo.epc} EPC</span>
+      </button>
+    {/each}
+  </div>
   {/if}
 </section>
 
@@ -135,6 +154,54 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 14px;
+  }
+
+  /* Grade de tipos de equipe: cada tipo é uma etiqueta que abre a lista de materiais */
+  .grade-tipos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .tipo-etiqueta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 76px;
+    padding: 16px 18px 16px 34px;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    background: var(--superficie-elevada);
+    border: 1px solid var(--borda);
+    cursor: pointer;
+    transition: border-color 160ms ease, transform 160ms var(--ease-saida);
+  }
+
+  .tipo-etiqueta:hover {
+    border-color: var(--primaria);
+  }
+
+  .tipo-etiqueta:active {
+    transform: translateY(1px);
+  }
+
+  .tipo-etiqueta:focus-visible {
+    outline: 2px solid var(--primaria);
+    outline-offset: 2px;
+  }
+
+  .tipo-nome {
+    font-family: var(--fonte-titulo);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .tipo-contagem {
+    font-family: var(--fonte-codigo);
+    font-size: 0.82rem;
   }
 
   .quantidade {

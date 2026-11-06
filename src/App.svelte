@@ -166,7 +166,7 @@
 
   <main class="conteudo">
     <div data-aba="dashboard" id="painel-dashboard" role="tabpanel" aria-labelledby="aba-dashboard" class:oculto={aba !== "dashboard"}>
-      <Dashboard ativo={aba === "dashboard"} />
+      <Dashboard ativo={aba === "dashboard"} abrirControle={() => (aba = "controle")} />
     </div>
     <div data-aba="blitz" id="painel-blitz" role="tabpanel" aria-labelledby="aba-blitz" class:oculto={aba !== "blitz"}>
       <Blitz ativo={aba === "blitz"} />

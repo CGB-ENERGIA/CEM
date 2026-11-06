@@ -511,14 +511,11 @@
               aria-label={`Colaborador ${indice + 1}`}
               maxlength="120"
             />
-            <button
-              type="button"
-              class="botao-perigo"
-              onclick={() => removerColaborador(indice)}
-              disabled={colaboradores.length === 1}
-            >
-              Remover
-            </button>
+            {#if colaboradores.length > 1}
+              <button type="button" class="botao-perigo" onclick={() => removerColaborador(indice)}>
+                Remover
+              </button>
+            {/if}
           </div>
         {/each}
       </div>
@@ -548,16 +545,20 @@
             {/if}
           </p>
         </div>
-        <div class="contadores" aria-live="polite">
-          <span class="chip chip-ok">{completos} OK</span>
-          <span class="chip chip-atencao">{comPendencia} Troca ou Faltante</span>
-          <span class="chip">{aVerificar} a verificar</span>
-        </div>
+        {#if tipoId}
+          <div class="contadores" aria-live="polite">
+            <span class="chip chip-ok">{completos} OK</span>
+            <span class="chip chip-atencao">{comPendencia} Troca ou Faltante</span>
+            <span class="chip">{aVerificar} a verificar</span>
+          </div>
+        {/if}
       </div>
 
+      {#if tipoId}
       <div class="trilho distancia">
         <div class="preenchimento preenchimento-ok" use:barra={percentualRespondido}></div>
       </div>
+      {/if}
 
       <div class="grupos distancia" role="tablist" aria-label="Grupo de materiais">
         {#each GRUPOS as grupo (grupo)}
@@ -577,12 +578,14 @@
         {/each}
       </div>
 
+      {#if tipoId}
       <div class="barra-acoes distancia">
         <button type="button" class="botao-secundario" onclick={marcarTodosOk} disabled={pendentesDoGrupo === 0}>
           Marcar restantes como OK
         </button>
         <button type="button" class="botao-secundario" onclick={limparRespostas}>Limpar respostas</button>
       </div>
+      {/if}
 
       <details class="legenda-situacoes">
         <summary>O que significa cada situação?</summary>
