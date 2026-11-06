@@ -487,7 +487,7 @@
 <header class="topo-campo">
   <div class="marca">
     <span class="marca-sigla">PAES</span>
-    <span class="marca-nome">Blitz de campo</span>
+    <span class="marca-nome">Programa de Acompanhamento de Equipamento de Segurança</span>
   </div>
   {#if !online}
     <span class="chip chip-atencao">Sem conexão</span>
@@ -855,21 +855,32 @@
     color: var(--topo-texto);
   }
 
+  /* Sigla e nome por extenso lado a lado, com um fio separando; o nome quebra em linhas equilibradas */
   .marca {
     display: flex;
-    align-items: baseline;
-    gap: 10px;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
   }
 
   .marca-sigla {
     font-family: var(--fonte-titulo);
     font-weight: 700;
-    font-size: 1.4rem;
-    letter-spacing: 0.04em;
+    font-size: 1.5rem;
+    line-height: 1;
+    letter-spacing: 0.05em;
   }
 
   .marca-nome {
-    font-size: 0.9rem;
+    min-width: 0;
+    padding-left: 12px;
+    border-left: 1px solid var(--topo-borda);
+    font-size: 0.64rem;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-wrap: balance;
     color: var(--topo-suave);
   }
 
