@@ -7,7 +7,7 @@ Aplicação Svelte + Bun para consulta de materiais de segurança (EPI/EPC) por 
 - Frontend: Svelte 5 + Vite, animações com GSAP
 - Backend: Bun (`Bun.serve`)
 - Banco: Supabase (Postgres), acessado só pelo servidor com a chave `service_role`
-- Dados de materiais: `src/lib/data/materiais.json` (gerado a partir de `Estrutura de referencia cgb 2026.xlsx`)
+- Materiais: ficam na tabela `materiais_itens` e são editados na aba **Materiais**. O arquivo `src/lib/data/materiais.json` (gerado a partir de `Estrutura de referencia cgb 2026.xlsx`) só faz a carga inicial e serve de reserva quando o app de campo ainda não conseguiu a lista pela API.
 
 ## 1. Configurar o Supabase
 
@@ -76,6 +76,17 @@ Criar, editar nome, login e perfil, redefinir senha (informada ou gerada, mostra
 
 - A sessão dura 12 horas e fica em cookie `HttpOnly`.
 - Após 5 falhas de senha para o mesmo login, o acesso fica bloqueado por 15 minutos. O bloqueio fica na memória do servidor.
+
+## Catálogo de materiais
+
+A lista de EPI e EPC por tipo de equipe fica no banco (migração `supabase/migrations/20261108100000_catalogo_materiais.sql`). Na primeira consulta com a tabela vazia, o servidor carrega os 224 itens do arquivo, com os mesmos números que as blitz já gravadas usam.
+
+- **Administradores** adicionam, editam e removem itens na aba **Materiais**. Quem só consulta vê a lista, sem os botões.
+- **Remover** só desativa o item: ele sai das listas e das próximas blitz, mas continua no histórico e nas pendências. Dá para **Restaurar**.
+- Os **tipos de equipe** são fixos. O que se edita por item é grupo, descrição, tempo útil, preço e a quantidade exigida em cada tipo.
+- O app de campo recebe a lista por `/api/campo/materiais` (só itens ativos, sem preço) e a atualiza sozinho. Cada blitz leva a versão da lista que o celular viu: itens criados depois dela não são exigidos dessa blitz, e itens removidos depois dela ainda são aceitos. Assim uma blitz feita sem sinal não fica presa na fila por causa de uma edição.
+- Alterar a quantidade de um item não muda blitz já registradas: elas guardam a quantidade exigida na época. Alterar a descrição aparece também no histórico.
+- Enquanto a migração não rodou, tudo funciona com o arquivo e a aba Materiais avisa que a edição ainda não está ativa.
 
 ## Controle de pendências
 

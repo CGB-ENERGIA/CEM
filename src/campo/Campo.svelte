@@ -5,7 +5,7 @@
   import { PROCESSOS } from "../lib/compartilhado";
   import { mostrarAviso } from "../lib/avisos.svelte";
   import { fila, type BlitzPendente } from "../lib/fila";
-  import type { Item, Materiais, NovaBlitz, NovoItemBlitz, SituacaoEpi } from "../lib/tipos";
+  import type { ItemCampo, Materiais, MateriaisCampo, NovaBlitz, NovoItemBlitz, SituacaoEpi } from "../lib/tipos";
   import BuscaEquipe from "../lib/components/BuscaEquipe.svelte";
   import BuscaColaborador from "../lib/components/BuscaColaborador.svelte";
   import Avisos from "../lib/components/Avisos.svelte";
@@ -20,7 +20,11 @@
     observacao: string;
   }
 
-  const materiais = materiaisJson as Materiais;
+  // A lista de materiais vem da API e muda quando um administrador edita o catálogo. Até ela chegar (ou sem sinal e
+  // sem cópia guardada), vale a do arquivo do código. A versão vai junto com a blitz, para o servidor saber qual lista
+  // o celular viu.
+  const arquivo = materiaisJson as Materiais;
+  let materiais = $state<MateriaisCampo>({ tipos: arquivo.tipos, itens: arquivo.itens, versao: null });
   const LIMITE_COLABORADORES = 30;
   const opcoes: { valor: Situacao; rotulo: string }[] = [
     { valor: "ok", rotulo: "OK" },
@@ -99,7 +103,7 @@
   }
 
   // Situação mostrada para um item: a da pessoa atual (EPI) ou a da equipe (EPC).
-  function escolhaDo(item: Item): Escolha | undefined {
+  function escolhaDo(item: ItemCampo): Escolha | undefined {
     if (item.grupo === "EPI") {
       const situacao = escolhasEpi[pessoaMostrada]?.[item.id];
       return situacao ? { situacao, quantidade: 1, observacao: "" } : undefined;
@@ -141,12 +145,12 @@
     return materiais.tipos.find((tipo) => tipo.id === id)?.nome ?? id;
   }
 
-  function exigidaDe(item: Item): number {
+  function exigidaDe(item: ItemCampo): number {
     return tipoId ? (item.quantidades[tipoId] ?? 0) : 0;
   }
 
   // Converte a escolha da tela nas duas contagens que o servidor usa para derivar o status do item.
-  function paraEnvio(item: Item): NovoItemBlitz | null {
+  function paraEnvio(item: ItemCampo): NovoItemBlitz | null {
     const escolha = escolhas[item.id];
     if (!escolha) return null;
     const exigida = exigidaDe(item);
@@ -164,9 +168,9 @@
   }
 
   // Caixa para escolher quem está com o EPI faltando ou com troca. Quem não for marcado fica OK.
-  let caixaEpi = $state<{ item: Item; situacao: "nao_ok" | "faltante"; selecionadas: string[] } | null>(null);
+  let caixaEpi = $state<{ item: ItemCampo; situacao: "nao_ok" | "faltante"; selecionadas: string[] } | null>(null);
 
-  function abrirCaixaEpi(item: Item, situacao: "nao_ok" | "faltante") {
+  function abrirCaixaEpi(item: ItemCampo, situacao: "nao_ok" | "faltante") {
     const selecionadas = colaboradoresValidos.filter((nome) => escolhasEpi[nome]?.[item.id] === situacao);
     caixaEpi = { item, situacao, selecionadas };
   }
@@ -191,7 +195,7 @@
     caixaEpi = null;
   }
 
-  function escolher(item: Item, situacao: Situacao) {
+  function escolher(item: ItemCampo, situacao: Situacao) {
     antesDaMarcacao = null;
     if (item.grupo === "EPI") {
       if (situacao !== "ok") {
@@ -230,7 +234,7 @@
     return `${contagem.ok} OK, ${contagem.nao_ok} Troca, ${contagem.faltante} Faltante`;
   }
 
-  function ajustar(item: Item, delta: number) {
+  function ajustar(item: ItemCampo, delta: number) {
     antesDaMarcacao = null;
     const atual = escolhas[item.id];
     if (!atual || atual.situacao === "ok") return;
@@ -277,6 +281,14 @@
       equipes = await apiCampo.equipes();
     } catch {
       // Sem sinal: a lista guardada pelo navegador continua valendo; o prefixo também pode ser digitado.
+    }
+  }
+
+  async function carregarMateriais() {
+    try {
+      materiais = await apiCampo.materiais();
+    } catch {
+      // Sem sinal: vale a última lista guardada pelo navegador ou, na falta dela, a do arquivo do código.
     }
   }
 
@@ -383,6 +395,8 @@
     if (!podeEnviar || !tipoId) return;
     const blitz: NovaBlitz = {
       idCliente: crypto.randomUUID(),
+      // A lista de materiais que este celular usou. Itens criados depois dela não são exigidos desta blitz.
+      catalogoVersao: materiais.versao ?? undefined,
       data,
       processo: processoDaBlitz,
       prefixo: prefixoNormalizado,
@@ -437,6 +451,7 @@
     if (document.visibilityState !== "visible" || !navigator.onLine) return;
     carregarEquipes();
     carregarSugestoes();
+    carregarMateriais();
   }
 
   // Versão nova do app instalada em segundo plano. Recarrega sozinho quando não há blitz em andamento;
@@ -454,6 +469,7 @@
   onMount(() => {
     carregarEquipes();
     carregarSugestoes();
+    carregarMateriais();
     carregarPendentes();
     enviarPendentes(false);
     enviarPedidosGuardados();
@@ -478,6 +494,7 @@
     enviarPedidosGuardados();
     carregarEquipes();
     carregarSugestoes();
+    carregarMateriais();
   }}
   onkeydown={(evento) => {
     if (evento.key === "Escape" && caixaEpi) caixaEpi = null;

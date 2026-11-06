@@ -6,7 +6,9 @@ import type {
   Equipe,
   FiltroPendencias,
   ListaPendencias,
-  Materiais,
+  DadosItem,
+  ItemCatalogo,
+  MateriaisCatalogo,
   UsuarioGerenciado,
   Colaborador,
   ResultadoImportacaoColaboradores,
@@ -95,7 +97,14 @@ export const api = {
   sair: () => requisitar<void>("/api/auth/logout", { method: "POST" }),
   eu: () => requisitar<Usuario>("/api/auth/me"),
 
-  materiais: () => requisitar<Materiais>("/api/materiais"),
+  materiais: () => requisitar<MateriaisCatalogo>("/api/materiais"),
+  criarItem: (dados: DadosItem) =>
+    requisitar<ItemCatalogo>("/api/materiais/itens", { method: "POST", body: JSON.stringify(dados) }),
+  atualizarItem: (id: number, dados: DadosItem) =>
+    requisitar<ItemCatalogo>(`/api/materiais/itens/${id}`, { method: "PUT", body: JSON.stringify(dados) }),
+  removerItem: (id: number) => requisitar<ItemCatalogo>(`/api/materiais/itens/${id}`, { method: "DELETE" }),
+  restaurarItem: (id: number) =>
+    requisitar<ItemCatalogo>(`/api/materiais/itens/${id}/restaurar`, { method: "POST", body: "{}" }),
 
   equipes: () => requisitar<Equipe[]>("/api/equipes"),
   criarEquipe: (equipe: DadosEquipe & { prefixo: string }) =>

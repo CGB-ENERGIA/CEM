@@ -21,6 +21,38 @@ export interface Materiais {
   itens: Item[];
 }
 
+// Item do catálogo no banco. Removido (ativo falso) sai das listas e das próximas blitz, mas fica no histórico.
+export interface ItemCatalogo extends Item {
+  ativo: boolean;
+}
+
+export interface MateriaisCatalogo {
+  tipos: TipoEquipe[];
+  itens: ItemCatalogo[];
+  // Última alteração do catálogo (ISO). O app de campo a devolve na blitz, para a validação saber que lista ele viu.
+  versao: string;
+  // Falso enquanto a migração do catálogo não rodou: a lista vem do arquivo e não pode ser editada.
+  noBanco: boolean;
+}
+
+// O que o app de campo precisa de cada item: sem preço nem tempo útil, que são dados de gestão.
+export type ItemCampo = Pick<Item, "id" | "grupo" | "descricao" | "quantidades">;
+
+export interface MateriaisCampo {
+  tipos: TipoEquipe[];
+  itens: ItemCampo[];
+  versao: string | null;
+}
+
+// Campos editáveis de um item. As quantidades trazem um número por tipo de equipe.
+export interface DadosItem {
+  grupo: Grupo;
+  descricao: string;
+  tempoUtil: number;
+  preco: number;
+  quantidades: Record<string, number>;
+}
+
 export type StatusEquipe = "ativo" | "inativo";
 
 export interface Equipe {
@@ -104,6 +136,8 @@ export interface NovaBlitz {
   itens: NovoItemBlitz[];
   // Detalhe de EPI por colaborador, quando a blitz vem do app de campo.
   pessoas?: PessoaItem[];
+  // Versão do catálogo de materiais que o app de campo usou. Itens criados depois dela não são exigidos desta blitz.
+  catalogoVersao?: string;
 }
 
 // Colaborador com um EPI em Troca ou Faltante, no detalhe de uma blitz feita pelo app de campo.

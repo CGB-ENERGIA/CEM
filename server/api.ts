@@ -1,6 +1,5 @@
 import { randomInt } from "node:crypto";
 import * as XLSX from "xlsx";
-import materiaisJson from "../src/lib/data/materiais.json";
 import { PROCESSOS } from "../src/lib/compartilhado";
 import { normalizarTexto } from "../src/lib/format";
 import type {
@@ -9,7 +8,7 @@ import type {
   Equipe,
   Item,
   ItemBlitz,
-  Materiais,
+  ItemCatalogo,
   NovaBlitz,
   ListaPendencias,
   Pendencia,
@@ -34,19 +33,22 @@ import {
   type UsuarioSessao,
 } from "./auth";
 import { db } from "./db";
+import { ErroValidacao } from "./erros";
+import {
+  atualizarItem,
+  catalogoParaCampo,
+  criarItem,
+  obterCatalogo,
+  removerItem,
+  restaurarItem,
+  TIPOS,
+  validarDadosItem,
+  type Catalogo,
+} from "./catalogo";
 
-const materiais = materiaisJson as Materiais;
-const itensPorId = new Map(materiais.itens.map((item) => [item.id, item]));
-const tiposValidos = new Set(materiais.tipos.map((tipo) => tipo.id));
+export { ErroValidacao };
 
-export class ErroValidacao extends Error {
-  constructor(
-    mensagem: string,
-    readonly status = 400,
-  ) {
-    super(mensagem);
-  }
-}
+const tiposValidos = new Set(TIPOS.map((tipo) => tipo.id));
 
 function resposta(dados: unknown, status = 200): Response {
   return Response.json(dados, { status });
@@ -56,8 +58,9 @@ function semConteudo(): Response {
   return new Response(null, { status: 204 });
 }
 
-function itensAplicaveis(tipoId: string): Item[] {
-  return materiais.itens.filter((item) => (item.quantidades[tipoId] ?? 0) > 0);
+// Itens do tipo (quantidade maior que zero), inclusive os removidos: uma blitz montada antes da remoção ainda os traz.
+function itensDoTipo(catalogo: Catalogo, tipoId: string): ItemCatalogo[] {
+  return catalogo.itens.filter((item) => (item.quantidades[tipoId] ?? 0) > 0);
 }
 
 function mesAtual(): string {
@@ -178,8 +181,8 @@ async function listarEquipes(): Promise<Equipe[]> {
 
 // ---------- Exportação e importação do cadastro de equipes ----------
 
-const nomeTipoPorId = new Map(materiais.tipos.map((tipo) => [tipo.id, tipo.nome]));
-const tipoIdPorNome = new Map(materiais.tipos.map((tipo) => [normalizarTexto(tipo.nome), tipo.id]));
+const nomeTipoPorId = new Map(TIPOS.map((tipo) => [tipo.id, tipo.nome]));
+const tipoIdPorNome = new Map(TIPOS.map((tipo) => [normalizarTexto(tipo.nome), tipo.id]));
 
 // Colunas da planilha, na ordem em que aparecem. O mesmo texto é usado para ler de volta na importação.
 const COLUNAS_PLANILHA = [
@@ -628,6 +631,7 @@ async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
     .order("id", { ascending: false });
   if (error) throw error;
   if (blitzes.length === 0) return [];
+  const catalogo = await obterCatalogo();
 
   const { data: itens, error: erroItens } = await db
     .from("blitz_itens")
@@ -669,7 +673,7 @@ async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
     const naoConformes = itensBlitz
       .filter((item) => item.status !== "ok")
       .map((item): ItemBlitz & { descricao: string; grupo: Item["grupo"]; pessoas?: PessoaPendente[] } => {
-        const material = itensPorId.get(item.item_id);
+        const material = catalogo.porId.get(item.item_id);
         return {
           itemId: item.item_id,
           status: item.status,
@@ -700,7 +704,7 @@ async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
   });
 }
 
-function validarBlitz(corpo: Partial<NovaBlitz>): NovaBlitz {
+function validarBlitz(corpo: Partial<NovaBlitz>, catalogo: Catalogo): NovaBlitz {
   const data = corpo.data;
   if (typeof data !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(data) || Number.isNaN(Date.parse(data))) {
     throw new ErroValidacao("Data da blitz inválida.");
@@ -727,15 +731,25 @@ function validarBlitz(corpo: Partial<NovaBlitz>): NovaBlitz {
     throw new ErroValidacao("A equipe não pode ter mais de 30 colaboradores.");
   }
 
-  const aplicaveis = itensAplicaveis(tipoId);
+  // O catálogo muda: um item pode ser criado ou removido entre a hora em que a blitz foi montada (às vezes sem sinal,
+  // no celular) e a hora em que ela chega aqui. Aceita-se qualquer item do tipo, inclusive um removido depois, e
+  // exige-se só o que estava ativo na lista que o app de campo viu (catalogoVersao). Sem versão, exige todos os ativos.
+  const versaoVista = typeof corpo.catalogoVersao === "string" ? Date.parse(corpo.catalogoVersao) : Number.NaN;
+  const doTipo = itensDoTipo(catalogo, tipoId);
+  const exigidosDoTipo = doTipo.filter(
+    (item) => item.ativo && (Number.isNaN(versaoVista) || (catalogo.criadoEmMs.get(item.id) ?? 0) <= versaoVista),
+  );
+
   // Com o detalhe por pessoa (app de campo), os EPIs vêm por colaborador e os itens enviados são só EPC.
   const porPessoa = Array.isArray(corpo.pessoas);
-  const esperados = new Set(aplicaveis.filter((item) => !porPessoa || item.grupo === "EPC").map((item) => item.id));
+  const dosItensEnviados = (itens: ItemCatalogo[]) => itens.filter((item) => !porPessoa || item.grupo === "EPC");
+  const permitidos = new Set(dosItensEnviados(doTipo).map((item) => item.id));
+  const esperados = new Set(dosItensEnviados(exigidosDoTipo).map((item) => item.id));
   const recebidos = Array.isArray(corpo.itens) ? corpo.itens : [];
   const vistos = new Set<number>();
 
   for (const item of recebidos) {
-    if (!esperados.has(item.itemId)) {
+    if (!permitidos.has(item.itemId)) {
       throw new ErroValidacao(`O item ${item.itemId} não pertence ao tipo de equipe ${tipoId}.`);
     }
     if (vistos.has(item.itemId)) {
@@ -775,9 +789,9 @@ function validarBlitz(corpo: Partial<NovaBlitz>): NovaBlitz {
   if (!porPessoa) return { ...base, itens: itensEnviados };
 
   // Totais de EPI derivados do detalhe por pessoa: encontrado = presente (OK ou Troca), defeito = Troca.
-  const pessoas = validarPessoas(corpo.pessoas, colaboradores, aplicaveis);
-  const itensEpi = aplicaveis
-    .filter((item) => item.grupo === "EPI")
+  const pessoas = validarPessoas(corpo.pessoas, colaboradores, doTipo, exigidosDoTipo);
+  const itensEpi = doTipo
+    .filter((item) => item.grupo === "EPI" && pessoas.some((p) => p.itemId === item.id))
     .map((item) => {
       const quantidade = item.quantidades[tipoId] ?? 0;
       const presentes = pessoas.filter((p) => p.itemId === item.id && p.status !== "faltante").length;
@@ -788,9 +802,15 @@ function validarBlitz(corpo: Partial<NovaBlitz>): NovaBlitz {
 }
 
 // Valida o EPI de cada colaborador: nome da equipe, EPI do tipo, situação válida e nenhum EPI faltando.
-function validarPessoas(bruto: unknown, colaboradores: string[], aplicaveis: Item[]): PessoaItem[] {
+function validarPessoas(
+  bruto: unknown,
+  colaboradores: string[],
+  doTipo: ItemCatalogo[],
+  exigidosDoTipo: ItemCatalogo[],
+): PessoaItem[] {
   if (!Array.isArray(bruto)) throw new ErroValidacao("Detalhe de EPI inválido.");
-  const epis = new Set(aplicaveis.filter((item) => item.grupo === "EPI").map((item) => item.id));
+  const epis = new Set(doTipo.filter((item) => item.grupo === "EPI").map((item) => item.id));
+  const episExigidos = new Set(exigidosDoTipo.filter((item) => item.grupo === "EPI").map((item) => item.id));
   const nomes = new Set(colaboradores);
   const vistos = new Set<string>();
   const pessoas: PessoaItem[] = [];
@@ -810,7 +830,7 @@ function validarPessoas(bruto: unknown, colaboradores: string[], aplicaveis: Ite
     vistos.add(chave);
     pessoas.push({ colaborador, itemId, status });
   }
-  const faltando = [...nomes].flatMap((nome) => [...epis].filter((id) => !vistos.has(`${nome}|${id}`)));
+  const faltando = [...nomes].flatMap((nome) => [...episExigidos].filter((id) => !vistos.has(`${nome}|${id}`)));
   if (faltando.length > 0) {
     throw new ErroValidacao(`Falta informar ${faltando.length} EPI(s) de colaborador.`);
   }
@@ -818,7 +838,8 @@ function validarPessoas(bruto: unknown, colaboradores: string[], aplicaveis: Ite
 }
 
 async function registrarBlitz(corpo: Partial<NovaBlitz>): Promise<Response> {
-  const blitz = validarBlitz(corpo);
+  const catalogo = await obterCatalogo();
+  const blitz = validarBlitz(corpo, catalogo);
 
   // A função do banco grava equipe (se for nova), blitz e itens numa única transação.
   const { data, error } = await db.rpc("registrar_blitz", {
@@ -833,8 +854,8 @@ async function registrarBlitz(corpo: Partial<NovaBlitz>): Promise<Response> {
       itemId: item.itemId,
       // EPI por pessoa: a quantidade exigida é por colaborador, então o total é multiplicado pela equipe.
       exigida:
-        (itensPorId.get(item.itemId)?.quantidades[blitz.tipoId] ?? 0) *
-        (blitz.pessoas && itensPorId.get(item.itemId)?.grupo === "EPI" ? blitz.colaboradores.length : 1),
+        (catalogo.porId.get(item.itemId)?.quantidades[blitz.tipoId] ?? 0) *
+        (blitz.pessoas && catalogo.porId.get(item.itemId)?.grupo === "EPI" ? blitz.colaboradores.length : 1),
       encontrada: item.encontrada,
       naoConforme: item.naoConforme,
       observacao: item.observacao ?? null,
@@ -897,6 +918,7 @@ interface LinhaItemPendente {
 
 // Todas as Trocas e Faltantes já registrados, em aberto ou resolvidos, do mais recente para o mais antigo.
 async function carregarPendencias(): Promise<Pendencia[]> {
+  const catalogo = await obterCatalogo();
   const pessoas: LinhaPessoaPendente[] = [];
   for (let inicio = 0; ; inicio += TAMANHO_PAGINA_PENDENCIAS) {
     const { data, error } = await db
@@ -945,7 +967,7 @@ async function carregarPendencias(): Promise<Pendencia[]> {
 
   const pendencias: Pendencia[] = [];
   const base = (blitzId: number, itemId: number) => {
-    const material = itensPorId.get(itemId);
+    const material = catalogo.porId.get(itemId);
     const blitz = blitzes.get(blitzId);
     return {
       blitzId,
@@ -1378,6 +1400,7 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
 
   // App de campo (/campo): sem login. Só lê o prefixo, o tipo e o processo das equipes e grava blitz.
   if (metodo === "GET" && caminho === "/api/campo/equipes") return resposta(await listarEquipesCampo());
+  if (metodo === "GET" && caminho === "/api/campo/materiais") return resposta(catalogoParaCampo(await obterCatalogo()));
   if (metodo === "GET" && caminho === "/api/campo/colaboradores") return resposta(await listarColaboradoresAprovados());
   if (metodo === "POST" && caminho === "/api/campo/colaboradores") {
     limitarEnviosCampo(req);
@@ -1420,7 +1443,24 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
     }
   }
 
-  if (metodo === "GET" && caminho === "/api/materiais") return resposta(materiais);
+  // Catálogo de materiais: qualquer usuário lê; só administrador altera (a regra de consulta acima já barra os outros).
+  if (metodo === "GET" && caminho === "/api/materiais") {
+    const catalogo = await obterCatalogo();
+    return resposta({ tipos: catalogo.tipos, itens: catalogo.itens, versao: catalogo.versao, noBanco: catalogo.noBanco });
+  }
+  if (metodo === "POST" && caminho === "/api/materiais/itens") {
+    return resposta(await criarItem(validarDadosItem(await lerJson(req))), 201);
+  }
+  const matchItem = caminho.match(/^\/api\/materiais\/itens\/(\d+)(\/restaurar)?$/);
+  if (matchItem) {
+    const id = Number(matchItem[1]);
+    if (matchItem[2]) {
+      if (metodo === "POST") return resposta(await restaurarItem(id));
+    } else {
+      if (metodo === "PUT") return resposta(await atualizarItem(id, validarDadosItem(await lerJson(req))));
+      if (metodo === "DELETE") return resposta(await removerItem(id));
+    }
+  }
 
   if (metodo === "GET" && caminho === "/api/colaboradores") return listarColaboradores(url.searchParams.get("status"));
   if (metodo === "POST" && caminho === "/api/colaboradores/importar") return importarColaboradores(req);

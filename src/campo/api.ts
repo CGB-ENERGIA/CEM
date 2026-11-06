@@ -1,4 +1,4 @@
-import type { Equipe, NovaBlitz } from "../lib/tipos";
+import type { Equipe, MateriaisCampo, NovaBlitz } from "../lib/tipos";
 
 // Equipe como o app de campo recebe: sem os dados de gestão (responsável, supervisor, coordenador, gerência).
 export type EquipeCampo = Pick<Equipe, "prefixo" | "nome" | "base" | "processo" | "status" | "tipoId">;
@@ -40,6 +40,8 @@ async function pedir<T>(caminho: string, init?: RequestInit): Promise<T> {
 
 export const apiCampo = {
   equipes: () => pedir<EquipeCampo[]>("/api/campo/equipes"),
+  // Lista de materiais do catálogo: só os itens ativos, sem preço, e a versão que a blitz devolve ao ser enviada.
+  materiais: () => pedir<MateriaisCampo>("/api/campo/materiais"),
   registrarBlitz: (blitz: NovaBlitz) =>
     pedir<{ id: number }>("/api/campo/blitz", { method: "POST", body: JSON.stringify(blitz) }),
   // Nomes de colaboradores já aprovados, para sugestão.

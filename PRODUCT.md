@@ -55,5 +55,5 @@ None beyond the name. "PAES" stands for **Programa de Acompanhamento de Equipame
 
 - Every item in a blitz has an explicit situation. Nothing is assumed OK by omission.
 - The dashboard only counts what was registered; a number must be traceable to a blitz.
-- The material list mirrors the reference spreadsheet; no material is added or changed by the interface.
+- The material list starts as the reference spreadsheet (`Estrutura de referencia cgb 2026`) and is edited by administrators in the Materiais area (add, edit, remove). Removing only deactivates an item, so past blitzes and pendências keep their history.
 - Field registration comes first: fewer steps and fewer decisions per item than any reading or reporting task.

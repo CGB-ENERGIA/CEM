@@ -176,7 +176,7 @@
       <Controle ativo={aba === "controle"} />
     </div>
     <div data-aba="materiais" id="painel-materiais" role="tabpanel" aria-labelledby="aba-materiais" class:oculto={aba !== "materiais"}>
-      <Materiais />
+      <Materiais ativo={aba === "materiais"} />
     </div>
     <div data-aba="equipes" id="painel-equipes" role="tabpanel" aria-labelledby="aba-equipes" class:oculto={aba !== "equipes"}>
       <Equipes ativo={aba === "equipes"} />

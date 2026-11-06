@@ -1,11 +1,11 @@
 // Service worker do app de campo (/campo). Escopo próprio, separado do sistema administrativo.
 //
 // - casca do app (página, JS, CSS e fontes): guardada na instalação, para abrir sem sinal já na primeira vez
-// - listas de equipes e de colaboradores: rede primeiro, com cópia guardada para usar sem sinal
+// - listas de equipes, de colaboradores e de materiais: rede primeiro, com cópia guardada para usar sem sinal
 // - outros arquivos do próprio app: rede primeiro, com cópia guardada
 // - blitz: sempre pela rede (o envio sem sinal é feito pela fila do próprio app)
 
-const VERSAO = "cem-campo-v4";
+const VERSAO = "cem-campo-v5";
 const CACHE_CASCA = `${VERSAO}-casca`;
 const CACHE_ARQUIVOS = "cem-campo-arquivos";
 const CASCA = [
@@ -17,7 +17,7 @@ const CASCA = [
 ];
 
 // Respostas de leitura que ficam guardadas para o app funcionar sem sinal.
-const ROTAS_COM_COPIA = ["/api/campo/equipes", "/api/campo/colaboradores"];
+const ROTAS_COM_COPIA = ["/api/campo/equipes", "/api/campo/colaboradores", "/api/campo/materiais"];
 
 // Arquivos com hash que a página de entrada usa (JS, CSS) e as fontes citadas nos estilos.
 // Sem isso, só abriria sem sinal depois de uma segunda visita.
