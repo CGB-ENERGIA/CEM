@@ -32,25 +32,6 @@ export function cascata(node: HTMLElement, _chave: unknown) {
   };
 }
 
-// Assinatura da blitz: a etiqueta "assenta" sempre que a situação de um item muda.
-// A função update só roda após a montagem, então a linha não anima ao aparecer.
-export function assentar(node: HTMLElement, _chave: unknown) {
-  return {
-    update(novaChave: unknown) {
-      void novaChave;
-      if (reduzirMovimento()) return;
-      gsap.fromTo(
-        node,
-        { y: -4, opacity: 0.55 },
-        { y: 0, opacity: 1, duration: 0.45, ease: "expo.out", clearProps: "transform,opacity" },
-      );
-    },
-    destroy() {
-      gsap.killTweensOf(node);
-    },
-  };
-}
-
 // Contador numérico que sai do valor atual até o novo valor.
 export function numeroAnimado(
   node: HTMLElement,

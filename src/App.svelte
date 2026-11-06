@@ -2,7 +2,7 @@
   import { gsap } from "gsap";
   import { onMount } from "svelte";
   import Materiais from "./lib/components/Materiais.svelte";
-  import Blitz from "./lib/components/Blitz.svelte";
+  import Blitzes from "./lib/components/Blitzes.svelte";
   import Dashboard from "./lib/components/Dashboard.svelte";
   import Equipes from "./lib/components/Equipes.svelte";
   import Controle from "./lib/components/Controle.svelte";
@@ -10,18 +10,17 @@
   import Login from "./lib/components/Login.svelte";
   import IconeTema from "./lib/components/IconeTema.svelte";
   import { api, ErroSemConexao } from "./lib/api";
-  import { fila } from "./lib/fila";
   import { instalacao, instalarApp, limparDadosGuardados } from "./lib/pwa.svelte";
   import { deslizarPainel, reduzirMovimento } from "./lib/actions/animar";
   import { definirUsuario, encerrarSessaoLocal, lerUsuarioGuardado, sessao } from "./lib/sessao.svelte";
   import { alternarTema, tema } from "./lib/tema.svelte";
 
-  type Aba = "materiais" | "blitz" | "dashboard" | "equipes" | "controle";
+  type Aba = "materiais" | "blitzes" | "dashboard" | "equipes" | "controle";
 
   // No celular, a barra de abas usa o rótulo curto.
   const abas: { id: Aba; rotulo: string; curto: string }[] = [
     { id: "dashboard", rotulo: "Dashboard", curto: "Início" },
-    { id: "blitz", rotulo: "Blitz Estática", curto: "Blitz" },
+    { id: "blitzes", rotulo: "Blitzes", curto: "Blitzes" },
     { id: "controle", rotulo: "Controle", curto: "Controle" },
     { id: "materiais", rotulo: "Materiais", curto: "Materiais" },
     { id: "equipes", rotulo: "Equipes", curto: "Equipes" },
@@ -39,8 +38,8 @@
     document.getElementById(`aba-${aba}`)?.focus();
   }
 
-  // No celular, o app abre direto na blitz, que é o uso de campo. No computador, abre no dashboard.
-  let aba = $state<Aba>(window.matchMedia("(max-width: 640px)").matches ? "blitz" : "dashboard");
+  // A blitz de campo é registrada no app de campo (/campo/). Este painel é de consulta e gestão: abre no dashboard.
+  let aba = $state<Aba>("dashboard");
   let listaAbas: HTMLElement | undefined = $state();
   let indicador: HTMLElement | undefined = $state();
   let posicaoAnterior = 0;
@@ -59,15 +58,6 @@
   });
 
   async function sair() {
-    const pendentes = await fila.listar().catch(() => []);
-    if (
-      pendentes.length > 0 &&
-      !confirm(
-        `Há ${pendentes.length} blitz não enviada(s) neste celular. Elas continuam guardadas e serão enviadas no próximo login. Sair mesmo assim?`,
-      )
-    ) {
-      return;
-    }
     try {
       await api.sair();
     } finally {
@@ -168,8 +158,8 @@
     <div data-aba="dashboard" id="painel-dashboard" role="tabpanel" aria-labelledby="aba-dashboard" class:oculto={aba !== "dashboard"}>
       <Dashboard ativo={aba === "dashboard"} abrirControle={() => (aba = "controle")} />
     </div>
-    <div data-aba="blitz" id="painel-blitz" role="tabpanel" aria-labelledby="aba-blitz" class:oculto={aba !== "blitz"}>
-      <Blitz ativo={aba === "blitz"} />
+    <div data-aba="blitzes" id="painel-blitzes" role="tabpanel" aria-labelledby="aba-blitzes" class:oculto={aba !== "blitzes"}>
+      <Blitzes ativo={aba === "blitzes"} />
     </div>
     <div data-aba="controle" id="painel-controle" role="tabpanel" aria-labelledby="aba-controle" class:oculto={aba !== "controle"}>
       <Controle ativo={aba === "controle"} />

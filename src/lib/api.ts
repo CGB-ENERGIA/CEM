@@ -6,7 +6,6 @@ import type {
   FiltroPendencias,
   ListaPendencias,
   Materiais,
-  NovaBlitz,
   Colaborador,
   ResultadoImportacaoColaboradores,
   ResultadoImportacaoEquipes,
@@ -118,8 +117,6 @@ export const api = {
     enviarArquivo<ResultadoImportacaoColaboradores>("/api/colaboradores/importar", "arquivo", arquivo),
 
   blitzes: (mes: string) => requisitar<BlitzResumo[]>(`/api/blitz?mes=${mes}`),
-  registrarBlitz: (blitz: NovaBlitz) =>
-    requisitar<{ id: number }>("/api/blitz", { method: "POST", body: JSON.stringify(blitz) }),
   removerBlitz: (id: number) => requisitar<void>(`/api/blitz/${id}`, { method: "DELETE" }),
 
   pendencias: (situacao: FiltroPendencias) => requisitar<ListaPendencias>(`/api/pendencias?situacao=${situacao}`),

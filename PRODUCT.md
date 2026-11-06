@@ -34,7 +34,7 @@ The material list is the official reference sheet (`Estrutura de referencia cgb 
 
 ## Capabilities and Constraints
 
-- Four areas: Materiais (EPI/EPC per team type), Blitz Estática (registration), Dashboard (monthly summary and rankings), Equipes (team registry).
+- Admin panel areas: Dashboard (monthly summary and rankings), Blitzes (history and detail per collaborator; read-only plus delete), Controle (open Troca/Faltante until resolved), Materiais (EPI/EPC per team type), Equipes (team registry). A blitz is registered only in the field app (`/campo/`), which also runs in a desktop browser.
 - Each team type has its own list of applicable items, taken from the reference quantities; items with quantity zero are not part of that team's blitz.
 - A blitz must answer every applicable item before it can be saved.
 - Data is stored in Supabase (Postgres), reached only by the server with the service key. Access requires a login; users are created by the team through the terminal (`bun run usuario:criar`). There are no roles yet: every logged-in user has full access.

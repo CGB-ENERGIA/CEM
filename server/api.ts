@@ -1262,10 +1262,8 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
     if (metodo === "DELETE") return removerEquipe(prefixo);
   }
 
-  if (caminho === "/api/blitz") {
-    if (metodo === "GET") return resposta(await carregarBlitzes(lerMes(url)));
-    if (metodo === "POST") return registrarBlitz(await lerJson<Partial<NovaBlitz>>(req));
-  }
+  // A blitz é registrada só pelo app de campo (/api/campo/blitz). O painel apenas consulta e exclui.
+  if (caminho === "/api/blitz" && metodo === "GET") return resposta(await carregarBlitzes(lerMes(url)));
 
   const matchBlitz = caminho.match(/^\/api\/blitz\/(\d+)$/);
   if (matchBlitz && metodo === "DELETE") return removerBlitz(Number(matchBlitz[1]));

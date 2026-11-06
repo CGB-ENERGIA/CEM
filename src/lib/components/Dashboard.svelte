@@ -4,6 +4,7 @@
   import type { Dashboard, Materiais, RankingEquipe } from "../tipos";
   import { formatarMes, formatarData, formatarPercentual, mesHoje, normalizarTexto, numero } from "../format";
   import { barra, cascata, numeroAnimado } from "../actions/animar";
+  import SeletorMes from "./SeletorMes.svelte";
 
   interface Props {
     ativo: boolean;
@@ -27,7 +28,6 @@
 
   const maxBlitzes = $derived(Math.max(1, ...(dados?.participantes.map((equipe) => equipe.blitzes) ?? [])));
   const maxPendencias = $derived(Math.max(1, ...(dados?.itensPendentes.map((item) => item.total) ?? [])));
-  const noMesAtual = $derived(mes >= mesHoje());
   const termoBusca = $derived(normalizarTexto(busca).trim());
 
   $effect(() => {
@@ -46,13 +46,6 @@
     } finally {
       carregando = false;
     }
-  }
-
-  function deslocarMes(passo: number) {
-    if (!/^\d{4}-\d{2}$/.test(mes)) return;
-    const [ano, numeroMes] = mes.split("-").map(Number);
-    const novo = new Date(ano, numeroMes - 1 + passo, 1);
-    mes = `${novo.getFullYear()}-${String(novo.getMonth() + 1).padStart(2, "0")}`;
   }
 
   function nomeTipo(id: string | null): string {
@@ -132,12 +125,6 @@
   );
 </script>
 
-{#snippet seta(direcao: "anterior" | "proximo")}
-  <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d={direcao === "anterior" ? "M12.5 4.5 7 10l5.5 5.5" : "M7.5 4.5 13 10l-5.5 5.5"} />
-  </svg>
-{/snippet}
-
 {#snippet conteudoPendencias(abertas: number)}
   <span class="kpi-rotulo">Pendências em aberto</span>
   <div class="kpi-valor" use:numeroAnimado={{ valor: abertas, formatar: inteiro }}></div>
@@ -152,21 +139,7 @@
       <h2>Dashboard</h2>
       <p>Resumo de {formatarMes(mes)}: participação, conformidade e itens que mais faltam.</p>
     </div>
-    <div class="seletor-mes" role="group" aria-label="Mês de referência">
-      <button type="button" class="botao-secundario" aria-label="Mês anterior" onclick={() => deslocarMes(-1)}>
-        {@render seta("anterior")}
-      </button>
-      <input type="month" bind:value={mes} aria-label="Mês de referência" />
-      <button
-        type="button"
-        class="botao-secundario"
-        aria-label="Próximo mês"
-        disabled={noMesAtual}
-        onclick={() => deslocarMes(1)}
-      >
-        {@render seta("proximo")}
-      </button>
-    </div>
+    <SeletorMes bind:mes />
   </div>
 
   {#if erro}
@@ -394,22 +367,6 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-
-  /* Mês de referência: setas dos dois lados do seletor */
-  .seletor-mes {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .seletor-mes button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    min-height: 44px;
-    padding: 0;
   }
 
   .trilho-kpi {

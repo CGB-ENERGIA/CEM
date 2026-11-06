@@ -37,7 +37,7 @@ rounded:
 
 Ferramenta de campo para inspeção de segurança. O sistema é uma etiqueta de inspeção: aço claro como chão, tinta de estêncil para títulos, etiquetas de status para cada item. Não há gradiente, vidro nem sombra colorida.
 
-Duas superfícies usam o mesmo sistema. O **sistema administrativo** (`/`, com login) cobre painel, blitz, materiais e equipes. O **app de campo** (`/campo/`, sem login) faz só a blitz, para o encarregado ou supervisor, com fila offline e PWA próprio.
+Duas superfícies usam o mesmo sistema. O **sistema administrativo** (`/`, com login) cobre dashboard, histórico de blitzes, controle de pendências, materiais e equipes; ele consulta e gerencia, não registra blitz. O **app de campo** (`/campo/`, sem login) é o único lugar onde a blitz é registrada, pelo encarregado ou supervisor, com fila offline e PWA próprio.
 
 ## Colors
 
@@ -59,7 +59,6 @@ O tema é escolhido pelo botão no cabeçalho e salvo no navegador. Sem escolha,
 
 - Troca de aba: o painel desliza na direção da aba nova e um indicador azul desliza sob a aba ativa.
 - Dados: contadores e barras crescem; linhas entram em cascata.
-- Blitz: a etiqueta do item "assenta" ao mudar a situação.
 - Avisos: confirmações e erros chegam pelo canto inferior direito.
 - Carregamento: esqueletos com brilho suave em vez de texto de espera.
 - Preferência de movimento reduzido: todas as animações são desligadas.
@@ -90,7 +89,6 @@ Cantos de 4px nas etiquetas, 6px nos painéis e campos. Ilhó da etiqueta é uma
 - **Etiqueta** (`.etiqueta`): cartão com fenda de ilhó.
 - **Chip** (`.chip`): status e grupo (EPI/EPC), em caixa alta.
 - **Segmento de situação**: três botões OK / Não OK / Faltante por item, sem valor padrão. A selecionada assume a cor do status. Em Não OK ou Faltante, um contador informa quantas unidades (quando o item exige mais de uma).
-- **Assinatura**: ao mudar a situação de um item, a etiqueta assenta (GSAP, 450ms, `expo.out`).
 - **Trilho e preenchimento**: progresso e rankings, animados na entrada.
 - **Situação com cor**: vermelho só para Faltante; Não OK em âmbar; OK em verde. Ações (registrar, instalar, salvar) em azul-aço, nunca em âmbar ou vermelho.
 - **Rótulos de situação**: os mesmos nomes dos botões, em qualquer lugar da tela: OK, Faltante, Não OK.
