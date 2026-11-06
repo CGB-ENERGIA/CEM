@@ -738,7 +738,7 @@ input:disabled {
 
 /* Legenda das situações, recolhida por padrão: explica Faltante e Não OK sem ocupar a tela */
 .legenda-situacoes {
-  margin: 0;
+  margin: 10px 0 0;
   color: var(--tinta-suave);
   font-size: 0.9rem;
 }

@@ -1274,6 +1274,48 @@
     gap: 4px 8px;
   }
 
+  /* Telas largas: cada material é uma linha, com a descrição à esquerda e as três situações à direita.
+     Quantidade e observação, quando aparecem, ocupam a linha de baixo. Cabem mais materiais por tela. */
+  @media (min-width: 900px) {
+    .item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+      align-items: center;
+      gap: 10px 24px;
+      padding: 10px 16px 10px 34px;
+    }
+
+    .item-topo {
+      grid-column: 1;
+      align-items: center;
+    }
+
+    .segmentos {
+      grid-column: 2;
+    }
+
+    .segmento {
+      min-height: 40px;
+      font-size: 0.95rem;
+    }
+
+    .quantidade-situacao,
+    .observacao {
+      grid-column: 1 / -1;
+    }
+
+    /* Colaboradores em colunas: a lista não vira uma pilha de campos de largura total. */
+    .lista-colaboradores {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 8px 16px;
+    }
+
+    .lista-colaboradores .linha-colaborador {
+      margin-bottom: 0;
+    }
+  }
+
   @media (max-width: 640px) {
     /* A barra de envio fica acima da barra de abas do rodapé (58px + área segura do aparelho). */
     .barra-envio {
