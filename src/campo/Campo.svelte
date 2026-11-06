@@ -11,6 +11,7 @@
   import Avisos from "../lib/components/Avisos.svelte";
   import { apiCampo, envioAdiavel, type EquipeCampo } from "./api";
   import { guardarPedido, listarPedidos, removerPedido } from "./pedidos";
+  import { aoTerNovaVersao } from "./pwa";
 
   type Situacao = "ok" | "nao_ok" | "faltante";
   interface Escolha {
@@ -428,12 +429,45 @@
     await Promise.all([carregarEquipes(), carregarPendentes()]);
   }
 
+  // As listas de equipes e de colaboradores seguem o que foi feito no painel: o app confere sozinho a cada
+  // meio minuto enquanto está aberto e visível, e de novo ao voltar para o app.
+  const INTERVALO_LISTAS_MS = 30_000;
+
+  function atualizarListas() {
+    if (document.visibilityState !== "visible" || !navigator.onLine) return;
+    carregarEquipes();
+    carregarSugestoes();
+  }
+
+  // Versão nova do app instalada em segundo plano. Recarrega sozinho quando não há blitz em andamento;
+  // com blitz em andamento, mostra um aviso e deixa o encarregado terminar antes.
+  let versaoNova = $state(false);
+  const formularioVazio = $derived(prefixo.trim() === "" && colaboradores.every((nome) => nome.trim() === ""));
+
+  $effect(() => {
+    if (!versaoNova || !formularioVazio || enviando || caixaEpi) return;
+    // Espera o aviso de "blitz registrada" aparecer antes de recarregar.
+    const espera = setTimeout(() => location.reload(), 5000);
+    return () => clearTimeout(espera);
+  });
+
   onMount(() => {
     carregarEquipes();
     carregarSugestoes();
     carregarPendentes();
     enviarPendentes(false);
     enviarPedidosGuardados();
+
+    const intervalo = setInterval(atualizarListas, INTERVALO_LISTAS_MS);
+    const aoVoltar = () => atualizarListas();
+    document.addEventListener("visibilitychange", aoVoltar);
+    const pararAvisoDeVersao = aoTerNovaVersao(() => (versaoNova = true));
+
+    return () => {
+      clearInterval(intervalo);
+      document.removeEventListener("visibilitychange", aoVoltar);
+      pararAvisoDeVersao();
+    };
   });
 </script>
 
@@ -459,6 +493,13 @@
     <span class="chip chip-atencao">Sem conexão</span>
   {/if}
 </header>
+
+{#if versaoNova && !formularioVazio}
+  <div class="aviso-versao" role="status">
+    <span>Há uma versão nova do PAES. Termine a blitz em andamento e atualize.</span>
+    <button type="button" class="botao-secundario" onclick={() => location.reload()}>Atualizar agora</button>
+  </div>
+{/if}
 
 <main class="campo">
   {#if pendentes.length > 0}
@@ -784,6 +825,22 @@
 <Avisos />
 
 <style>
+  .aviso-versao {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    padding: 10px 16px;
+    background: var(--superficie-elevada);
+    border-bottom: 1px solid var(--borda-forte);
+    font-size: 0.92rem;
+  }
+
+  .aviso-versao button {
+    min-height: 44px;
+  }
+
   .topo-campo {
     position: sticky;
     top: 0;
