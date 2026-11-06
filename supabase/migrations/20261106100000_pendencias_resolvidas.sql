@@ -1,4 +1,4 @@
-C-- Controle de pendências do PAES.
+-- Controle de pendências do PAES.
 --
 -- Cada Troca ou Faltante registrado numa blitz vira uma pendência. Esta migração guarda quando e por quem
 -- a pendência foi resolvida (item trocado ou entregue), para o painel listar só o que ainda está em aberto.
