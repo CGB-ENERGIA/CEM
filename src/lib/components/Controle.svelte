@@ -101,17 +101,67 @@
   const totalAbertas = $derived(equipes.reduce((soma, e) => soma + e.abertas, 0));
   const totalResolvidas = $derived(equipes.reduce((soma, e) => soma + e.resolvidas, 0));
 
-  // ---- Etapa 2: itens da equipe aberta ----
-  const itensDaEquipe = $derived(
-    pendencias.filter((p) => {
-      if (p.prefixo !== equipeAberta) return false;
-      if (mostrar === "abertas" && !aberta(p)) return false;
-      if (mostrar === "resolvidas" && aberta(p)) return false;
-      if (filtroStatus && p.status !== filtroStatus) return false;
-      if (filtroGrupo && p.grupo !== filtroGrupo) return false;
-      return casaBusca(p);
-    }),
-  );
+  // ---- Etapa 2: membros da equipe aberta, cada um com os totais; os itens só aparecem ao abrir o membro ----
+  interface GrupoMembro {
+    // Nome do colaborador; vazio para os itens que são da equipe (EPC e EPI sem colaborador).
+    chave: string;
+    nome: string;
+    abertas: number;
+    faltantes: number;
+    trocas: number;
+    resolvidas: number;
+    itens: Pendencia[];
+  }
+
+  let membrosAbertos = $state<string[]>([]);
+
+  const gruposDaEquipe = $derived.by((): GrupoMembro[] => {
+    const mapa = new Map<string, GrupoMembro>();
+    for (const p of pendencias) {
+      if (p.prefixo !== equipeAberta) continue;
+      if (filtroStatus && p.status !== filtroStatus) continue;
+      if (filtroGrupo && p.grupo !== filtroGrupo) continue;
+      if (!casaBusca(p)) continue;
+      const chave = p.colaborador ?? "";
+      const grupo = mapa.get(chave) ?? {
+        chave,
+        nome: p.colaborador ?? "Itens da equipe",
+        abertas: 0,
+        faltantes: 0,
+        trocas: 0,
+        resolvidas: 0,
+        itens: [],
+      };
+      if (aberta(p)) {
+        grupo.abertas += 1;
+        if (p.status === "faltante") grupo.faltantes += 1;
+        else grupo.trocas += 1;
+      } else {
+        grupo.resolvidas += 1;
+      }
+      grupo.itens.push(p);
+      mapa.set(chave, grupo);
+    }
+    return [...mapa.values()]
+      .filter((g) => (mostrar === "todas" ? true : mostrar === "abertas" ? g.abertas > 0 : g.resolvidas > 0))
+      .sort((a, b) => b.abertas - a.abertas || a.nome.localeCompare(b.nome));
+  });
+
+  // Dentro do membro aberto, os itens seguem o filtro "Mostrar".
+  const itensDoGrupo = (grupo: GrupoMembro) =>
+    grupo.itens.filter((p) => (mostrar === "todas" ? true : mostrar === "abertas" ? aberta(p) : !aberta(p)));
+
+  const membroAberto = (chave: string) => membrosAbertos.includes(chave);
+
+  function alternarMembro(chave: string) {
+    membrosAbertos = membroAberto(chave) ? membrosAbertos.filter((c) => c !== chave) : [...membrosAbertos, chave];
+  }
+
+  const todosAbertos = $derived(gruposDaEquipe.length > 0 && gruposDaEquipe.every((g) => membroAberto(g.chave)));
+
+  function alternarTodos() {
+    membrosAbertos = todosAbertos ? [] : gruposDaEquipe.map((g) => g.chave);
+  }
 
   const resumoAberta = $derived.by(() => {
     const dela = pendencias.filter((p) => p.prefixo === equipeAberta);
@@ -129,6 +179,7 @@
     equipeAberta = prefixo;
     filtroStatus = "";
     filtroGrupo = "";
+    membrosAbertos = [];
     await tick();
     tituloEquipe?.focus();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -356,79 +407,129 @@
       </label>
     </div>
 
-    {#if itensDaEquipe.length === 0}
+    {#if gruposDaEquipe.length === 0}
       <p class="texto-suave distancia">
-        Nenhum item {mostrar === "abertas" ? "em aberto" : mostrar === "resolvidas" ? "resolvido" : "registrado"} nesta equipe com esses filtros.
+        Nenhum {mostrar === "abertas" ? "item em aberto" : mostrar === "resolvidas" ? "item resolvido" : "item registrado"} nesta equipe com esses filtros.
       </p>
     {:else}
-      <div class="tabela-wrap distancia">
-        <table class="tabela tabela-responsiva">
-          <thead>
-            <tr>
-              <th>Material</th>
-              <th>Quem</th>
-              <th>Situação</th>
-              <th class="numerico">Qtd.</th>
-              <th>Blitz</th>
-              <th>Controle</th>
-            </tr>
-          </thead>
-          <tbody use:cascata={`${equipeAberta}|${mostrar}|${filtroStatus}|${filtroGrupo}|${busca}|${itensDaEquipe.length}`}>
-            {#each itensDaEquipe as pendencia (pendencia.chave)}
-              <tr>
-                <td class="titulo-cartao">
-                  <span class="material">{pendencia.descricao}</span>
-                  <span class="chip" class:chip-epi={pendencia.grupo === "EPI"} class:chip-epc={pendencia.grupo === "EPC"}>
-                    {pendencia.grupo}
-                  </span>
-                  {#if pendencia.observacao}
-                    <span class="texto-suave observacao">{pendencia.observacao}</span>
-                  {/if}
-                </td>
-                <td data-rotulo="Quem">{pendencia.colaborador ?? "Equipe"}</td>
-                <td data-rotulo="Situação">
-                  {#if pendencia.status === "faltante"}
-                    <span class="chip chip-falta">Faltante</span>
-                  {:else}
-                    <span class="chip chip-atencao">Troca</span>
-                  {/if}
-                </td>
-                <td data-rotulo="Qtd." class="numerico codigo">{pendencia.quantidade}</td>
-                <td data-rotulo="Blitz" class="codigo">{formatarData(pendencia.data)}</td>
-                <td data-rotulo="Controle">
-                  {#if pendencia.resolvidaEm}
-                    <span class="chip chip-ok">Resolvida</span>
-                    <span class="texto-suave observacao">
-                      {formatarData(pendencia.resolvidaEm)}{pendencia.resolvidaPor ? ` · ${pendencia.resolvidaPor}` : ""}
-                    </span>
-                    {#if podeEditar()}
-                      <button
-                        type="button"
-                        class="botao-secundario"
-                        disabled={ocupadas.includes(pendencia.chave)}
-                        onclick={() => alterar(pendencia, false)}
-                      >
-                        Reabrir
-                      </button>
-                    {/if}
-                  {:else if podeEditar()}
-                    <button
-                      type="button"
-                      class="botao"
-                      disabled={ocupadas.includes(pendencia.chave)}
-                      onclick={() => alterar(pendencia, true)}
-                    >
-                      Marcar como resolvido
-                    </button>
-                  {:else}
-                    <span class="chip">Em aberto</span>
-                  {/if}
-                </td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
+      <div class="cabecalho-membros distancia">
+        <p class="texto-suave">
+          {gruposDaEquipe.length} {gruposDaEquipe.length === 1 ? "grupo" : "grupos"}: os membros da equipe e os itens da equipe. Toque num para ver os itens.
+        </p>
+        <button type="button" class="botao-secundario" onclick={alternarTodos}>
+          {todosAbertos ? "Recolher todos" : "Abrir todos"}
+        </button>
       </div>
+
+      <ul class="membros-lista" use:cascata={`${equipeAberta}|${mostrar}|${filtroStatus}|${filtroGrupo}|${busca}|${gruposDaEquipe.length}`}>
+        {#each gruposDaEquipe as grupo (grupo.chave)}
+          {@const aberto = membroAberto(grupo.chave)}
+          {@const itens = itensDoGrupo(grupo)}
+          <li class="membro" class:membro-aberto={aberto}>
+            <button
+              type="button"
+              class="membro-linha"
+              aria-expanded={aberto}
+              aria-controls={`itens-${equipeAberta}-${grupo.chave || "equipe"}`}
+              onclick={() => alternarMembro(grupo.chave)}
+            >
+              <span class="membro-nome">
+                <strong>{grupo.nome}</strong>
+                {#if grupo.chave === ""}
+                  <span class="texto-suave">EPC e itens sem colaborador</span>
+                {/if}
+              </span>
+              <span class="equipe-abertas" class:zerada={grupo.abertas === 0}>
+                <strong class="codigo">{grupo.abertas}</strong>
+                <span class="texto-suave">em aberto</span>
+              </span>
+              <span class="equipe-chips">
+                {#if grupo.faltantes > 0}
+                  <span class="chip chip-falta">{grupo.faltantes} Faltante</span>
+                {/if}
+                {#if grupo.trocas > 0}
+                  <span class="chip chip-atencao">{grupo.trocas} Troca</span>
+                {/if}
+                {#if grupo.resolvidas > 0}
+                  <span class="chip chip-ok">{grupo.resolvidas} resolvida{grupo.resolvidas === 1 ? "" : "s"}</span>
+                {/if}
+              </span>
+              <span class="equipe-seta" class:girada={aberto} aria-hidden="true">{@render seta("avancar")}</span>
+            </button>
+
+            {#if aberto}
+              <div class="membro-itens" id={`itens-${equipeAberta}-${grupo.chave || "equipe"}`}>
+                <div class="tabela-wrap">
+                  <table class="tabela tabela-responsiva">
+                    <thead>
+                      <tr>
+                        <th>Material</th>
+                        <th>Situação</th>
+                        <th class="numerico">Qtd.</th>
+                        <th>Blitz</th>
+                        <th>Controle</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {#each itens as pendencia (pendencia.chave)}
+                        <tr>
+                          <td class="titulo-cartao">
+                            <span class="material">{pendencia.descricao}</span>
+                            <span class="chip" class:chip-epi={pendencia.grupo === "EPI"} class:chip-epc={pendencia.grupo === "EPC"}>
+                              {pendencia.grupo}
+                            </span>
+                            {#if pendencia.observacao}
+                              <span class="texto-suave observacao">{pendencia.observacao}</span>
+                            {/if}
+                          </td>
+                          <td data-rotulo="Situação">
+                            {#if pendencia.status === "faltante"}
+                              <span class="chip chip-falta">Faltante</span>
+                            {:else}
+                              <span class="chip chip-atencao">Troca</span>
+                            {/if}
+                          </td>
+                          <td data-rotulo="Qtd." class="numerico codigo">{pendencia.quantidade}</td>
+                          <td data-rotulo="Blitz" class="codigo">{formatarData(pendencia.data)}</td>
+                          <td data-rotulo="Controle">
+                            {#if pendencia.resolvidaEm}
+                              <span class="chip chip-ok">Resolvida</span>
+                              <span class="texto-suave observacao">
+                                {formatarData(pendencia.resolvidaEm)}{pendencia.resolvidaPor ? ` · ${pendencia.resolvidaPor}` : ""}
+                              </span>
+                              {#if podeEditar()}
+                                <button
+                                  type="button"
+                                  class="botao-secundario"
+                                  disabled={ocupadas.includes(pendencia.chave)}
+                                  onclick={() => alterar(pendencia, false)}
+                                >
+                                  Reabrir
+                                </button>
+                              {/if}
+                            {:else if podeEditar()}
+                              <button
+                                type="button"
+                                class="botao"
+                                disabled={ocupadas.includes(pendencia.chave)}
+                                onclick={() => alterar(pendencia, true)}
+                              >
+                                Marcar como resolvido
+                              </button>
+                            {:else}
+                              <span class="chip">Em aberto</span>
+                            {/if}
+                          </td>
+                        </tr>
+                      {/each}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            {/if}
+          </li>
+        {/each}
+      </ul>
     {/if}
   {/if}
 </section>
@@ -558,6 +659,93 @@
     min-height: 44px;
   }
 
+  /* Membros da equipe: cada um é uma linha com os totais; os itens abrem embaixo */
+  .cabecalho-membros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+  }
+
+  .cabecalho-membros p {
+    margin: 0;
+  }
+
+  .membros-lista {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .membro {
+    background: var(--superficie-elevada);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-etiqueta);
+    transition: border-color 160ms ease;
+  }
+
+  .membro-aberto {
+    border-color: var(--borda-forte);
+  }
+
+  .membro-linha {
+    display: grid;
+    grid-template-columns: minmax(180px, 1.4fr) 110px minmax(0, 2fr) 24px;
+    align-items: center;
+    gap: 12px 16px;
+    width: 100%;
+    min-height: 60px;
+    padding: 10px 14px;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: var(--raio-etiqueta);
+    cursor: pointer;
+  }
+
+  .membro-linha:hover {
+    background: var(--primaria-suave);
+  }
+
+  .membro-linha:focus-visible {
+    outline: 2px solid var(--primaria);
+    outline-offset: -2px;
+  }
+
+  .membro-nome {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .membro-nome .texto-suave {
+    font-size: 0.82rem;
+  }
+
+  .equipe-seta {
+    transition: transform 200ms ease;
+  }
+
+  .equipe-seta.girada {
+    transform: rotate(90deg);
+  }
+
+  .membro-itens {
+    padding: 0 14px 12px;
+    border-top: 1px solid var(--borda);
+  }
+
+  .membro-itens :global(.tabela-wrap) {
+    margin-top: 8px;
+  }
+
   .material {
     display: block;
     margin-bottom: 4px;
@@ -582,6 +770,10 @@
     .equipe-chips {
       grid-column: 1 / 3;
       grid-row: 2;
+    }
+
+    .membro-linha {
+      grid-template-columns: minmax(0, 1fr) auto 24px;
     }
 
     .equipe-data {
