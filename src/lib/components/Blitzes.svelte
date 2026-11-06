@@ -76,6 +76,18 @@
     }
   }
 
+  // Itens com problema e pendências são contas diferentes. Um EPI que falta para duas pessoas é 1 item e 2 pendências,
+  // porque o Controle e o Dashboard contam uma pendência por colaborador (e uma por item de equipe).
+  function pendenciasDe(blitz: BlitzResumo): { total: number; deColaboradores: number; daEquipe: number } {
+    let deColaboradores = 0;
+    let daEquipe = 0;
+    for (const item of blitz.itensNaoConformes) {
+      if (item.pessoas && item.pessoas.length > 0) deColaboradores += item.pessoas.length;
+      else daEquipe += 1;
+    }
+    return { total: deColaboradores + daEquipe, deColaboradores, daEquipe };
+  }
+
   function nomeTipo(id: string): string {
     return materiais.tipos.find((tipo) => tipo.id === id)?.nome ?? id;
   }
@@ -109,13 +121,13 @@
         Mostrar
         <select bind:value={situacao}>
           <option value="todas">Todas</option>
-          <option value="pendencias">Com Troca ou Faltante</option>
+          <option value="pendencias">Com pendência</option>
           <option value="ok">Só as com tudo OK</option>
         </select>
       </label>
       <p class="resumo texto-suave" aria-live="polite">
         <strong class="codigo">{numero.format(visiveis.length)}</strong> de {numero.format(historico.length)} blitzes
-        · <strong class="codigo">{numero.format(comPendencias)}</strong> com Troca ou Faltante
+        · <strong class="codigo">{numero.format(comPendencias)}</strong> com pendência
       </p>
     </div>
   {/if}
@@ -149,12 +161,25 @@
             {#if blitz.conforme}
               <span class="chip chip-ok">Todos OK</span>
             {:else}
-              <span class="chip chip-atencao">{blitz.naoConformes} Troca ou Faltante</span>
+              <span class="chip chip-atencao">
+                {blitz.naoConformes} {blitz.naoConformes === 1 ? "item" : "itens"} com pendência
+              </span>
             {/if}
           </summary>
 
           <div class="detalhe">
             <p><strong>Colaboradores:</strong> {blitz.colaboradores.join(", ")}</p>
+            {#if !blitz.conforme}
+              {@const pendencias = pendenciasDe(blitz)}
+              <p>
+                <strong>Pendências:</strong>
+                {pendencias.total}
+                <span class="texto-suave">
+                  ({pendencias.deColaboradores} de colaboradores, {pendencias.daEquipe} da equipe), em
+                  {blitz.naoConformes} {blitz.naoConformes === 1 ? "item" : "itens"}
+                </span>
+              </p>
+            {/if}
 
             {#if blitz.itensNaoConformes.length > 0}
               <div class="tabela-wrap distancia">
