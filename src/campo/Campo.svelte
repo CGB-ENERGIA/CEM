@@ -2,10 +2,10 @@
   import { onMount } from "svelte";
   import materiaisJson from "../lib/data/materiais.json";
   import { dataHoje, formatarData } from "../lib/format";
-  import { PROCESSOS } from "../lib/compartilhado";
+  import { ESCOPOS, PROCESSOS, ROTULO_ESCOPO } from "../lib/compartilhado";
   import { mostrarAviso } from "../lib/avisos.svelte";
   import { fila, type BlitzPendente } from "../lib/fila";
-  import type { ItemCampo, Materiais, MateriaisCampo, NovaBlitz, NovoItemBlitz, SituacaoEpi } from "../lib/tipos";
+  import type { EscopoBlitz, ItemCampo, Materiais, MateriaisCampo, NovaBlitz, NovoItemBlitz, SituacaoEpi } from "../lib/tipos";
   import BuscaEquipe from "../lib/components/BuscaEquipe.svelte";
   import BuscaColaborador from "../lib/components/BuscaColaborador.svelte";
   import Avisos from "../lib/components/Avisos.svelte";
@@ -77,11 +77,27 @@
   const respondidosEpi = $derived(colaboradoresValidos.reduce((soma, nome) => soma + respondidosEpiDe(nome), 0));
   const totalEpi = $derived(colaboradoresValidos.length * itensEpi.length);
   const respondidosEpc = $derived(itensEpc.filter((item) => escolhas[item.id]).length);
-  const faltam = $derived(itensEpc.length - respondidosEpc + (totalEpi - respondidosEpi));
+
+  // O que esta blitz verifica: tudo, só o EPI ou só o EPC. Só o escolhido é exigido e enviado.
+  let escopo = $state<EscopoBlitz>("todos");
+  const incluiEpi = $derived(escopo !== "epc");
+  const incluiEpc = $derived(escopo !== "epi");
+  const faltam = $derived(
+    (incluiEpc ? itensEpc.length - respondidosEpc : 0) + (incluiEpi ? totalEpi - respondidosEpi : 0),
+  );
+  const itensNoEscopo = $derived((incluiEpi ? itensEpi.length : 0) + (incluiEpc ? itensEpc.length : 0));
 
   // EPI e EPC são mostrados um de cada vez, para a pessoa escolher por onde começar.
   let grupoAtual = $state<"EPI" | "EPC">("EPI");
   const GRUPOS = ["EPI", "EPC"] as const;
+
+  function escolherEscopo(novo: EscopoBlitz) {
+    escopo = novo;
+    antesDaMarcacao = null;
+    // O grupo mostrado acompanha a escolha: só EPI mostra o EPI, só EPC mostra o EPC.
+    if (novo === "epi") grupoAtual = "EPI";
+    if (novo === "epc") grupoAtual = "EPC";
+  }
 
   const itensDoGrupo = $derived(grupoAtual === "EPI" ? itensEpi : itensEpc);
   const restantesDoGrupo = $derived(
@@ -94,8 +110,9 @@
     return grupo === "EPI" ? itensEpi.length : itensEpc.length;
   }
 
+  // Sem colaboradores ainda, o total de EPI mostra o de uma pessoa (e não "0/0"); com eles, vira itens vezes pessoas.
   function totalDoGrupo(grupo: "EPI" | "EPC"): number {
-    return grupo === "EPI" ? totalEpi : itensEpc.length;
+    return grupo === "EPI" ? Math.max(colaboradoresValidos.length, 1) * itensEpi.length : itensEpc.length;
   }
 
   function respondidosDoGrupo(grupo: "EPI" | "EPC"): number {
@@ -117,7 +134,7 @@
       Boolean(tipoId) &&
       Boolean(processoDaBlitz) &&
       colaboradoresValidos.length > 0 &&
-      itens.length > 0 &&
+      itensNoEscopo > 0 &&
       faltam === 0,
   );
 
@@ -221,11 +238,11 @@
   // Contagem das situações escolhidas, para a mensagem de sucesso: "12 OK, 2 Troca, 1 Faltante".
   function resumoDasEscolhas(): string {
     const contagem = { ok: 0, nao_ok: 0, faltante: 0 };
-    for (const item of itensEpc) {
+    for (const item of incluiEpc ? itensEpc : []) {
       const escolha = escolhas[item.id];
       if (escolha) contagem[escolha.situacao]++;
     }
-    for (const nome of colaboradoresValidos) {
+    for (const nome of incluiEpi ? colaboradoresValidos : []) {
       for (const item of itensEpi) {
         const situacao = escolhasEpi[nome]?.[item.id];
         if (situacao) contagem[situacao]++;
@@ -274,6 +291,8 @@
     escolhasEpi = {};
     pessoaAtual = "";
     antesDaMarcacao = null;
+    escopo = "todos";
+    grupoAtual = "EPI";
   }
 
   async function carregarEquipes() {
@@ -402,14 +421,19 @@
       prefixo: prefixoNormalizado,
       tipoId,
       colaboradores: colaboradoresValidos,
-      itens: itensEpc.map((item) => paraEnvio(item)).filter((item): item is NovoItemBlitz => item !== null),
-      pessoas: colaboradoresValidos.flatMap((nome) =>
-        itensEpi.map((item) => ({
-          colaborador: nome,
-          itemId: item.id,
-          status: situacaoEpi(escolhasEpi[nome]?.[item.id] ?? "faltante"),
-        })),
-      ),
+      escopo,
+      itens: incluiEpc
+        ? itensEpc.map((item) => paraEnvio(item)).filter((item): item is NovoItemBlitz => item !== null)
+        : [],
+      pessoas: incluiEpi
+        ? colaboradoresValidos.flatMap((nome) =>
+            itensEpi.map((item) => ({
+              colaborador: nome,
+              itemId: item.id,
+              status: situacaoEpi(escolhasEpi[nome]?.[item.id] ?? "faltante"),
+            })),
+          )
+        : [],
     };
 
     enviando = true;
@@ -657,9 +681,34 @@
     </div>
 
     {#if tipoId}
+      {#if itensEpi.length > 0 && itensEpc.length > 0}
+        <fieldset class="escopo">
+          <legend>O que verificar nesta blitz</legend>
+          <div class="escopo-opcoes" role="radiogroup" aria-label="O que verificar nesta blitz">
+            {#each ESCOPOS as opcao (opcao)}
+              <label class="escopo-opcao" class:ativo={escopo === opcao}>
+                <input
+                  type="radio"
+                  name="escopo-blitz"
+                  value={opcao}
+                  checked={escopo === opcao}
+                  onchange={() => escolherEscopo(opcao)}
+                />
+                {ROTULO_ESCOPO[opcao]}
+              </label>
+            {/each}
+          </div>
+          {#if escopo !== "todos"}
+            <p class="nota">
+              Esta blitz registra só o {escopo === "epi" ? "EPI" : "EPC"}. O {escopo === "epi" ? "EPC" : "EPI"} não entra.
+            </p>
+          {/if}
+        </fieldset>
+      {/if}
+
       <div class="grupos" role="tablist" aria-label="Grupo de materiais">
         {#each GRUPOS as grupo (grupo)}
-          {#if itensDoTipo(grupo) > 0}
+          {#if itensDoTipo(grupo) > 0 && (grupo === "EPI" ? incluiEpi : incluiEpc)}
             <button
               type="button"
               role="tab"
@@ -697,14 +746,23 @@
 
       <div class="progresso">
         <span class="texto-suave">
-          {#if grupoAtual === "EPI"}
-            EPI de {pessoaMostrada || "—"}:
+          {#if grupoAtual === "EPI" && !pessoaMostrada}
+            EPI de cada colaborador: informe os colaboradores acima.
           {:else}
-            EPC:
+            {#if grupoAtual === "EPI"}
+              EPI de {pessoaMostrada}:
+            {:else}
+              EPC:
+            {/if}
+            <span class="codigo">{grupoAtual === "EPI" ? respondidosEpiDe(pessoaMostrada) : respondidosEpc}/{itensDoGrupo.length}</span> respondidos
           {/if}
-          <span class="codigo">{grupoAtual === "EPI" ? respondidosEpiDe(pessoaMostrada) : respondidosEpc}/{itensDoGrupo.length}</span> respondidos
         </span>
-        <button type="button" class="botao-secundario" onclick={marcarRestantesOk} disabled={restantesDoGrupo === 0}>
+        <button
+          type="button"
+          class="botao-secundario"
+          onclick={marcarRestantesOk}
+          disabled={restantesDoGrupo === 0 || (grupoAtual === "EPI" && !pessoaMostrada)}
+        >
           Marcar restantes como OK
         </button>
       </div>
@@ -842,6 +900,73 @@
 <Avisos />
 
 <style>
+  /* Escolha do que verificar: três opções lado a lado, no mesmo desenho das abas de EPI e EPC */
+  .escopo {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+
+  .escopo legend {
+    padding: 0;
+    margin-bottom: 8px;
+    font-family: var(--fonte-titulo);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+  }
+
+  .escopo-opcoes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .escopo-opcao {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 8px;
+    background: var(--superficie-elevada);
+    border: 1px solid var(--borda-forte);
+    border-radius: var(--raio-etiqueta);
+    color: var(--tinta);
+    font-family: var(--fonte-titulo);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+  }
+
+  .escopo-opcao.ativo {
+    background: var(--primaria);
+    border-color: var(--primaria);
+    color: var(--primaria-tinta);
+  }
+
+  .escopo-opcao input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .escopo-opcao:focus-within {
+    outline: 2px solid var(--primaria);
+    outline-offset: 2px;
+  }
+
+  .escopo .nota {
+    margin: 8px 0 0;
+  }
+
   .aviso-versao {
     display: flex;
     flex-wrap: wrap;

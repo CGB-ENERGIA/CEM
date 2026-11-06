@@ -116,6 +116,9 @@ export interface ItemBlitz {
 
 // EPI de um colaborador: EPI é individual, então cada colaborador tem a própria situação.
 // OK = tem e está bom; Troca = tem, mas danificado e precisa trocar; Faltante = não tem.
+export type { EscopoBlitz } from "./compartilhado";
+import type { EscopoBlitz } from "./compartilhado";
+
 export type SituacaoEpi = "ok" | "troca" | "faltante";
 
 export interface PessoaItem {
@@ -138,6 +141,8 @@ export interface NovaBlitz {
   pessoas?: PessoaItem[];
   // Versão do catálogo de materiais que o app de campo usou. Itens criados depois dela não são exigidos desta blitz.
   catalogoVersao?: string;
+  // O que esta blitz verifica. Sem o campo, vale "todos".
+  escopo?: EscopoBlitz;
 }
 
 // Colaborador com um EPI em Troca ou Faltante, no detalhe de uma blitz feita pelo app de campo.
@@ -153,6 +158,8 @@ export interface BlitzResumo {
   prefixo: string;
   tipoId: string;
   colaboradores: string[];
+  // Blitz só de EPI ou só de EPC não verificou o resto; o painel mostra isso.
+  escopo: EscopoBlitz;
   totalItens: number;
   naoConformes: number;
   conforme: boolean;
@@ -215,6 +222,8 @@ export interface RankingEquipe {
   blitzes: number;
   ultimaData: string | null;
   conforme: boolean | null;
+  // O que a última blitz da equipe verificou; "todos" quando ela olhou EPI e EPC.
+  ultimoEscopo: EscopoBlitz | null;
 }
 
 export interface RankingItem {

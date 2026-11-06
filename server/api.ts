@@ -1,6 +1,6 @@
 import { randomInt } from "node:crypto";
 import * as XLSX from "xlsx";
-import { PROCESSOS } from "../src/lib/compartilhado";
+import { ESCOPOS, PROCESSOS, type EscopoBlitz } from "../src/lib/compartilhado";
 import { normalizarTexto } from "../src/lib/format";
 import type {
   BlitzResumo,
@@ -622,14 +622,27 @@ interface LinhaItemBlitz {
 
 async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
   const { inicio, fim } = intervaloDoMes(mes);
-  const { data: blitzes, error } = await db
-    .from("blitzes")
-    .select("id, data, processo, prefixo, tipo_id, colaboradores")
-    .gte("data", inicio)
-    .lt("data", fim)
-    .order("data", { ascending: false })
-    .order("id", { ascending: false });
-  if (error) throw error;
+  const lerBlitzes = (colunas: string) =>
+    db
+      .from("blitzes")
+      .select(colunas)
+      .gte("data", inicio)
+      .lt("data", fim)
+      .order("data", { ascending: false })
+      .order("id", { ascending: false });
+  let leitura = await lerBlitzes("id, data, processo, prefixo, tipo_id, colaboradores, escopo");
+  // Sem a migração do escopo a coluna não existe: lê sem ela e trata todas as blitz como completas.
+  if (leitura.error?.code === "42703") leitura = await lerBlitzes("id, data, processo, prefixo, tipo_id, colaboradores");
+  if (leitura.error) throw leitura.error;
+  const blitzes = leitura.data as unknown as Array<{
+    id: number;
+    data: string;
+    processo: string | null;
+    prefixo: string;
+    tipo_id: string;
+    colaboradores: unknown;
+    escopo?: EscopoBlitz;
+  }>;
   if (blitzes.length === 0) return [];
   const catalogo = await obterCatalogo();
 
@@ -696,6 +709,7 @@ async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
       prefixo: blitz.prefixo,
       tipoId: blitz.tipo_id,
       colaboradores: blitz.colaboradores as string[],
+      escopo: blitz.escopo ?? "todos",
       totalItens: itensBlitz.length,
       naoConformes: naoConformes.length,
       conforme: naoConformes.length === 0,
@@ -740,9 +754,18 @@ function validarBlitz(corpo: Partial<NovaBlitz>, catalogo: Catalogo): NovaBlitz 
     (item) => item.ativo && (Number.isNaN(versaoVista) || (catalogo.criadoEmMs.get(item.id) ?? 0) <= versaoVista),
   );
 
+  // O encarregado escolhe verificar tudo, só o EPI ou só o EPC. Só o escolhido é exigido, e o resto não é aceito.
+  const escopo: EscopoBlitz = corpo.escopo === undefined ? "todos" : corpo.escopo;
+  if (!(ESCOPOS as readonly unknown[]).includes(escopo)) throw new ErroValidacao("Escopo da blitz inválido.");
+  const incluiEpi = escopo !== "epc";
+  const incluiEpc = escopo !== "epi";
+
   // Com o detalhe por pessoa (app de campo), os EPIs vêm por colaborador e os itens enviados são só EPC.
   const porPessoa = Array.isArray(corpo.pessoas);
-  const dosItensEnviados = (itens: ItemCatalogo[]) => itens.filter((item) => !porPessoa || item.grupo === "EPC");
+  const dosItensEnviados = (itens: ItemCatalogo[]) =>
+    itens
+      .filter((item) => !porPessoa || item.grupo === "EPC")
+      .filter((item) => (item.grupo === "EPC" ? incluiEpc : incluiEpi));
   const permitidos = new Set(dosItensEnviados(doTipo).map((item) => item.id));
   const esperados = new Set(dosItensEnviados(exigidosDoTipo).map((item) => item.id));
   const recebidos = Array.isArray(corpo.itens) ? corpo.itens : [];
@@ -785,8 +808,16 @@ function validarBlitz(corpo: Partial<NovaBlitz>, catalogo: Catalogo): NovaBlitz 
     naoConforme: item.naoConforme,
     observacao: item.observacao?.trim() || undefined,
   }));
-  const base = { idCliente: idCliente ?? undefined, data, processo, prefixo, tipoId, colaboradores };
+  const base = { idCliente: idCliente ?? undefined, data, processo, prefixo, tipoId, colaboradores, escopo };
   if (!porPessoa) return { ...base, itens: itensEnviados };
+
+  // Blitz só de EPC não leva EPI por colaborador.
+  if (!incluiEpi) {
+    if ((corpo.pessoas as unknown[]).length > 0) {
+      throw new ErroValidacao("Uma blitz só de EPC não leva EPI por colaborador.");
+    }
+    return { ...base, itens: itensEnviados, pessoas: [] };
+  }
 
   // Totais de EPI derivados do detalhe por pessoa: encontrado = presente (OK ou Troca), defeito = Troca.
   const pessoas = validarPessoas(corpo.pessoas, colaboradores, doTipo, exigidosDoTipo);
@@ -850,6 +881,8 @@ async function registrarBlitz(corpo: Partial<NovaBlitz>): Promise<Response> {
     p_colaboradores: blitz.colaboradores,
     p_id_cliente: blitz.idCliente ?? null,
     p_pessoas: blitz.pessoas ?? [],
+    // Só vai quando a blitz é parcial: assim a função antiga do banco (sem o parâmetro) continua valendo para "todos".
+    ...(blitz.escopo && blitz.escopo !== "todos" ? { p_escopo: blitz.escopo } : {}),
     p_itens: blitz.itens.map((item) => ({
       itemId: item.itemId,
       // EPI por pessoa: a quantidade exigida é por colaborador, então o total é multiplicado pela equipe.
@@ -863,6 +896,13 @@ async function registrarBlitz(corpo: Partial<NovaBlitz>): Promise<Response> {
   });
 
   if (error) {
+    // PGRST202: a função de registro ainda não conhece p_escopo (a migração do escopo não rodou).
+    if (error.code === "PGRST202" && blitz.escopo && blitz.escopo !== "todos") {
+      throw new ErroValidacao(
+        "Blitz só de EPI ou só de EPC ainda não está ativa no banco. Rode a migração 20261108120000_blitz_escopo.sql no Supabase.",
+        503,
+      );
+    }
     if (error.message.includes("TIPO_DIVERGENTE")) {
       throw new ErroValidacao(
         `A equipe ${blitz.prefixo} está cadastrada com outro tipo de equipe. Ajuste o cadastro antes de registrar a blitz.`,
@@ -1140,6 +1180,7 @@ async function montarDashboard(mes: string): Promise<Dashboard> {
       blitzes: lista.length,
       ultimaData: ultima?.data ?? null,
       conforme: ultima ? ultima.conforme : null,
+      ultimoEscopo: ultima ? ultima.escopo : null,
     };
   });
 

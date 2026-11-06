@@ -1,6 +1,7 @@
 <script lang="ts">
   import materiaisJson from "../data/materiais.json";
   import { api } from "../api";
+  import { ROTULO_ESCOPO } from "../compartilhado";
   import type { BlitzResumo, Materiais } from "../tipos";
   import { formatarData, formatarMes, mesHoje, normalizarTexto, numero } from "../format";
   import { cascata } from "../actions/animar";
@@ -157,6 +158,9 @@
             <span class="texto-suave">{nomeTipo(blitz.tipoId)}</span>
             {#if blitz.processo}
               <span class="chip">{blitz.processo}</span>
+            {/if}
+            {#if blitz.escopo !== "todos"}
+              <span class="chip">{ROTULO_ESCOPO[blitz.escopo]}</span>
             {/if}
             {#if blitz.conforme}
               <span class="chip chip-ok">Todos OK</span>

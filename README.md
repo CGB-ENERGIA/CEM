@@ -88,6 +88,14 @@ A lista de EPI e EPC por tipo de equipe fica no banco (migração `supabase/migr
 - Alterar a quantidade de um item não muda blitz já registradas: elas guardam a quantidade exigida na época. Alterar a descrição aparece também no histórico.
 - Enquanto a migração não rodou, tudo funciona com o arquivo e a aba Materiais avisa que a edição ainda não está ativa.
 
+## Escopo da blitz: tudo, só EPI ou só EPC
+
+No app de campo, o encarregado escolhe **O que verificar nesta blitz**: **Tudo** (padrão), **Só EPI** ou **Só EPC**. Só o que foi escolhido é exigido e enviado; o resto não entra na blitz.
+
+- **Só EPI**: o EPI de cada colaborador é obrigatório e o EPC não é aceito. **Só EPC**: o EPC da equipe é obrigatório e o EPI por colaborador não é aceito.
+- O painel mostra a marca **Só EPI** ou **Só EPC** no histórico de Blitzes e no ranking do Dashboard, para uma blitz parcial não parecer que verificou tudo. Uma blitz parcial não gera pendência do que não verificou.
+- Precisa da migração `supabase/migrations/20261108120000_blitz_escopo.sql` (coluna `blitzes.escopo` e parâmetro `p_escopo` em `registrar_blitz`). Enquanto ela não roda, blitz de escopo "Tudo" funciona como sempre, o painel trata todas as blitz como completas, e uma blitz parcial é recusada com a instrução de rodar a migração.
+
 ## Controle de pendências
 
 A aba **Controle** lista cada Troca ou Faltante registrado numa blitz, até alguém marcar como resolvido (item trocado ou entregue).

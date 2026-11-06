@@ -1,6 +1,7 @@
 <script lang="ts">
   import materiaisJson from "../data/materiais.json";
   import { api } from "../api";
+  import { ROTULO_ESCOPO } from "../compartilhado";
   import type { Dashboard, Materiais, RankingEquipe } from "../tipos";
   import { formatarMes, formatarData, formatarPercentual, mesHoje, normalizarTexto, numero } from "../format";
   import { barra, cascata, numeroAnimado } from "../actions/animar";
@@ -255,6 +256,9 @@
                   </td>
                   <td class="codigo" data-rotulo="Última blitz">{equipe.ultimaData ? formatarData(equipe.ultimaData) : "—"}</td>
                   <td data-rotulo="Situação">
+                    {#if equipe.ultimoEscopo && equipe.ultimoEscopo !== "todos"}
+                      <span class="chip">{ROTULO_ESCOPO[equipe.ultimoEscopo]}</span>
+                    {/if}
                     {#if equipe.conforme === true}
                       <span class="chip chip-ok">Todos OK</span>
                     {:else if equipe.conforme === false}
