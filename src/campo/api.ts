@@ -18,12 +18,12 @@ export class ErroRecusado extends Error {
 
 const MENSAGEM_SEM_CONEXAO = "Não foi possível conectar ao servidor.";
 
-async function pedir<T>(caminho: string, init?: RequestInit): Promise<T> {
+async function pedir<T>(caminho: string, init?: RequestInit, tipoCorpo = "application/json"): Promise<T> {
   let resposta: Response;
   try {
     resposta = await fetch(caminho, {
       ...init,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": tipoCorpo },
     });
   } catch {
     throw new ErroSemConexao(MENSAGEM_SEM_CONEXAO);
@@ -44,6 +44,9 @@ export const apiCampo = {
   materiais: () => pedir<MateriaisCampo>("/api/campo/materiais"),
   registrarBlitz: (blitz: NovaBlitz) =>
     pedir<{ id: number }>("/api/campo/blitz", { method: "POST", body: JSON.stringify(blitz) }),
+  // Foto de evidência (JPEG já reduzido). O id é gerado no celular: reenviar a mesma foto não duplica.
+  enviarFoto: (id: string, foto: Blob) =>
+    pedir<{ caminho: string }>(`/api/campo/foto?id=${encodeURIComponent(id)}`, { method: "POST", body: foto }, "image/jpeg"),
   // Nomes de colaboradores já aprovados, para sugestão.
   colaboradores: () => pedir<string[]>("/api/campo/colaboradores"),
   // Pedido de cadastro de um nome novo. Entra como pendente até um administrador aprovar.

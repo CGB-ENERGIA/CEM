@@ -13,6 +13,14 @@ export const ROTULO_ESCOPO: Record<EscopoBlitz, string> = {
   epc: "Só EPC",
 };
 
+// Evidência da blitz: quem inspecionou e de 1 a 3 fotos tiradas ao final.
+export const FOTOS_MINIMO = 1;
+export const FOTOS_MAXIMO = 3;
+export const INSPETOR_MINIMO = 3;
+export const INSPETOR_MAXIMO = 80;
+// Cada foto é reduzida no celular antes do envio; o servidor recusa acima disto (a Vercel limita o corpo a ~4,5 MB).
+export const FOTO_TAMANHO_MAXIMO = 3 * 1024 * 1024;
+
 export const STATUS_LABEL: Record<StatusItem, string> = {
   ok: "OK",
   nao_ok: "Troca",

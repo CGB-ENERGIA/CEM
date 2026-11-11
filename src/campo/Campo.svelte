@@ -2,9 +2,18 @@
   import { onMount } from "svelte";
   import materiaisJson from "../lib/data/materiais.json";
   import { dataHoje, formatarData } from "../lib/format";
-  import { ESCOPOS, PROCESSOS, ROTULO_ESCOPO } from "../lib/compartilhado";
+  import {
+    ESCOPOS,
+    FOTOS_MAXIMO,
+    FOTOS_MINIMO,
+    INSPETOR_MAXIMO,
+    INSPETOR_MINIMO,
+    PROCESSOS,
+    ROTULO_ESCOPO,
+  } from "../lib/compartilhado";
   import { mostrarAviso } from "../lib/avisos.svelte";
-  import { fila, type BlitzPendente } from "../lib/fila";
+  import { fila, type BlitzPendente, type FotoPendente } from "../lib/fila";
+  import { reduzirFoto } from "./foto";
   import type { EscopoBlitz, ItemCampo, Materiais, MateriaisCampo, NovaBlitz, NovoItemBlitz, SituacaoEpi } from "../lib/tipos";
   import BuscaEquipe from "../lib/components/BuscaEquipe.svelte";
   import BuscaColaborador from "../lib/components/BuscaColaborador.svelte";
@@ -51,6 +60,86 @@
   let pendentes = $state<BlitzPendente[]>([]);
   let enviando = $state(false);
   let enviandoFila = $state(false);
+
+  // Quem faz a inspeção. O nome fica guardado no celular: o encarregado costuma ser o mesmo a cada blitz.
+  const CHAVE_INSPETOR = "paes:inspetor";
+  function lerInspetor(): string {
+    try {
+      return localStorage.getItem(CHAVE_INSPETOR) ?? "";
+    } catch {
+      return "";
+    }
+  }
+  let inspetor = $state(lerInspetor());
+  const inspetorNormalizado = $derived(inspetor.replace(/\s+/g, " ").trim());
+  const inspetorValido = $derived(
+    inspetorNormalizado.length >= INSPETOR_MINIMO && inspetorNormalizado.length <= INSPETOR_MAXIMO,
+  );
+
+  $effect(() => {
+    const nome = inspetorNormalizado;
+    try {
+      if (nome) localStorage.setItem(CHAVE_INSPETOR, nome);
+    } catch {
+      // Sem armazenamento: o nome só precisa ser digitado de novo na próxima blitz.
+    }
+  });
+
+  // Fotos de evidência, tiradas ao final da inspeção. Cada uma já é um JPEG reduzido; a miniatura usa um endereço
+  // temporário do navegador, que é liberado quando a foto sai da tela.
+  interface FotoTirada {
+    id: string;
+    blob: Blob;
+    url: string;
+  }
+  let fotos = $state.raw<FotoTirada[]>([]);
+  let processandoFoto = $state(false);
+  let erroFoto = $state("");
+
+  async function aoEscolherFotos(evento: Event) {
+    const entrada = evento.currentTarget as HTMLInputElement;
+    const arquivos = Array.from(entrada.files ?? []);
+    entrada.value = "";
+    if (arquivos.length === 0) return;
+    erroFoto = "";
+    processandoFoto = true;
+    try {
+      for (const arquivo of arquivos) {
+        if (fotos.length >= FOTOS_MAXIMO) {
+          erroFoto = `No máximo ${FOTOS_MAXIMO} fotos por blitz.`;
+          break;
+        }
+        try {
+          const blob = await reduzirFoto(arquivo);
+          fotos = [...fotos, { id: crypto.randomUUID(), blob, url: URL.createObjectURL(blob) }];
+        } catch (falha) {
+          erroFoto = falha instanceof Error ? falha.message : "Não foi possível preparar a foto.";
+        }
+      }
+    } finally {
+      processandoFoto = false;
+    }
+  }
+
+  function removerFoto(id: string) {
+    const foto = fotos.find((f) => f.id === id);
+    if (foto) URL.revokeObjectURL(foto.url);
+    fotos = fotos.filter((f) => f.id !== id);
+    erroFoto = "";
+  }
+
+  function limparFotos() {
+    for (const foto of fotos) URL.revokeObjectURL(foto.url);
+    fotos = [];
+    erroFoto = "";
+  }
+
+  const caminhoDaFoto = (id: string) => `campo/${id}.jpg`;
+
+  // Envia as fotos antes da blitz. O identificador vem do celular, então reenviar a mesma foto não duplica.
+  async function enviarFotos(lista: FotoPendente[]) {
+    for (const foto of lista) await apiCampo.enviarFoto(foto.id, foto.blob);
+  }
 
   const prefixoNormalizado = $derived(prefixo.trim().toUpperCase());
   const equipeCadastrada = $derived(equipes.find((equipe) => equipe.prefixo === prefixoNormalizado));
@@ -135,7 +224,10 @@
       Boolean(processoDaBlitz) &&
       colaboradoresValidos.length > 0 &&
       itensNoEscopo > 0 &&
-      faltam === 0,
+      faltam === 0 &&
+      inspetorValido &&
+      fotos.length >= FOTOS_MINIMO &&
+      !processandoFoto,
   );
 
   // O que ainda impede o envio, em termos curtos. Fica sempre visível na barra de envio.
@@ -145,7 +237,9 @@
     if (prefixoNormalizado && !tipoId) lista.push("tipo");
     if (prefixoNormalizado && !processoDaBlitz) lista.push("processo");
     if (colaboradoresValidos.length === 0) lista.push("colaborador");
+    if (!inspetorValido) lista.push("inspetor");
     if (tipoId && faltam > 0) lista.push(`${faltam} ${faltam === 1 ? "item" : "itens"}`);
+    if (fotos.length < FOTOS_MINIMO || processandoFoto) lista.push("foto");
     return lista;
   });
   const resumoFalta = $derived(
@@ -293,6 +387,8 @@
     antesDaMarcacao = null;
     escopo = "todos";
     grupoAtual = "EPI";
+    // O nome do inspetor fica: a próxima equipe costuma ser inspecionada por quem acabou de registrar.
+    limparFotos();
   }
 
   async function carregarEquipes() {
@@ -383,6 +479,8 @@
       for (const item of await fila.listar()) {
         if (item.erro && !manual) continue;
         try {
+          // Blitz guardada antes da exigência de fotos não tem nenhuma para enviar.
+          await enviarFotos(item.fotos ?? []);
           await apiCampo.registrarBlitz(item.payload);
           await fila.remover(item.id);
           enviadas++;
@@ -412,8 +510,12 @@
   async function registrar() {
     // O botão só fica ativo com tudo preenchido; o que falta aparece ao lado, na barra.
     if (!podeEnviar || !tipoId) return;
+    const fotosParaEnvio: FotoPendente[] = fotos.map((foto) => ({ id: foto.id, blob: foto.blob }));
     const blitz: NovaBlitz = {
       idCliente: crypto.randomUUID(),
+      inspetor: inspetorNormalizado,
+      // O caminho de cada foto vem do identificador gerado aqui, então vale igual enviando agora ou depois.
+      fotos: fotosParaEnvio.map((foto) => caminhoDaFoto(foto.id)),
       // A lista de materiais que este celular usou. Itens criados depois dela não são exigidos desta blitz.
       catalogoVersao: materiais.versao ?? undefined,
       data,
@@ -438,6 +540,7 @@
 
     enviando = true;
     try {
+      await enviarFotos(fotosParaEnvio);
       await apiCampo.registrarBlitz(blitz);
       mostrarAviso("ok", `Equipe ${blitz.prefixo} registrada: ${resumoDasEscolhas()}.`);
     } catch (falha) {
@@ -448,7 +551,7 @@
       }
       // Sem sinal: guarda no celular com o mesmo identificador, para não duplicar no reenvio.
       try {
-        await fila.guardar({ id: blitz.idCliente!, criadaEm: Date.now(), payload: blitz });
+        await fila.guardar({ id: blitz.idCliente!, criadaEm: Date.now(), payload: blitz, fotos: fotosParaEnvio });
         mostrarAviso(
           "info",
           `Sem conexão: a blitz da equipe ${blitz.prefixo} foi guardada e será enviada quando houver sinal.`,
@@ -566,6 +669,12 @@
               <strong class="codigo">{item.payload.prefixo}</strong>
               <span class="texto-suave">{nomeTipo(item.payload.tipoId)} · {formatarData(item.payload.data)}</span>
             </div>
+            {#if item.payload.inspetor}
+              <p class="texto-suave pendente-detalhe">
+                Inspetor {item.payload.inspetor} · {item.fotos?.length ?? 0}
+                {(item.fotos?.length ?? 0) === 1 ? "foto" : "fotos"}
+              </p>
+            {/if}
             {#if item.erro}
               <p class="mensagem mensagem-erro">Não enviada: {item.erro}</p>
             {/if}
@@ -594,6 +703,18 @@
     <label class="rotulo">
       Data
       <input type="date" bind:value={data} required />
+    </label>
+
+    <label class="rotulo">
+      Inspetor
+      <input
+        type="text"
+        bind:value={inspetor}
+        maxlength={INSPETOR_MAXIMO}
+        autocomplete="name"
+        placeholder="Nome de quem faz a inspeção"
+        required
+      />
     </label>
 
     <div class="rotulo">
@@ -851,6 +972,46 @@
       <p class="nota">Escolha a equipe, ou o tipo da equipe nova, para ver os materiais exigidos.</p>
     {/if}
 
+    <section class="evidencia" aria-labelledby="evidencia-titulo">
+      <h3 id="evidencia-titulo">Evidência da inspeção</h3>
+      <p class="texto-suave">
+        Ao terminar, tire de {FOTOS_MINIMO} a {FOTOS_MAXIMO} fotos da equipe e dos materiais.
+      </p>
+      {#if fotos.length > 0}
+        <ul class="fotos">
+          {#each fotos as foto, posicao (foto.id)}
+            <li class="foto">
+              <img src={foto.url} alt={`Foto ${posicao + 1} da inspeção`} />
+              <button
+                type="button"
+                class="foto-remover"
+                aria-label={`Remover foto ${posicao + 1}`}
+                onclick={() => removerFoto(foto.id)}
+              >
+                Remover
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      {#if fotos.length < FOTOS_MAXIMO}
+        <label class="botao-secundario botao-foto" class:desativado={processandoFoto}>
+          {processandoFoto ? "Preparando foto..." : fotos.length === 0 ? "Tirar foto" : "Tirar outra foto"}
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            multiple
+            disabled={processandoFoto}
+            onchange={aoEscolherFotos}
+          />
+        </label>
+      {/if}
+      {#if erroFoto}
+        <p class="mensagem mensagem-erro" role="alert">{erroFoto}</p>
+      {/if}
+    </section>
+
     <div class="barra-envio" aria-live="polite">
       <span class="falta" class:pronto={faltando.length === 0}>{resumoFalta}</span>
       <button class="botao" type="submit" disabled={!podeEnviar || enviando}>
@@ -900,6 +1061,86 @@
 <Avisos />
 
 <style>
+  /* Evidência: fotos tiradas ao final, em miniaturas quadradas, com o botão de tirar mais embaixo */
+  .evidencia {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .evidencia h3 {
+    margin: 0;
+    font-family: var(--fonte-titulo);
+    font-size: 1rem;
+  }
+
+  .evidencia p {
+    margin: 0;
+  }
+
+  .fotos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+    gap: 0.6rem;
+  }
+
+  .foto {
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .foto img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 1px solid var(--tinta-suave);
+    border-radius: 4px;
+    background: #0001;
+  }
+
+  .foto-remover {
+    min-height: 2.75rem;
+    border: 1px solid var(--tinta-suave);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .botao-foto {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    cursor: pointer;
+  }
+
+  .botao-foto.desativado {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  /* O seletor de arquivo fica escondido; o rótulo inteiro é o botão, e o teclado ainda alcança o campo. */
+  .botao-foto input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: inherit;
+  }
+
+  .botao-foto:focus-within {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  .pendente-detalhe {
+    margin: 0;
+  }
+
   /* Escolha do que verificar: três opções lado a lado, no mesmo desenho das abas de EPI e EPC */
   .escopo {
     margin: 0;

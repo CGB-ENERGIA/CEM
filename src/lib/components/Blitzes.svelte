@@ -172,7 +172,35 @@
           </summary>
 
           <div class="detalhe">
+            <p>
+              <strong>Inspetor:</strong>
+              {#if blitz.inspetor}
+                {blitz.inspetor}
+              {:else}
+                <span class="texto-suave">não informado (blitz anterior ao registro do inspetor)</span>
+              {/if}
+            </p>
             <p><strong>Colaboradores:</strong> {blitz.colaboradores.join(", ")}</p>
+            {#if blitz.fotos.length > 0}
+              <div class="evidencias">
+                <strong>Evidência:</strong>
+                <ul class="miniaturas">
+                  {#each blitz.fotos as foto, posicao (foto.caminho)}
+                    <li>
+                      {#if foto.url}
+                        <a href={foto.url} target="_blank" rel="noopener" aria-label={`Abrir foto ${posicao + 1} em tamanho real`}>
+                          <img src={foto.url} alt={`Evidência ${posicao + 1} da blitz ${blitz.prefixo}`} loading="lazy" />
+                        </a>
+                      {:else}
+                        <span class="miniatura-indisponivel texto-suave">Foto {posicao + 1} indisponível</span>
+                      {/if}
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            {:else}
+              <p><strong>Evidência:</strong> <span class="texto-suave">sem fotos (blitz anterior à exigência)</span></p>
+            {/if}
             {#if !blitz.conforme}
               {@const pendencias = pendenciasDe(blitz)}
               <p>
@@ -246,6 +274,41 @@
 </section>
 
 <style>
+  .evidencias {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 12px;
+  }
+
+  .miniaturas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .miniaturas img {
+    display: block;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 1px solid var(--tinta-suave);
+    border-radius: 4px;
+  }
+
+  .miniatura-indisponivel {
+    display: grid;
+    place-items: center;
+    width: 120px;
+    height: 120px;
+    padding: 8px;
+    border: 1px dashed var(--tinta-suave);
+    border-radius: 4px;
+    text-align: center;
+  }
+
   .cabecalho-acoes {
     display: flex;
     flex-wrap: wrap;

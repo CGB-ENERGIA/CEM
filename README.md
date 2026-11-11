@@ -96,6 +96,16 @@ No app de campo, o encarregado escolhe **O que verificar nesta blitz**: **Tudo**
 - O painel mostra a marca **Só EPI** ou **Só EPC** no histórico de Blitzes e no ranking do Dashboard, para uma blitz parcial não parecer que verificou tudo. Uma blitz parcial não gera pendência do que não verificou.
 - Precisa da migração `supabase/migrations/20261108120000_blitz_escopo.sql` (coluna `blitzes.escopo` e parâmetro `p_escopo` em `registrar_blitz`). Enquanto ela não roda, blitz de escopo "Tudo" funciona como sempre, o painel trata todas as blitz como completas, e uma blitz parcial é recusada com a instrução de rodar a migração.
 
+## Inspetor e fotos de evidência
+
+Toda blitz nova exige o **nome de quem inspeciona** (texto livre, 3 a 80 caracteres) e de **1 a 3 fotos** tiradas no fim da inspeção, como evidência.
+
+- O nome fica guardado no celular (`localStorage`) e já vem preenchido na próxima blitz. As fotos não: cada blitz tira as suas.
+- A foto é reduzida no celular (lado maior de 1600 px, JPEG de até 3 MB) e enviada para o bucket privado `evidencias` do Supabase Storage, em `campo/<uuid>.jpg`. O painel mostra as miniaturas no detalhe da blitz, em Blitzes, por links assinados que valem 1 hora.
+- Funciona sem conexão: a blitz e as fotos ficam juntas na fila do celular (IndexedDB) e sobem na ordem certa, fotos primeiro, quando a conexão volta. A lista de pendentes mostra "Inspetor X · N fotos".
+- Blitz anteriores à exigência aparecem no histórico como "sem fotos".
+- Precisa da migração `supabase/migrations/20261111100000_inspetor_fotos.sql` (colunas `blitzes.inspetor` e `blitzes.fotos` e o bucket `evidencias`). Enquanto ela não roda, a blitz nova é recusada com a instrução de rodar a migração, e o app de campo a mantém na fila.
+
 ## Controle de pendências
 
 A aba **Controle** lista cada Troca ou Faltante registrado numa blitz, até alguém marcar como resolvido (item trocado ou entregue).

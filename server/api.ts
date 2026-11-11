@@ -1,6 +1,15 @@
 import { randomInt } from "node:crypto";
 import * as XLSX from "xlsx";
-import { ESCOPOS, PROCESSOS, type EscopoBlitz } from "../src/lib/compartilhado";
+import {
+  ESCOPOS,
+  FOTO_TAMANHO_MAXIMO,
+  FOTOS_MAXIMO,
+  FOTOS_MINIMO,
+  INSPETOR_MAXIMO,
+  INSPETOR_MINIMO,
+  PROCESSOS,
+  type EscopoBlitz,
+} from "../src/lib/compartilhado";
 import { normalizarTexto } from "../src/lib/format";
 import type {
   BlitzResumo,
@@ -630,9 +639,12 @@ async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
       .lt("data", fim)
       .order("data", { ascending: false })
       .order("id", { ascending: false });
-  let leitura = await lerBlitzes("id, data, processo, prefixo, tipo_id, colaboradores, escopo");
-  // Sem a migração do escopo a coluna não existe: lê sem ela e trata todas as blitz como completas.
-  if (leitura.error?.code === "42703") leitura = await lerBlitzes("id, data, processo, prefixo, tipo_id, colaboradores");
+  // Sem as migrações do escopo e do inspetor/fotos as colunas não existem: lê sem elas, tratando todas as blitz como
+  // completas e sem evidência.
+  const base = "id, data, processo, prefixo, tipo_id, colaboradores";
+  let leitura = await lerBlitzes(`${base}, escopo, inspetor, fotos`);
+  if (leitura.error?.code === "42703") leitura = await lerBlitzes(`${base}, escopo`);
+  if (leitura.error?.code === "42703") leitura = await lerBlitzes(base);
   if (leitura.error) throw leitura.error;
   const blitzes = leitura.data as unknown as Array<{
     id: number;
@@ -642,6 +654,8 @@ async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
     tipo_id: string;
     colaboradores: unknown;
     escopo?: EscopoBlitz;
+    inspetor?: string | null;
+    fotos?: unknown;
   }>;
   if (blitzes.length === 0) return [];
   const catalogo = await obterCatalogo();
@@ -710,12 +724,38 @@ async function carregarBlitzes(mes: string): Promise<BlitzResumo[]> {
       tipoId: blitz.tipo_id,
       colaboradores: blitz.colaboradores as string[],
       escopo: blitz.escopo ?? "todos",
+      inspetor: blitz.inspetor ?? null,
+      fotos: (Array.isArray(blitz.fotos) ? blitz.fotos : [])
+        .filter((caminho): caminho is string => typeof caminho === "string")
+        .map((caminho) => ({ caminho })),
       totalItens: itensBlitz.length,
       naoConformes: naoConformes.length,
       conforme: naoConformes.length === 0,
       itensNaoConformes: naoConformes,
     };
   });
+}
+
+// Evidência da blitz: o nome de quem inspecionou e de 1 a 3 fotos já enviadas. Uma blitz que não traz nenhum dos dois
+// campos é de antes da exigência (ficou na fila do celular durante a atualização) e é aceita sem evidência; basta
+// um deles para a blitz ser tratada como nova e exigir os dois.
+const CAMINHO_FOTO = /^campo\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jpg$/;
+
+function validarEvidencia(corpo: Partial<NovaBlitz>): { inspetor?: string; fotos?: string[] } {
+  if (corpo.inspetor === undefined && corpo.fotos === undefined) return {};
+  const inspetor = typeof corpo.inspetor === "string" ? corpo.inspetor.trim().replace(/\s+/g, " ") : "";
+  if (inspetor.length < INSPETOR_MINIMO || inspetor.length > INSPETOR_MAXIMO) {
+    throw new ErroValidacao(`Informe o nome de quem fez a inspeção (de ${INSPETOR_MINIMO} a ${INSPETOR_MAXIMO} letras).`);
+  }
+  const fotos = Array.isArray(corpo.fotos) ? corpo.fotos : [];
+  if (fotos.length < FOTOS_MINIMO || fotos.length > FOTOS_MAXIMO) {
+    throw new ErroValidacao(`Anexe de ${FOTOS_MINIMO} a ${FOTOS_MAXIMO} fotos como evidência da blitz.`);
+  }
+  if (fotos.some((caminho) => typeof caminho !== "string" || !CAMINHO_FOTO.test(caminho))) {
+    throw new ErroValidacao("Foto de evidência inválida.");
+  }
+  if (new Set(fotos).size !== fotos.length) throw new ErroValidacao("A mesma foto foi anexada mais de uma vez.");
+  return { inspetor, fotos };
 }
 
 function validarBlitz(corpo: Partial<NovaBlitz>, catalogo: Catalogo): NovaBlitz {
@@ -808,7 +848,8 @@ function validarBlitz(corpo: Partial<NovaBlitz>, catalogo: Catalogo): NovaBlitz 
     naoConforme: item.naoConforme,
     observacao: item.observacao?.trim() || undefined,
   }));
-  const base = { idCliente: idCliente ?? undefined, data, processo, prefixo, tipoId, colaboradores, escopo };
+  const { inspetor, fotos } = validarEvidencia(corpo);
+  const base = { idCliente: idCliente ?? undefined, data, processo, prefixo, tipoId, colaboradores, escopo, inspetor, fotos };
   if (!porPessoa) return { ...base, itens: itensEnviados };
 
   // Blitz só de EPC não leva EPI por colaborador.
@@ -868,9 +909,75 @@ function validarPessoas(
   return pessoas;
 }
 
+const BUCKET_EVIDENCIAS = "evidencias";
+const MENSAGEM_SEM_MIGRACAO_FOTOS =
+  "Inspetor e fotos de evidência ainda não estão ativos no banco. Rode a migração 20261111100000_inspetor_fotos.sql no Supabase.";
+
+// Bucket ausente: a migração das fotos ainda não foi rodada.
+function bucketAusente(erro: { message?: string; statusCode?: string | number } | null): boolean {
+  return !!erro && (/bucket not found/i.test(erro.message ?? "") || String(erro.statusCode) === "404");
+}
+
+// Foto de evidência: o app de campo envia o JPEG já reduzido, como corpo binário, antes de registrar a blitz.
+// O nome vem do celular (um uuid por foto), então reenviar a mesma foto não duplica nada.
+async function receberFoto(req: Request, id: string | null): Promise<Response> {
+  if (!id || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)) {
+    throw new ErroValidacao("Identificador da foto inválido.");
+  }
+  const bytes = new Uint8Array(await req.arrayBuffer());
+  if (bytes.length === 0) throw new ErroValidacao("Foto vazia.");
+  if (bytes.length > FOTO_TAMANHO_MAXIMO) throw new ErroValidacao("Foto grande demais.", 413);
+  // Só JPEG (o celular converte antes de enviar): confere a assinatura do arquivo, não o que o cliente diz.
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8 || bytes[2] !== 0xff) throw new ErroValidacao("A foto precisa ser JPEG.", 415);
+
+  const caminho = `campo/${id}.jpg`;
+  const { error } = await db.storage.from(BUCKET_EVIDENCIAS).upload(caminho, bytes, {
+    contentType: "image/jpeg",
+    upsert: true,
+  });
+  if (bucketAusente(error)) throw new ErroValidacao(MENSAGEM_SEM_MIGRACAO_FOTOS, 503);
+  if (error) throw error;
+  return resposta({ caminho }, 201);
+}
+
+// Confere, antes de gravar a blitz, que todas as fotos citadas estão mesmo no bucket.
+async function conferirFotos(fotos: string[]): Promise<void> {
+  for (const caminho of fotos) {
+    const nome = caminho.slice("campo/".length);
+    const { data, error } = await db.storage.from(BUCKET_EVIDENCIAS).list("campo", { limit: 5, search: nome });
+    if (bucketAusente(error)) throw new ErroValidacao(MENSAGEM_SEM_MIGRACAO_FOTOS, 503);
+    if (error) throw error;
+    if (!data.some((arquivo) => arquivo.name === nome)) {
+      throw new ErroValidacao("Uma das fotos de evidência não foi enviada. Tire e envie as fotos de novo.", 409);
+    }
+  }
+}
+
+// Links assinados (1 hora) para o painel abrir as fotos do bucket privado.
+async function assinarFotos(blitzes: BlitzResumo[]): Promise<BlitzResumo[]> {
+  const caminhos = [...new Set(blitzes.flatMap((blitz) => blitz.fotos.map((foto) => foto.caminho)))];
+  if (caminhos.length === 0) return blitzes;
+  const { data, error } = await db.storage.from(BUCKET_EVIDENCIAS).createSignedUrls(caminhos, 3600);
+  // Sem os links o painel ainda mostra a blitz; só não abre as fotos.
+  if (error || !data) return blitzes;
+  const links = new Map(data.filter((item) => item.signedUrl && item.path).map((item) => [item.path as string, item.signedUrl]));
+  return blitzes.map((blitz) => ({
+    ...blitz,
+    fotos: blitz.fotos.map((foto) => ({ ...foto, url: links.get(foto.caminho) ?? undefined })),
+  }));
+}
+
 async function registrarBlitz(corpo: Partial<NovaBlitz>): Promise<Response> {
   const catalogo = await obterCatalogo();
   const blitz = validarBlitz(corpo, catalogo);
+
+  // Antes de gravar qualquer coisa, garante que o banco e o bucket já têm onde guardar a evidência.
+  if (blitz.inspetor !== undefined) {
+    const sonda = await db.from("blitzes").select("inspetor, fotos").limit(1);
+    if (colunaAusente(sonda.error)) throw new ErroValidacao(MENSAGEM_SEM_MIGRACAO_FOTOS, 503);
+    if (sonda.error) throw sonda.error;
+    await conferirFotos(blitz.fotos ?? []);
+  }
 
   // A função do banco grava equipe (se for nova), blitz e itens numa única transação.
   const { data, error } = await db.rpc("registrar_blitz", {
@@ -911,7 +1018,18 @@ async function registrarBlitz(corpo: Partial<NovaBlitz>): Promise<Response> {
     }
     throw error;
   }
-  return resposta({ id: Number(data) }, 201);
+
+  const id = Number(data);
+  if (blitz.inspetor !== undefined) {
+    // Gravado depois do registro para não mexer na função do banco; repetir é seguro (mesmos valores).
+    const { error: erroEvidencia } = await db
+      .from("blitzes")
+      .update({ inspetor: blitz.inspetor, fotos: blitz.fotos ?? [] })
+      .eq("id", id);
+    if (colunaAusente(erroEvidencia)) throw new ErroValidacao(MENSAGEM_SEM_MIGRACAO_FOTOS, 503);
+    if (erroEvidencia) throw erroEvidencia;
+  }
+  return resposta({ id }, 201);
 }
 
 async function removerBlitz(id: number): Promise<Response> {
@@ -1454,6 +1572,10 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
     limitarEnviosCampo(req);
     return solicitarColaborador(await lerJson(req));
   }
+  if (metodo === "POST" && caminho === "/api/campo/foto") {
+    limitarEnviosCampo(req);
+    return receberFoto(req, url.searchParams.get("id"));
+  }
   if (metodo === "POST" && caminho === "/api/campo/blitz") {
     limitarEnviosCampo(req);
     return registrarBlitz(await lerJson<Partial<NovaBlitz>>(req));
@@ -1535,7 +1657,7 @@ export async function tratarApi(req: Request, url: URL): Promise<Response> {
   }
 
   // A blitz é registrada só pelo app de campo (/api/campo/blitz). O painel apenas consulta e exclui.
-  if (caminho === "/api/blitz" && metodo === "GET") return resposta(await carregarBlitzes(lerMes(url)));
+  if (caminho === "/api/blitz" && metodo === "GET") return resposta(await assinarFotos(await carregarBlitzes(lerMes(url))));
 
   const matchBlitz = caminho.match(/^\/api\/blitz\/(\d+)$/);
   if (matchBlitz && metodo === "DELETE") return removerBlitz(Number(matchBlitz[1]));

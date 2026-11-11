@@ -2,10 +2,18 @@ import type { NovaBlitz } from "./tipos";
 
 // Blitz guardadas no celular enquanto não há conexão. Ficam no IndexedDB do navegador.
 
+// Foto de evidência esperando o envio. O IndexedDB guarda o Blob como está, sem conversão.
+export interface FotoPendente {
+  id: string;
+  blob: Blob;
+}
+
 export interface BlitzPendente {
   id: string;
   criadaEm: number;
   payload: NovaBlitz;
+  // Ausente nas blitz guardadas antes da exigência das fotos.
+  fotos?: FotoPendente[];
   erro?: string;
 }
 

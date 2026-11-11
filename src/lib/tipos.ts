@@ -143,6 +143,16 @@ export interface NovaBlitz {
   catalogoVersao?: string;
   // O que esta blitz verifica. Sem o campo, vale "todos".
   escopo?: EscopoBlitz;
+  // Quem fez a inspeção, e os caminhos das fotos de evidência já enviadas (POST /api/campo/foto).
+  // Sem os dois campos é uma blitz antiga, de antes da exigência.
+  inspetor?: string;
+  fotos?: string[];
+}
+
+export interface FotoBlitz {
+  caminho: string;
+  // Link assinado, de curta duração, só na listagem do painel. Ausente se a foto não pôde ser assinada.
+  url?: string;
 }
 
 // Colaborador com um EPI em Troca ou Faltante, no detalhe de uma blitz feita pelo app de campo.
@@ -160,6 +170,9 @@ export interface BlitzResumo {
   colaboradores: string[];
   // Blitz só de EPI ou só de EPC não verificou o resto; o painel mostra isso.
   escopo: EscopoBlitz;
+  // Nulo nas blitz de antes da exigência do inspetor e das fotos.
+  inspetor: string | null;
+  fotos: FotoBlitz[];
   totalItens: number;
   naoConformes: number;
   conforme: boolean;
