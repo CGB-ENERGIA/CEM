@@ -1195,9 +1195,16 @@ async function montarDashboard(mes: string): Promise<Dashboard> {
   const percentualConformes =
     participantes.length > 0 ? Math.round((conformes / participantes.length) * 1000) / 10 : null;
 
+  // O card lista só o que ainda está em aberto: o que foi resolvido no Controle (item trocado ou entregue) sai daqui.
+  // Sem a migração do controle não há como saber o que foi resolvido, então tudo continua listado.
+  const emAberto = pendencias
+    ? new Set(pendencias.filter((p) => p.resolvidaEm === null).map((p) => `${p.blitzId}:${p.itemId}`))
+    : null;
+
   const contagemItens = new Map<number, RankingItem>();
   for (const blitz of blitzes) {
     for (const item of blitz.itensNaoConformes) {
+      if (emAberto && !emAberto.has(`${blitz.id}:${item.itemId}`)) continue;
       const registro = contagemItens.get(item.itemId) ?? {
         itemId: item.itemId,
         descricao: item.descricao,

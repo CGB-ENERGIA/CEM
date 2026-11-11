@@ -694,7 +694,7 @@
                   checked={escopo === opcao}
                   onchange={() => escolherEscopo(opcao)}
                 />
-                {ROTULO_ESCOPO[opcao]}
+                {opcao === "todos" ? ROTULO_ESCOPO.todos : opcao.toUpperCase()}
               </label>
             {/each}
           </div>

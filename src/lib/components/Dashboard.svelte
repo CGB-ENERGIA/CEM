@@ -324,9 +324,9 @@
       </div>
 
       <div class="painel-interno">
-        <h3>Itens faltantes ou não conformes</h3>
+        <h3>Itens em aberto: faltantes ou não conformes</h3>
         {#if dados.itensPendentes.length === 0}
-          <p class="texto-suave distancia">Nenhum item pendente no mês.</p>
+          <p class="texto-suave distancia">Nenhum item em aberto no mês.</p>
         {:else}
           <ol class="ranking distancia" use:cascata={`${mes}|${dados.itensPendentes.length}`}>
             {#each dados.itensPendentes as item, posicao (item.itemId)}
