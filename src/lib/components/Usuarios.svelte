@@ -175,7 +175,7 @@
   <div class="cabecalho-painel">
     <div>
       <h2>Usuários</h2>
-      <p>Quem pode entrar no painel e com qual perfil. Só o proprietário vê esta página.</p>
+      <p>Quem pode entrar no painel e com qual perfil. Só proprietários veem esta página.</p>
     </div>
     <div class="cabecalho-acoes">
       <button type="button" class="botao" onclick={() => abrir({ tipo: "novo" })} disabled={modo?.tipo === "novo"}>
@@ -232,7 +232,7 @@
           {#if modo.tipo === "editar" && modo.usuario.proprietario}
             <p class="texto-suave">O proprietário tem todas as funcionalidades e não pode ser rebaixado.</p>
           {:else}
-            <p class="texto-suave">A página Usuários é só do proprietário e não pode ser dada a outro perfil.</p>
+            <p class="texto-suave">A página Usuários é só dos proprietários, definidos por migração, e não pode ser dada por esta tela.</p>
           {/if}
         </div>
       {/if}
@@ -335,8 +335,24 @@
               <td data-rotulo="Criado em" class="codigo">{formatarData(usuario.criadoEm.slice(0, 10))}</td>
               <td data-rotulo="Ações">
                 <div class="acoes-linha">
-                  <button type="button" class="botao-secundario" onclick={() => abrir({ tipo: "editar", usuario })}>Editar</button>
-                  <button type="button" class="botao-secundario" onclick={() => abrir({ tipo: "senha", usuario })}>Senha</button>
+                  <button
+                    type="button"
+                    class="botao-secundario"
+                    onclick={() => abrir({ tipo: "editar", usuario })}
+                    disabled={usuario.proprietario && !ehEu(usuario)}
+                    title={usuario.proprietario && !ehEu(usuario) ? "Um proprietário só é alterado por ele mesmo." : undefined}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    class="botao-secundario"
+                    onclick={() => abrir({ tipo: "senha", usuario })}
+                    disabled={usuario.proprietario && !ehEu(usuario)}
+                    title={usuario.proprietario && !ehEu(usuario) ? "A senha de um proprietário só é redefinida por ele mesmo." : undefined}
+                  >
+                    Senha
+                  </button>
                   <button
                     type="button"
                     class="botao-secundario"

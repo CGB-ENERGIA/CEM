@@ -1492,7 +1492,11 @@ async function redefinirSenhaUsuario(
 ): Promise<Response> {
   const gerar = corpo.gerar === true;
   const senha = gerar ? gerarSenha() : senhaDeUsuarioValida(corpo.senha);
-  await carregarUsuario(id);
+  const alvo = await carregarUsuario(id);
+  // Com mais de um proprietário, um não pode trocar a senha do outro e assumir a conta.
+  if (alvo.proprietario && id !== quemEdita.id) {
+    throw new ErroValidacao("A senha de um proprietário só pode ser redefinida por ele mesmo.", 409);
+  }
 
   const { error } = await db.from("usuarios").update({ senha_hash: await Bun.password.hash(senha) }).eq("id", id);
   if (error) throw error;

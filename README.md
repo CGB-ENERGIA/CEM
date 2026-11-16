@@ -58,19 +58,19 @@ A senha vem da variável `CEM_SENHA` ou, se ela não existir, da primeira linha 
 
 | Perfil | O que pode |
 | --- | --- |
-| Proprietário | Tudo, inclusive a página **Usuários**. Só o login `italo.fontes@cgbengenharia.com.br`, definido na migração; a página não cria outro proprietário. |
+| Proprietário | Tudo, inclusive a página **Usuários**: criar usuários e definir o perfil (cargo) de cada um. Hoje são `italo.fontes@cgbengenharia.com.br` e `talison.sousa@cgbengenharia.com.br`, definidos por migração; a página não cria proprietários. |
 | Administrador | Todas as funcionalidades do sistema, menos a página Usuários: equipes, colaboradores, importações, exclusão de blitz e resolução de pendências. |
 | Usuário | Só consulta: vê Dashboard, Blitzes, Controle, Materiais e Equipes, e exporta planilhas, sem alterar nada. |
 
 O servidor impõe os perfis em toda rota: quem só consulta recebe 403 em qualquer alteração, e só o proprietário acessa `/api/usuarios`. Esconder botões e abas no painel é conforto, não proteção.
 
-As colunas vêm de duas migrações, nesta ordem: `20261107100000_usuarios_perfil.sql` (admin, ativo) e `20261107120000_usuarios_proprietario.sql` (proprietario). Enquanto elas não rodam, o login continua funcionando como antes: sem as colunas, todos entram como administrador; só com a primeira, quem era admin ainda abre a página Usuários.
+As colunas vêm de duas migrações, nesta ordem: `20261107100000_usuarios_perfil.sql` (admin, ativo) e `20261107120000_usuarios_proprietario.sql` (proprietario). Para tornar outra pessoa proprietária, rode no SQL Editor `20261116100000_usuarios_proprietario_talison.sql` (Talison Sousa), ou copie o `update` dela trocando o login. Enquanto elas não rodam, o login continua funcionando como antes: sem as colunas, todos entram como administrador; só com a primeira, quem era admin ainda abre a página Usuários.
 
 ### Página Usuários (só o proprietário)
 
 Criar, editar nome, login e perfil, redefinir senha (informada ou gerada, mostrada uma única vez), desativar, reativar e excluir.
 
-- O proprietário não é rebaixado, desativado nem excluído, e ninguém mexe nele além dele mesmo.
+- Um proprietário não é rebaixado, desativado nem excluído, e ninguém mexe nele além dele mesmo: nem editar, nem redefinir a senha. Com dois proprietários, um não assume a conta do outro.
 - Redefinir a senha ou desativar um usuário encerra as sessões abertas dele. Na própria conta, a sessão atual é mantida.
 - O script `usuario:criar` continua valendo e cria usuários comuns (só consulta, até um administrador promover).
 
