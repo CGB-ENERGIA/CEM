@@ -112,7 +112,10 @@ A aba **Controle** lista cada Troca ou Faltante registrado numa blitz, até algu
 
 - EPI de blitz feita no app de campo aparece por colaborador; EPC aparece por equipe.
 - Filtros: em aberto, resolvidas ou todas; busca por equipe, colaborador ou material; processo, situação e grupo.
-- Botão **Exportar planilha** gera um `.xlsx` com o filtro de situação escolhido.
+- Cada equipe mostra **quem fez a inspeção** (o inspetor da última blitz) e cada pendência traz o inspetor da blitz de origem. Blitz de antes da exigência do nome aparecem sem inspetor.
+- Abaixo de **Faltante** e de **Troca** aparece o **valor em R$ ainda em aberto**: preço do item no catálogo × quantidade, somando só o que não foi resolvido. Vale para a lista de equipes, para a linha de total e para os colaboradores de cada equipe. Item sem preço no catálogo conta como R$ 0,00 e é marcado "sem preço" no detalhe.
+- **Detalhar valores** (botão ao lado de cada linha) abre o detalhe de Faltante e de Troca separado em **EPI** e **EPC**, com cada material, a quantidade e o valor.
+- Botão **Exportar planilha** gera um `.xlsx` com o filtro de situação escolhido, incluindo as colunas Inspetor e Valor (R$).
 - O Dashboard mostra o total de pendências em aberto, de todos os meses.
 - Precisa da migração `supabase/migrations/20261106100000_pendencias_resolvidas.sql`, rodada no SQL Editor depois das anteriores. Sem ela, a aba mostra um aviso e o Dashboard continua funcionando sem esse indicador.
 

@@ -1113,14 +1113,35 @@ async function carregarPendencias(): Promise<Pendencia[]> {
   const itensDaEquipe = itens.filter((linha) => !coberto.has(`${linha.blitz_id}:${linha.item_id}`));
 
   const idsBlitz = [...new Set([...pessoas.map((l) => l.blitz_id), ...itensDaEquipe.map((l) => l.blitz_id)])];
-  const blitzes = new Map<number, { data: string; prefixo: string; processo: string | null }>();
+  const blitzes = new Map<number, { data: string; prefixo: string; processo: string | null; inspetor: string | null }>();
+  // Sem a migração do inspetor a coluna não existe: lê sem ela e o Controle mostra a blitz sem inspetor.
+  let comInspetor = true;
   for (let inicio = 0; inicio < idsBlitz.length; inicio += LOTE_BLITZES_PENDENCIAS) {
-    const { data, error } = await db
+    const ids = idsBlitz.slice(inicio, inicio + LOTE_BLITZES_PENDENCIAS);
+    const colunas = comInspetor ? "id, data, prefixo, processo, inspetor" : "id, data, prefixo, processo";
+    let leitura: { data: unknown; error: { code?: string; message?: string } | null } = await db
       .from("blitzes")
-      .select("id, data, prefixo, processo")
-      .in("id", idsBlitz.slice(inicio, inicio + LOTE_BLITZES_PENDENCIAS));
-    if (error) throw error;
-    for (const blitz of data) blitzes.set(blitz.id, { data: blitz.data, prefixo: blitz.prefixo, processo: blitz.processo });
+      .select(colunas)
+      .in("id", ids);
+    if (comInspetor && colunaAusente(leitura.error)) {
+      comInspetor = false;
+      leitura = await db.from("blitzes").select("id, data, prefixo, processo").in("id", ids);
+    }
+    if (leitura.error) throw leitura.error;
+    for (const blitz of leitura.data as {
+      id: number;
+      data: string;
+      prefixo: string;
+      processo: string | null;
+      inspetor?: string | null;
+    }[]) {
+      blitzes.set(blitz.id, {
+        data: blitz.data,
+        prefixo: blitz.prefixo,
+        processo: blitz.processo,
+        inspetor: blitz.inspetor ?? null,
+      });
+    }
   }
 
   const pendencias: Pendencia[] = [];
@@ -1135,6 +1156,9 @@ async function carregarPendencias(): Promise<Pendencia[]> {
       prefixo: blitz?.prefixo ?? "",
       processo: blitz?.processo ?? null,
       data: blitz?.data ?? "",
+      inspetor: blitz?.inspetor ?? null,
+      // Preço unitário atual do catálogo; o valor da pendência é preço × quantidade.
+      preco: material?.preco ?? 0,
     };
   };
 
@@ -1225,12 +1249,14 @@ async function resolverPendencia(corpo: Record<string, unknown>, usuario: Usuari
 
 const COLUNAS_PENDENCIAS = [
   "Data da blitz",
+  "Inspetor",
   "Equipe",
   "Processo",
   "Material",
   "Grupo",
   "Situação",
   "Quantidade",
+  "Valor (R$)",
   "Colaborador",
   "Observação",
   "Controle",
@@ -1243,12 +1269,14 @@ async function exportarPendencias(filtro: FiltroSituacao): Promise<Response> {
   const formatarDia = (iso: string) => iso.slice(0, 10).split("-").reverse().join("/");
   const linhas = lista.map((p) => ({
     "Data da blitz": formatarDia(p.data),
+    Inspetor: p.inspetor ?? "",
     Equipe: p.prefixo,
     Processo: p.processo ?? "",
     Material: p.descricao,
     Grupo: p.grupo,
     Situação: p.status === "faltante" ? "Faltante" : "Troca",
     Quantidade: p.quantidade,
+    "Valor (R$)": Math.round(p.preco * p.quantidade * 100) / 100,
     Colaborador: p.colaborador ?? "Equipe",
     Observação: p.observacao ?? "",
     Controle: p.resolvidaEm ? "Resolvida" : "Em aberto",

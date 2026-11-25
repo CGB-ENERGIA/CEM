@@ -2,11 +2,11 @@
   import { tick } from "svelte";
   import { api } from "../api";
   import { PROCESSOS } from "../compartilhado";
-  import type { FiltroPendencias, Pendencia } from "../tipos";
+  import type { FiltroPendencias, Grupo, Pendencia } from "../tipos";
   import { cascata } from "../actions/animar";
   import { mostrarAviso } from "../avisos.svelte";
   import { podeEditar } from "../sessao.svelte";
-  import { formatarData, normalizarTexto } from "../format";
+  import { formatarData, moeda, normalizarTexto } from "../format";
 
   interface Props {
     ativo: boolean;
@@ -58,21 +58,70 @@
 
   const aberta = (p: Pendencia) => p.resolvidaEm === null;
 
-  // Os quatro números que aparecem em toda linha e no total: em aberto, Faltante, Troca e resolvidas.
+  // Valor em aberto de um material, por situação: é o que o detalhe separa entre EPI e EPC.
+  interface LinhaValor {
+    status: "troca" | "faltante";
+    grupo: Grupo;
+    itemId: number;
+    descricao: string;
+    quantidade: number;
+    valor: number;
+    semPreco: boolean;
+  }
+
+  // Os números que aparecem em toda linha e no total: em aberto, Faltante, Troca e resolvidas, mais o valor (R$) de Faltante e Troca.
+  // O valor de uma pendência é o preço do catálogo × a quantidade, e só entra o que está em aberto, como as contagens.
   interface Metricas {
     abertas: number;
     faltantes: number;
     trocas: number;
     resolvidas: number;
+    valorFaltante: number;
+    valorTroca: number;
+    linhas: Map<string, LinhaValor>;
   }
 
-  const zerar = (): Metricas => ({ abertas: 0, faltantes: 0, trocas: 0, resolvidas: 0 });
+  const zerar = (): Metricas => ({
+    abertas: 0,
+    faltantes: 0,
+    trocas: 0,
+    resolvidas: 0,
+    valorFaltante: 0,
+    valorTroca: 0,
+    linhas: new Map(),
+  });
+
+  function somarLinha(linhas: Map<string, LinhaValor>, nova: LinhaValor) {
+    const chave = `${nova.status}|${nova.grupo}|${nova.itemId}`;
+    const atual = linhas.get(chave);
+    if (atual) {
+      atual.quantidade += nova.quantidade;
+      atual.valor += nova.valor;
+    } else {
+      linhas.set(chave, { ...nova });
+    }
+  }
 
   function contar(metricas: Metricas, p: Pendencia) {
     if (aberta(p)) {
+      const valor = p.preco * p.quantidade;
       metricas.abertas += 1;
-      if (p.status === "faltante") metricas.faltantes += 1;
-      else metricas.trocas += 1;
+      if (p.status === "faltante") {
+        metricas.faltantes += 1;
+        metricas.valorFaltante += valor;
+      } else {
+        metricas.trocas += 1;
+        metricas.valorTroca += valor;
+      }
+      somarLinha(metricas.linhas, {
+        status: p.status,
+        grupo: p.grupo,
+        itemId: p.itemId,
+        descricao: p.descricao,
+        quantidade: p.quantidade,
+        valor,
+        semPreco: p.preco <= 0,
+      });
     } else {
       metricas.resolvidas += 1;
     }
@@ -85,8 +134,42 @@
       total.faltantes += linha.faltantes;
       total.trocas += linha.trocas;
       total.resolvidas += linha.resolvidas;
+      total.valorFaltante += linha.valorFaltante;
+      total.valorTroca += linha.valorTroca;
+      for (const l of linha.linhas.values()) somarLinha(total.linhas, l);
     }
     return total;
+  }
+
+  // Detalhe do valor: Faltante e Troca, cada um separado em EPI e EPC, com os materiais de cada grupo.
+  function detalharValores(m: Metricas) {
+    return (["faltante", "troca"] as const).map((status) => ({
+      status,
+      rotulo: status === "faltante" ? "Faltante" : "Troca",
+      valor: status === "faltante" ? m.valorFaltante : m.valorTroca,
+      grupos: (["EPI", "EPC"] as const)
+        .map((grupo) => {
+          const itens = [...m.linhas.values()]
+            .filter((l) => l.status === status && l.grupo === grupo)
+            .sort((a, b) => b.valor - a.valor || a.descricao.localeCompare(b.descricao));
+          return {
+            grupo,
+            itens,
+            quantidade: itens.reduce((soma, l) => soma + l.quantidade, 0),
+            valor: itens.reduce((soma, l) => soma + l.valor, 0),
+          };
+        })
+        .filter((g) => g.itens.length > 0),
+    }));
+  }
+
+  // Painéis de valores abertos: "total", "total-equipe" e "equipe:<prefixo>".
+  let valoresAbertos = $state<string[]>([]);
+
+  const valoresAberto = (id: string) => valoresAbertos.includes(id);
+
+  function alternarValores(id: string) {
+    valoresAbertos = valoresAberto(id) ? valoresAbertos.filter((v) => v !== id) : [...valoresAbertos, id];
   }
 
   // ---- Etapa 1: equipes ----
@@ -161,9 +244,13 @@
 
   const dadosDaEquipe = $derived.by(() => {
     const dela = pendencias.filter((p) => p.prefixo === equipeAberta);
+    const ultimaData = dela.reduce((maior, p) => (p.data > maior ? p.data : maior), "");
+    // Quem fez a inspeção da blitz mais recente da equipe. Blitz antigas não têm o nome.
+    const inspetores = [...new Set(dela.filter((p) => p.data === ultimaData && p.inspetor).map((p) => p.inspetor as string))];
     return {
       processo: dela[0]?.processo ?? null,
-      ultimaData: dela.reduce((maior, p) => (p.data > maior ? p.data : maior), ""),
+      ultimaData,
+      inspetor: inspetores.join(", "),
     };
   });
 
@@ -239,13 +326,70 @@
   </span>
   <span class="metrica" class:zero={m.faltantes === 0}>
     <strong class="codigo">{m.faltantes}</strong><small>Faltante</small>
+    <span class="valor codigo" class:valor-zero={m.valorFaltante === 0}>{moeda.format(m.valorFaltante)}</span>
   </span>
   <span class="metrica" class:zero={m.trocas === 0}>
     <strong class="codigo">{m.trocas}</strong><small>Troca</small>
+    <span class="valor codigo" class:valor-zero={m.valorTroca === 0}>{moeda.format(m.valorTroca)}</span>
   </span>
   <span class="metrica" class:zero={m.resolvidas === 0}>
     <strong class="codigo">{m.resolvidas}</strong><small>{m.resolvidas === 1 ? "resolvida" : "resolvidas"}</small>
   </span>
+{/snippet}
+
+<!-- Detalhe do valor em aberto: Faltante e Troca, cada um separado em EPI e EPC, com os materiais.
+     O botão fica ao lado da linha (e não dentro dela) porque a linha inteira já é um botão. -->
+{#snippet valores(id: string, m: Metricas)}
+  {#if m.linhas.size > 0}
+    {@const aberto = valoresAberto(id)}
+    <div class="valores" class:valores-aberto={aberto}>
+      <button
+        type="button"
+        class="valores-botao"
+        aria-expanded={aberto}
+        aria-controls={`valores-${id}`}
+        onclick={() => alternarValores(id)}
+      >
+        <span class="valores-seta" class:girada={aberto} aria-hidden="true">{@render seta("avancar")}</span>
+        <span>{aberto ? "Ocultar detalhe dos valores" : "Detalhar valores"}</span>
+        <span class="texto-suave">EPI e EPC · {moeda.format(m.valorFaltante + m.valorTroca)}</span>
+      </button>
+
+      {#if aberto}
+        <div class="valores-painel" id={`valores-${id}`}>
+          {#each detalharValores(m) as bloco (bloco.status)}
+            {#if bloco.grupos.length > 0}
+              <section class="valores-bloco" aria-label={`${bloco.rotulo}: ${moeda.format(bloco.valor)}`}>
+                <h4>
+                  <i class="marca" class:marca-falta={bloco.status === "faltante"} class:marca-atencao={bloco.status === "troca"}></i>
+                  {bloco.rotulo}
+                  <span class="codigo">{moeda.format(bloco.valor)}</span>
+                </h4>
+                {#each bloco.grupos as g (g.grupo)}
+                  <div class="valores-grupo">
+                    <p class="valores-grupo-titulo">
+                      <span class="chip" class:chip-epi={g.grupo === "EPI"} class:chip-epc={g.grupo === "EPC"}>{g.grupo}</span>
+                      <span class="texto-suave">{g.quantidade} {g.quantidade === 1 ? "unidade" : "unidades"}</span>
+                      <strong class="codigo">{moeda.format(g.valor)}</strong>
+                    </p>
+                    <ul class="valores-itens">
+                      {#each g.itens as l (l.itemId)}
+                        <li>
+                          <span class="valores-descricao">{l.descricao}</span>
+                          <span class="codigo texto-suave">{l.quantidade}×</span>
+                          <span class="codigo">{l.semPreco ? "sem preço" : moeda.format(l.valor)}</span>
+                        </li>
+                      {/each}
+                    </ul>
+                  </div>
+                {/each}
+              </section>
+            {/if}
+          {/each}
+        </div>
+      {/if}
+    </div>
+  {/if}
 {/snippet}
 
 {#snippet colunas(primeira: string, comData: boolean)}
@@ -328,6 +472,7 @@
           <span class="vazio"></span>
           <span class="vazio"></span>
         </div>
+        {@render valores("total-equipes", totalEquipes)}
         <ul class="linhas" use:cascata={`${mostrar}|${filtroProcesso}|${busca}|${equipes.length}`}>
           {#each equipes as equipe (equipe.prefixo)}
             <li>
@@ -342,6 +487,7 @@
                 <span class="metrica-data codigo texto-suave">{formatarData(equipe.ultimaData)}</span>
                 <span class="seta" aria-hidden="true">{@render seta("avancar")}</span>
               </button>
+              {@render valores(`equipe:${equipe.prefixo}`, equipe)}
             </li>
           {/each}
         </ul>
@@ -363,6 +509,9 @@
         </h3>
         {#if dadosDaEquipe.ultimaData}
           <p class="texto-suave">Última blitz em {formatarData(dadosDaEquipe.ultimaData)}</p>
+        {/if}
+        {#if dadosDaEquipe.inspetor}
+          <p class="inspetor">Inspeção feita por <strong>{dadosDaEquipe.inspetor}</strong></p>
         {/if}
       </div>
     </div>
@@ -420,6 +569,7 @@
           {@render numeros(totalGrupos)}
           <span class="vazio"></span>
         </div>
+        {@render valores("total-membros", totalGrupos)}
 
         <ul class="linhas" use:cascata={`${equipeAberta}|${mostrar}|${filtroStatus}|${filtroGrupo}|${busca}|${gruposDaEquipe.length}`}>
           {#each gruposDaEquipe as grupo (grupo.chave)}
@@ -442,6 +592,7 @@
                 {@render numeros(grupo)}
                 <span class="seta" class:girada={aberto} aria-hidden="true">{@render seta("avancar")}</span>
               </button>
+              {@render valores(`membro:${equipeAberta}:${grupo.chave}`, grupo)}
 
               {#if aberto}
                 <div class="membro-itens" id={`itens-${equipeAberta}-${grupo.chave || "equipe"}`}>
@@ -476,7 +627,12 @@
                               {/if}
                             </td>
                             <td data-rotulo="Qtd." class="numerico codigo">{pendencia.quantidade}</td>
-                            <td data-rotulo="Blitz" class="codigo">{formatarData(pendencia.data)}</td>
+                            <td data-rotulo="Blitz">
+                              <span class="codigo">{formatarData(pendencia.data)}</span>
+                              {#if pendencia.inspetor}
+                                <span class="texto-suave observacao">Inspetor: {pendencia.inspetor}</span>
+                              {/if}
+                            </td>
                             <td data-rotulo="Controle">
                               {#if pendencia.resolvidaEm}
                                 <span class="chip chip-ok">Resolvida</span>
@@ -522,6 +678,11 @@
 </section>
 
 <style>
+  .inspetor {
+    margin: 4px 0 0;
+    font-size: 0.95rem;
+  }
+
   .filtros-controle {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -530,8 +691,8 @@
 
   /* ---------- Quadro: cabeçalho de colunas, linha de total e uma linha por equipe ou membro ---------- */
   .quadro {
-    --colunas: minmax(0, 1fr) repeat(4, 96px) 24px;
-    --colunas-com-data: minmax(0, 1fr) repeat(4, 96px) 112px 24px;
+    --colunas: minmax(0, 1fr) repeat(4, 104px) 24px;
+    --colunas-com-data: minmax(0, 1fr) repeat(4, 104px) 112px 24px;
     display: flex;
     flex-direction: column;
   }
@@ -678,9 +839,150 @@
     white-space: nowrap;
   }
 
+  /* Valor em R$ do que está em aberto, logo abaixo da quantidade de Faltante e de Troca */
+  .metrica .valor {
+    margin-top: 2px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .metrica .valor-zero {
+    font-weight: 400;
+    color: var(--tinta-suave);
+    opacity: 0.7;
+  }
+
   .metrica-data {
     text-align: right;
     font-size: 0.85rem;
+  }
+
+  /* ---------- Detalhe dos valores: botão ao lado da linha e painel com EPI e EPC ---------- */
+  .valores {
+    padding: 0 14px;
+  }
+
+  .linha-total + .valores {
+    margin: -4px 0 8px;
+  }
+
+  .linhas > li > .valores {
+    margin-top: 2px;
+  }
+
+  .membro .valores {
+    padding-bottom: 8px;
+  }
+
+  .valores-botao {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    min-height: 44px;
+    padding: 0;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primaria);
+    background: none;
+    border: 0;
+    border-radius: var(--raio-etiqueta);
+    cursor: pointer;
+  }
+
+  .valores-botao .texto-suave {
+    font-weight: 400;
+  }
+
+  .valores-botao:hover span:nth-child(2) {
+    text-decoration: underline;
+  }
+
+  .valores-botao:focus-visible {
+    outline: 2px solid var(--primaria);
+    outline-offset: 2px;
+  }
+
+  .valores-seta {
+    display: inline-flex;
+    transition: transform 200ms ease;
+  }
+
+  .valores-seta.girada {
+    transform: rotate(90deg);
+  }
+
+  .valores-painel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+    padding: 4px 0 12px;
+  }
+
+  .valores-bloco {
+    min-width: 0;
+    padding: 10px 12px;
+    background: var(--fundo);
+    border: 1px solid var(--borda);
+    border-radius: var(--raio-etiqueta);
+  }
+
+  .valores-bloco h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 0.95rem;
+  }
+
+  .valores-bloco h4 .codigo {
+    margin-left: auto;
+  }
+
+  .valores-grupo + .valores-grupo {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--borda);
+  }
+
+  .valores-grupo-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 4px;
+    font-size: 0.85rem;
+  }
+
+  .valores-grupo-titulo strong {
+    margin-left: auto;
+  }
+
+  .valores-itens {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .valores-itens li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: baseline;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 0.85rem;
+  }
+
+  .valores-descricao {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .valores-itens li > .codigo:last-child {
+    min-width: 84px;
+    text-align: right;
+    white-space: nowrap;
   }
 
   .seta {
@@ -837,6 +1139,10 @@
     .metrica-data {
       grid-column: 1 / -1;
       text-align: left;
+    }
+
+    .metrica .valor {
+      font-size: 0.74rem;
     }
 
     .vazio {

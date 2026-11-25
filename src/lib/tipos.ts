@@ -190,10 +190,14 @@ export interface Pendencia {
   grupo: Grupo;
   status: "troca" | "faltante";
   quantidade: number;
+  // Preço unitário do item no catálogo (R$). O valor da pendência é preco × quantidade; 0 se o item não tem preço.
+  preco: number;
   colaborador: string | null;
   prefixo: string;
   processo: string | null;
   data: string;
+  // Quem fez a inspeção da blitz; nulo nas blitz de antes da exigência do nome.
+  inspetor: string | null;
   observacao: string | null;
   resolvidaEm: string | null;
   resolvidaPor: string | null;
